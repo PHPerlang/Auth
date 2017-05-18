@@ -384,8 +384,10 @@ function resource_field($model, $field)
     return $model . '::' . $field;
 }
 
-
-
+function app_url($uri)
+{
+    return config('app.url') . '/' . ltrim($uri, '/');
+}
 
 
 
