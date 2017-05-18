@@ -32,7 +32,6 @@ class Kernel extends HttpKernel
         }
     }
 
-
     /**
      * Register middlewares in router.
      */

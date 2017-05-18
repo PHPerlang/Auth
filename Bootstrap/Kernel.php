@@ -13,7 +13,9 @@ class Kernel
     |--------------------------------------------------------------------------
     |
     */
-    public $files = [];
+    public $files = [
+        'helper.php',
+    ];
 
     /*
     |--------------------------------------------------------------------------
@@ -110,7 +112,11 @@ class Kernel
             \Modules\Core\Http\Middleware\ResolveStatusMiddleware::class,
             \Modules\Core\Http\Middleware\ResolveClientMiddleware::class,
             \Modules\Core\Http\Middleware\PermissionGuardMiddleware::class,
-        ]
+        ],
+
+        'admin' => [],
+
+        'web' => [],
     ];
 
 
