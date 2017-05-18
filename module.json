@@ -1,0 +1,17 @@
+{
+  "name": "Core",
+  "alias": "core",
+  "description": "System Core Foundation",
+  "keywords": [],
+  "active": 1,
+  "order": 0,
+  "authors": [
+    {
+      "name": "koyeo",
+      "email": "im@koyeo.io"
+    }
+  ],
+  "require": {},
+  "require-dev": {},
+  "scripts": {}
+}
