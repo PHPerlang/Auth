@@ -1,35 +1,35 @@
 <?php
 
 return [
-    'post@api/core/auth/member/new/password' => [ 
+    'post@api/auth/auth/member/new/password' => [
         'permission_name' => '',
         'permission_desc' => '',
     ],
-    'get@api/core/auth/forgot/password/link' => [ 
+    'get@api/auth/auth/forgot/password/link' => [
         'permission_name' => '',
         'permission_desc' => '',
     ],
-    'post@api/core/member' => [ 
+    'post@api/auth/member' => [
         'permission_name' => '',
         'permission_desc' => '',
     ],
-    'put@api/core/member/{member_id}' => [ 
+    'put@api/auth/member/{member_id}' => [
         'permission_name' => '',
         'permission_desc' => '',
     ],
-    'get@api/core/member/{member_id}' => [ 
+    'get@api/auth/member/{member_id}' => [
         'permission_name' => '',
         'permission_desc' => '',
     ],
-    'get@api/core/members' => [ 
+    'get@api/auth/members' => [
         'permission_name' => '',
         'permission_desc' => '',
     ],
-    'delete@api/core/member' => [ 
+    'delete@api/auth/member' => [
         'permission_name' => '',
         'permission_desc' => '',
     ],
-    'get@api/core/role' => [ 
+    'get@api/auth/role' => [
         'permission_name' => '',
         'permission_desc' => '',
     ],

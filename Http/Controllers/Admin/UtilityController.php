@@ -1,19 +1,19 @@
 <?php
 
-namespace Modules\Core\Http\Controllers\Admin;
+namespace Modules\Auth\Http\Controllers\Admin;
 
 use Illuminate\Routing\Controller;
-use Modules\Core\Contracts\Context;
+use Modules\Auth\Contracts\Request;
 use Illuminate\Support\Facades\Artisan;
 
 class UtilityController extends Controller
 {
 
-    protected $context;
+    protected $request;
 
-    public function __construct(Context $context)
+    public function __construct(Request $request)
     {
-        $this->context = $context;
+        $this->request = $request;
     }
 
     /**

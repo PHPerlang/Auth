@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Core\Foundation;
+namespace Modules\Auth\Foundation;
 
-use Illuminate\Routing\Router as LaravelRouter;
+use Jindowin\Foundation\Router as JindowinRouter;
 
-class Router extends LaravelRouter
+class Router extends JindowinRouter
 {
     /**
      * Create a new Route object.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Bootstrap;
+namespace Modules\Auth\Bootstrap;
 
 use Illuminate\Console\Scheduling\Schedule;
 
@@ -13,9 +13,7 @@ class Kernel
     |--------------------------------------------------------------------------
     |
     */
-    public $files = [
-        'helper.php',
-    ];
+    public $files = [];
 
     /*
     |--------------------------------------------------------------------------
@@ -28,7 +26,7 @@ class Kernel
     |
     */
     public $providers = [
-        \Modules\Core\Providers\CoreServiceProvider::class,
+        \Modules\Auth\Providers\CoreServiceProvider::class,
     ];
 
     /*
@@ -52,12 +50,9 @@ class Kernel
     |
     */
     public $commands = [
-        \Modules\Core\Console\ModuleMakeCodesCommand::class,
-        \Modules\Core\Console\ModuleRouteListCommand::class,
-        \Modules\Core\Console\ModuleMakePermissionsCommand::class,
-        \Modules\Core\Console\ModulePermissionsCommand::class,
-        \Modules\Core\Console\ModulePrepareCommand::class,
-        \Modules\Core\Console\ModuleDeployCommand::class,
+        \Modules\Auth\Console\ModuleMakePermissionsCommand::class,
+        \Modules\Auth\Console\ModulePermissionsCommand::class,
+        \Modules\Auth\Console\ModulePrepareCommand::class,
     ];
 
     /*
@@ -93,7 +88,7 @@ class Kernel
     public $middleware = [
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
-        \Modules\Core\Http\Middleware\TrimStrings::class,
+        \Modules\Auth\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
     ];
 
@@ -109,9 +104,9 @@ class Kernel
         'api' => [
             'throttle:60,1',
             'bindings',
-            \Modules\Core\Http\Middleware\ResolveStatusMiddleware::class,
-            \Modules\Core\Http\Middleware\ResolveClientMiddleware::class,
-            \Modules\Core\Http\Middleware\PermissionGuardMiddleware::class,
+            \Modules\Auth\Http\Middleware\ResolveStatusMiddleware::class,
+            \Modules\Auth\Http\Middleware\ResolveClientMiddleware::class,
+            \Modules\Auth\Http\Middleware\PermissionGuardMiddleware::class,
         ],
 
         'admin' => [],
@@ -133,7 +128,7 @@ class Kernel
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \Modules\Core\Http\Middleware\RedirectIfAuthenticated::class,
+        'guest' => \Modules\Auth\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
     ];
 

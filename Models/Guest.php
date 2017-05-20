@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Core\Models;
+namespace Modules\Auth\Models;
 
-use Modules\Core\Contracts\GuestContract;
+use Modules\Auth\Contracts\GuestContract;
 
 class Guest extends Member implements GuestContract
 {

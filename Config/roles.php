@@ -3,16 +3,16 @@
 return array(
 
     'root' => [
-        'name' => trans('core::role.root'),
+        'name' => trans('auth::role.root'),
         'permissions' => [
-            'descendant:post@api/core/auth/member/new/password',
-            'descendant:get@api/core/auth/forgot/password/link',
-            'descendant:post@api/core/member',
-            'descendant:put@api/core/member/{member_id}',
-            'descendant:get@api/core/member/{member_id}',
-            'descendant:get@api/core/members',
-            'descendant:delete@api/core/member',
-            'descendant:get@api/core/role?role_id',
+            'descendant:post@api/auth/auth/member/new/password',
+            'descendant:get@api/auth/auth/forgot/password/link',
+            'descendant:post@api/auth/member',
+            'descendant:put@api/auth/member/{member_id}',
+            'descendant:get@api/auth/member/{member_id}',
+            'descendant:get@api/auth/members',
+            'descendant:delete@api/auth/member',
+            'descendant:get@api/auth/role?role_id',
         ]
     ],
 

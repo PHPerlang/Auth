@@ -1,7 +1,7 @@
 {
-  "name": "Core",
-  "alias": "core",
-  "description": "System Core Foundation",
+  "name": "Auth",
+  "alias": "auth",
+  "description": "System Auth Foundation",
   "keywords": [],
   "active": 1,
   "order": 0,

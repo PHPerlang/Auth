@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Models;
+namespace Modules\Auth\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as LaravelModel;

@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'post@api/core/auth/member/new/password' => [
-        'module_id' => 'Core',
+    'post@api/auth/auth/member/new/password' => [
+        'module_id' => 'Auth',
         'forked_from' => '',
         'permission_type' => 'forever',
         'permission_link' => '',
@@ -11,8 +11,8 @@ return [
         'permission_like' => [],
         'permission_order' => '',
     ],
-    'get@api/core/auth/forgot/password/link' => [
-        'module_id' => 'Core',
+    'get@api/auth/auth/forgot/password/link' => [
+        'module_id' => 'Auth',
         'forked_from' => '',
         'permission_type' => 'forever',
         'permission_link' => '',
@@ -21,8 +21,8 @@ return [
         'permission_like' => [],
         'permission_order' => '',
     ],
-    'post@api/core/member' => [
-        'module_id' => 'Core',
+    'post@api/auth/member' => [
+        'module_id' => 'Auth',
         'forked_from' => '',
         'permission_type' => 'forever',
         'permission_link' => '',
@@ -31,8 +31,8 @@ return [
         'permission_like' => [],
         'permission_order' => '',
     ],
-    'put@api/core/member/{member_id}' => [
-        'module_id' => 'Core',
+    'put@api/auth/member/{member_id}' => [
+        'module_id' => 'Auth',
         'forked_from' => '',
         'permission_type' => 'forever',
         'permission_link' => '',
@@ -41,8 +41,8 @@ return [
         'permission_like' => [],
         'permission_order' => '',
     ],
-    'get@api/core/member/{member_id}' => [
-        'module_id' => 'Core',
+    'get@api/auth/member/{member_id}' => [
+        'module_id' => 'Auth',
         'forked_from' => '',
         'permission_type' => 'forever',
         'permission_link' => '',
@@ -51,8 +51,8 @@ return [
         'permission_like' => [],
         'permission_order' => '',
     ],
-    'get@api/core/members' => [
-        'module_id' => 'Core',
+    'get@api/auth/members' => [
+        'module_id' => 'Auth',
         'forked_from' => '',
         'permission_type' => 'forever',
         'permission_link' => '',
@@ -61,8 +61,8 @@ return [
         'permission_like' => [],
         'permission_order' => '',
     ],
-    'delete@api/core/member' => [
-        'module_id' => 'Core',
+    'delete@api/auth/member' => [
+        'module_id' => 'Auth',
         'forked_from' => '',
         'permission_type' => 'forever',
         'permission_link' => '',
@@ -71,8 +71,8 @@ return [
         'permission_like' => [],
         'permission_order' => '',
     ],
-    'get@api/core/role' => [
-        'module_id' => 'Core',
+    'get@api/auth/role' => [
+        'module_id' => 'Auth',
         'forked_from' => '',
         'permission_type' => 'forever',
         'permission_link' => '',

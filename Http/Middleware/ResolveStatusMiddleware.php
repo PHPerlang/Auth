@@ -1,9 +1,9 @@
 <?php
 
-namespace Modules\Core\Http\Middleware;
+namespace Modules\Auth\Http\Middleware;
 
 use Closure;
-use Modules\Core\Models\Status;
+use Modules\Auth\Models\Status;
 
 class ResolveStatusMiddleware
 {

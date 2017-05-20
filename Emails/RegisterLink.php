@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Emails;
+namespace Modules\Auth\Emails;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -20,7 +20,7 @@ class RegisterLink extends Mailable
 
     public function build()
     {
-        return $this->view('Core::mails.register-link')->with([
+        return $this->view('Auth::mails.register-link')->with([
             'code' => $this->code,
         ]);
     }

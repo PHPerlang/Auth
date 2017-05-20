@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Console;
+namespace Modules\Auth\Console;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputArgument;

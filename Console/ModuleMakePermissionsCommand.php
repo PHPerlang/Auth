@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Core\Console;
+namespace Modules\Auth\Console;
 
 use Illuminate\Console\Command;
-use Modules\Core\Foundation\Route;
-use Modules\Core\Foundation\Router;
+use Modules\Auth\Foundation\Route;
+use Modules\Auth\Foundation\Router;
 use Symfony\Component\Console\Input\InputArgument;
 
 class ModuleMakePermissionsCommand extends Command
@@ -26,7 +26,7 @@ class ModuleMakePermissionsCommand extends Command
     /**
      * The router instance.
      *
-     * @var \Modules\Core\Foundation\Router
+     * @var \Modules\Auth\Foundation\Router
      */
     protected $router;
 

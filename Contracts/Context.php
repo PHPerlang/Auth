@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\Core\Contracts;
+namespace Modules\Auth\Contracts;
 
-use Modules\Core\Models\Member;
-use Modules\Core\Models\Status;
+use Modules\Auth\Models\Member;
+use Modules\Auth\Models\Status;
 
-interface Context
+interface Request
 {
     /**
      * Gain the params from the url.

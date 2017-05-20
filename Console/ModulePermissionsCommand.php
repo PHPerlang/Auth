@@ -1,9 +1,9 @@
 <?php
 
-namespace Modules\Core\Console;
+namespace Modules\Auth\Console;
 
 use Illuminate\Console\Command;
-use Modules\Core\Foundation\Router;
+use Modules\Auth\Foundation\Router;
 use Symfony\Component\Console\Input\InputArgument;
 
 class ModulePermissionsCommand extends Command
@@ -25,7 +25,7 @@ class ModulePermissionsCommand extends Command
     /**
      * The router instance.
      *
-     * @var \Modules\Core\Foundation\Router
+     * @var \Modules\Auth\Foundation\Router
      */
     protected $router;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Models;
+namespace Modules\Auth\Models;
 
 class RolePermissions extends Model
 {

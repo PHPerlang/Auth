@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'name' => 'Core',
+    'name' => 'Auth',
 
     'create_team_permissions' => [
         'open:post@auth/login',

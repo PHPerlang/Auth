@@ -1,7 +1,7 @@
 <?php
 
 return [
-    \Modules\Core\Models\Member::class => [
+    \Modules\Auth\Models\Member::class => [
         'name' => '用户',
         'enum' => [
             'member_status' => [
@@ -10,7 +10,7 @@ return [
             ]
         ]
     ],
-    \Modules\Core\Models\Member::class => [
+    \Modules\Auth\Models\Member::class => [
         'name' => '卡片',
         'enum' => [
             'card_status' => [

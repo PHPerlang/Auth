@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Emails;
+namespace Modules\Auth\Emails;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -20,7 +20,7 @@ class RestPasswordLink extends Mailable
 
     public function build()
     {
-        return $this->view('Core::mails.reset-password-link.blade.php')->with([
+        return $this->view('Auth::mails.reset-password-link.blade.php')->with([
             'code' => $this->link,
         ]);
     }

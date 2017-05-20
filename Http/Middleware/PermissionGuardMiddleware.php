@@ -1,14 +1,14 @@
 <?php
 
-namespace Modules\Core\Http\Middleware;
+namespace Modules\Auth\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Modules\Core\Models\Guest;
-use Modules\Core\Foundation\Route;
-use Modules\Core\Models\AccessToken;
-use Modules\Core\Models\MemberRole;
-use Modules\Core\Models\Permission;
+use Modules\Auth\Models\Guest;
+use Modules\Auth\Foundation\Route;
+use Modules\Auth\Models\AccessToken;
+use Modules\Auth\Models\MemberRole;
+use Modules\Auth\Models\Permission;
 
 class PermissionGuardMiddleware
 {

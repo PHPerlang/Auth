@@ -1,23 +1,23 @@
 <?php
 
-namespace Modules\Core\Http\Controllers\API;
+namespace Modules\Auth\Http\Controllers\API;
 
 use Illuminate\Routing\Controller;
-use Modules\Core\Contracts\Context;
+use Modules\Auth\Contracts\Request;
 
 class PermissionController extends Controller
 {
 
-    protected $context;
+    protected $request;
 
     public $codes = [
         200 => 'Success',
         4900 => 'Permissions',
     ];
 
-    public function __construct(Context $context)
+    public function __construct(Request $request)
     {
-        $this->context = $context;
+        $this->request = $request;
     }
 
 

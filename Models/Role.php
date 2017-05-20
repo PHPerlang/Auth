@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Models;
+namespace Modules\Auth\Models;
 
 class Role extends Model
 {
@@ -35,7 +35,7 @@ class Role extends Model
      */
     public function permissions()
     {
-        return $this->belongsToMany(\Modules\Core\Models\Permission::class)
-            ->using(\Modules\Core\Models\RolePermissions::class);
+        return $this->belongsToMany(\Modules\Auth\Models\Permission::class)
+            ->using(\Modules\Auth\Models\RolePermissions::class);
     }
 }

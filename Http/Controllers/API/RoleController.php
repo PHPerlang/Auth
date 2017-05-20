@@ -1,32 +1,32 @@
 <?php
 
-namespace Modules\Core\Http\Controllers\API;
+namespace Modules\Auth\Http\Controllers\API;
 
-use Modules\Core\Models\Role;
-use Modules\Core\Models\Guest;
+use Modules\Auth\Models\Role;
+use Modules\Auth\Models\Guest;
 use Illuminate\Validation\Rule;
 use Illuminate\Routing\Controller;
-use Modules\Core\Contracts\Context;
+use Modules\Auth\Contracts\Request;
 
 
 class RoleController extends Controller
 {
-    protected $context;
+    protected $request;
 
-    public function __construct(Context $context)
+    public function __construct(Request $request)
     {
-        $this->context = $context;
+        $this->request = $request;
     }
 
     /**
      * 添加角色
      *
-     * @return \Modules\Core\Models\Status
+     * @return \Modules\Auth\Models\Status
      */
     public function postRole()
     {
 
-        validate($this->context->data(), [
+        validate($this->request->data(), [
             'role_name' => 'required',
             'role_type' => ['required', Rule::in(['descendant', 'self'])],
             'role_status' => ['required', Rule::in(['forever', 'temporary'])],
@@ -35,14 +35,14 @@ class RoleController extends Controller
         $role = new Role;
 
         $role->role_creator_id = Guest::id();
-        $role->role_name = $this->context->data('role_name');
-        $role->role_type = $this->context->data('role_type');
-        $role->role_status = $this->context->data('role_status');
-        $role->role_desc = $this->context->data('role_desc', $role->role_desc);
-        $role->role_desc = $this->context->data('role_desc', $role->role_desc);
+        $role->role_name = $this->request->data('role_name');
+        $role->role_type = $this->request->data('role_type');
+        $role->role_status = $this->request->data('role_status');
+        $role->role_desc = $this->request->data('role_desc', $role->role_desc);
+        $role->role_desc = $this->request->data('role_desc', $role->role_desc);
 
 
-        return $this->context->status(200, $role);
+        return $this->request->status(200, $role);
     }
 
 

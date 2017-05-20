@@ -1,14 +1,14 @@
 <?php
 
-namespace Modules\Core\Database\Seeders;
+namespace Modules\Auth\Database\Seeders;
 
-use Modules\Core\Models\Constant;
-use Modules\Core\Models\Role;
-use Modules\Core\Models\Member;
+use Modules\Auth\Models\Constant;
+use Modules\Auth\Models\Role;
+use Modules\Auth\Models\Member;
 use Illuminate\Database\Seeder;
-use Modules\Core\Models\Permission;
-use Modules\Core\Models\MemberRole;
-use Modules\Core\Models\RolePermissions;
+use Modules\Auth\Models\Permission;
+use Modules\Auth\Models\MemberRole;
+use Modules\Auth\Models\RolePermissions;
 
 class DeployTableSeeder extends Seeder
 {
@@ -21,14 +21,14 @@ class DeployTableSeeder extends Seeder
 
         // 注册超级角色
         $root = new Role;
-        $root->role_name = config('core::roles.root.name');
-        $root->module_id = 'Core';
-        $root->role_desc = config('core::roles.root.desc');
-        $root->permission_amount = count(config('core::roles.root.permissions'));
+        $root->role_name = config('auth::roles.root.name');
+        $root->module_id = 'Auth';
+        $root->role_desc = config('auth::roles.root.desc');
+        $root->permission_amount = count(config('auth::roles.root.permissions'));
         $root->save();
 
         // 绑定超级用户的权限
-        $permissions = Permission::renderTemplate(config('core::roles.root.permissions'));
+        $permissions = Permission::renderTemplate(config('auth::roles.root.permissions'));
         foreach ($permissions as $permission) {
 
             $rootPermission = new RolePermissions;

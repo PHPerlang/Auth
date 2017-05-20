@@ -9,7 +9,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group(['middleware' => 'api', 'prefix' => '/api/core', 'namespace' => 'Modules\Core\Http\Controllers\API'], function () {
+Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Modules\Auth\Http\Controllers\API'], function () {
     /*
      |--------------------------------------------------------------------------
      | 认证路由
@@ -24,7 +24,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/core', 'namespace' => 'Mo
         1002 => '该邮箱已注册',
     ])->query([
 
-        'member_id' => resource_field(\Modules\Core\Models\Member::class, 'member_id'),
+        'member_id' => resource_field(\Modules\Auth\Models\Member::class, 'member_id'),
 
     ])->open();
 
@@ -93,7 +93,9 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/core', 'namespace' => 'Mo
     */
     Route::group(['prefix' => 'role'], function () {
 
-        Route::get('/', 'RoleController@getRole');
+        Route::get('/', 'RoleController@getRole')->query([
+            'user_id'
+        ])->open();
 
     });
 

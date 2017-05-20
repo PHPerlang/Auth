@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Contracts;
+namespace Modules\Auth\Contracts;
 
 interface GuestContract
 {
@@ -15,7 +15,7 @@ interface GuestContract
     /**
      * Get the guest member instance
      *
-     * @return \Modules\Core\Models\Member
+     * @return \Modules\Auth\Models\Member
      */
     public static function instance();
 
