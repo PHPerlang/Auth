@@ -1,13 +1,12 @@
 <?php
 
-namespace Modules\Core\Console;
+namespace Modules\Auth\Console;
 
-use Illuminate\Console\Command;
-use Modules\Core\Models\Permission;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Jindowin\Commands\ModuleDeployCommand as JindowinModuleDeployCommand;
 
-class ModuleDeployCommand extends Command
+class ModuleDeployCommand extends JindowinModuleDeployCommand
 {
     /**
      * The name and signature of the console command.

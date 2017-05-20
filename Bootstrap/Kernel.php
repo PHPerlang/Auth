@@ -53,6 +53,7 @@ class Kernel
         \Modules\Auth\Console\ModuleMakePermissionsCommand::class,
         \Modules\Auth\Console\ModulePermissionsCommand::class,
         \Modules\Auth\Console\ModulePrepareCommand::class,
+        \Modules\Auth\Console\ModuleDeployCommand::class,
     ];
 
     /*
