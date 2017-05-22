@@ -24,8 +24,10 @@ class MemberController extends Controller
     /**
      *  编辑用户资料.
      */
-    public function putMember($member_id)
+    public function putMember()
     {
+        $member_id = $this->request->input('member_id');
+
         $member = Member::find($member_id);
 
         if (!$member) {

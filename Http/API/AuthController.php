@@ -138,8 +138,6 @@ class AuthController extends Controller
             exception(1002);
         }
 
-        Cache::tags($this->registerCodeCacheTag)->forget($key);
-
         $member = new Member;
 
         $member->member_email = $this->request->input('member_email');
@@ -188,7 +186,9 @@ class AuthController extends Controller
         $member_id = $this->request->query('member_id');
 
         validate($this->request->input(), [
+            'member_email' => 'required',
             'member_password' => 'required|min:6',
+            'email_code' => 'required',
         ]);
 
         $member = Member::find($member_id);
@@ -197,6 +197,17 @@ class AuthController extends Controller
 
             exception(1001);
         }
+
+        $key = $this->request->input('member_email');
+
+        $code = Cache::tags($this->registerCodeCacheTag)->get($key, null);
+
+        if (!$this->checkRegisterCode($this->request->input('email_code'), $code)) {
+
+            exception(1002);
+        }
+
+        Cache::tags($this->registerCodeCacheTag)->forget($key);
 
         $member->member_password = $this->request->input('member_password');
 

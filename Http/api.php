@@ -41,10 +41,11 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
 
 
     // 为新用户设置密码
-    Route::post('/member/new/password', 'AuthController@postNewPassword')->codes([
+    Route::post('/member/password', 'AuthController@postNewPassword')->codes([
         200 => '注册成功',
         1001 => '该用户不存在',
-    ]);
+        1002 => '邮箱验证码正确',
+     ]);
 
     // 用户登录
     Route::post('/login', 'AuthController@postLogin')->codes([
@@ -75,12 +76,12 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         200 => '用户添加成功',
     ]);
 
-    Route::put('/member/{member_id}', 'MemberController@putMember')->codes([
+    Route::put('/member', 'MemberController@putMember')->codes([
         200 => '更新用户信息成功',
         1001 => '用户不存在',
     ]);
 
-    Route::get('/member/{member_id}', 'MemberController@getMember');
+    Route::get('/member', 'MemberController@getMember');
     Route::get('/members', 'MemberController@getMembers');
     Route::delete('/member', 'MemberController@deleteMember');
 
