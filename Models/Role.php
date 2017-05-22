@@ -2,6 +2,8 @@
 
 namespace Modules\Auth\Models;
 
+use Jindowin\Model;
+
 class Role extends Model
 {
 

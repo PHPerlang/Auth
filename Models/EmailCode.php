@@ -4,7 +4,7 @@ namespace Modules\Auth\Models;
 
 use Jindowin\Model;
 
-class MemberOperation extends Model
+class EmailCode extends Model
 {
 
     /**
@@ -12,7 +12,7 @@ class MemberOperation extends Model
      *
      * @var string
      */
-    protected $table = 'member_operations';
+    protected $table = 'email_codes';
 
 
     /**
@@ -20,7 +20,7 @@ class MemberOperation extends Model
      *
      * @var bool
      */
-    public $primaryKey = 'op_id';
+    public $primaryKey = 'id';
 
 
     /**

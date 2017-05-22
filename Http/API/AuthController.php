@@ -1,24 +1,25 @@
 <?php
 
-namespace Modules\Auth\Http\Controllers\API;
+namespace Modules\Auth\Http\API;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Crypt;
-use Modules\Auth\Models\Status;
+use Carbon\Carbon;
+use Jindowin\Status;
+use Jindowin\Request;
 use Modules\Auth\Models\Member;
+use Modules\Auth\Models\EmailCode;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
-use Modules\Auth\Contracts\Request;
 use Illuminate\Support\Facades\Mail;
 use Modules\Auth\Models\AccessToken;
 use Modules\Auth\Emails\RegisterLink;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Modules\Auth\Emails\RestPasswordLink;
 
 class AuthController extends Controller
 {
 
-    protected $request;
+    public $request;
 
     protected $registerCodeCacheTag;
 
@@ -61,7 +62,7 @@ class AuthController extends Controller
     protected function saveMemberToken(Member $member)
     {
 
-        $client = $this->request->request->client;
+        $client = $this->request->client;
 
         $accessToken = new AccessToken;
 
@@ -85,25 +86,29 @@ class AuthController extends Controller
      */
     public function postRegisterCode()
     {
+        validate($this->request->input(), ['member_email' => 'required|email|max:255']);
 
-        validate($this->request->data(), ['member_email' => 'required|email|max:255']);
-
-        if (Member::where('member_email', $this->request->data('member_email'))->first()) {
+        if (Member::where('member_email', $this->request->input('member_email'))->first()) {
 
             exception(1002);
         }
 
         $code = mt_rand(100000, 999999);
 
-        $key = $this->request->data('member_email');
+        $key = $this->request->input('member_email');
 
         Cache::tags($this->registerCodeCacheTag)->put($key, $code, 10);
 
-        Mail::to($this->request->data('member_email'))->queue(new RegisterLink(($code)));
+        Mail::to($this->request->input('member_email'))->queue(new RegisterLink(($code)));
 
-        Log::info('Send member register code', array_merge($this->request->data(), ['code' => $code]));
+        $email_code = new EmailCode;
+        $email_code->code = $code;
+        $email_code->email = $this->request->input('member_email');
+        $email_code->type = 'register';
+        $email_code->expired_at = timestamp(10 * 60);
+        $email_code->save();
 
-        return $this->request->status(200);
+        return status(200);
     }
 
     /**
@@ -113,34 +118,34 @@ class AuthController extends Controller
      */
     public function postRegister()
     {
-        validate($this->request->data(), [
+        validate($this->request->input(), [
             'member_email' => 'required|email|max:255',
             'member_password' => 'sometimes|min:6',
             'email_code' => 'required|size:6',
         ]);
 
-        if (Member::where('member_email', $this->request->data('member_email'))->first()) {
+        if (Member::where('member_email', $this->request->input('member_email'))->first()) {
 
-            exception(1002);
+            exception(1001);
         }
 
-        $key = $this->request->data('member_email');
+        $key = $this->request->input('member_email');
 
         $code = Cache::tags($this->registerCodeCacheTag)->get($key, null);
 
-        if (!$this->checkRegisterCode($this->request->data('email_code'), $code)) {
+        if (!$this->checkRegisterCode($this->request->input('email_code'), $code)) {
 
-            exception(1001);
+            exception(1002);
         }
 
         Cache::tags($this->registerCodeCacheTag)->forget($key);
 
         $member = new Member;
 
-        $member->member_email = $this->request->data('member_email');
-        $member->member_password = $this->request->data('member_password');
-        $member->member_avatar = $this->request->data('member_avatar');
-        $member->member_nickname = $this->request->data('member_nickname');
+        $member->member_email = $this->request->input('member_email');
+        $member->member_password = $this->request->input('member_password');
+        $member->member_avatar = $this->request->input('member_avatar');
+        $member->member_nickname = $this->request->input('member_nickname');
         $member->member_role_id = 100;
         $member->member_status = 'normal';
 
@@ -148,7 +153,7 @@ class AuthController extends Controller
 
         $accessToken = $this->saveMemberToken($member);
 
-        return $this->request->status(200, $accessToken);
+        return status(200, $accessToken);
     }
 
     /**
@@ -159,20 +164,20 @@ class AuthController extends Controller
     public function postLogin()
     {
 
-        validate($this->request->data(), [
+        validate($this->request->input(), [
             'member_email' => 'required|email|max:255',
             'member_password' => 'required|min:6',
             'captcha' => 'sometimes|size:6',
         ]);
 
-        $member = Member::where('member_email', $this->request->data('member_email'))->first();
+        $member = Member::where('member_email', $this->request->input('member_email'))->first();
 
-        if (!$member || $member->member_password != $member->encryptMemberPassword($this->request->data('member_password'))) {
+        if (!$member || $member->member_password != $member->encryptMemberPassword($this->request->input('member_password'))) {
 
             exception('1001');
         }
 
-        return $this->request->status(200, $this->saveMemberToken($member));
+        return status(200, $this->saveMemberToken($member));
     }
 
     /**
@@ -182,7 +187,7 @@ class AuthController extends Controller
     {
         $member_id = $this->request->query('member_id');
 
-        validate($this->request->data(), [
+        validate($this->request->input(), [
             'member_password' => 'required|min:6',
         ]);
 
@@ -193,11 +198,11 @@ class AuthController extends Controller
             exception(1001);
         }
 
-        $member->member_password = $this->request->data('member_password');
+        $member->member_password = $this->request->input('member_password');
 
         $member->save();
 
-        return $this->request->status(200);
+        return status(200);
     }
 
 
@@ -208,24 +213,24 @@ class AuthController extends Controller
      */
     public function postForgotPassword()
     {
-        validate($this->request->data(), [
+        validate($this->request->input(), [
             'member_email' => 'required|email|max:255',
         ]);
 
         $token = md5(time());
 
         $salt = Crypt::encryptString(json_encode([
-            'member_email' => $this->request->data('member_eamil'),
+            'member_email' => $this->request->input('member_eamil'),
             'token' => $token,
         ]));
 
         $link = 'http://test.kong.com/' . $salt;
 
-        Mail::to($this->request->data('member_email'))->queue(new RestPasswordLink($link));
+        Mail::to($this->request->input('member_email'))->queue(new RestPasswordLink($link));
 
-        Log::info('Send member reset password link', array_merge($this->request->data(), ['link' => $link]));
+        Log::info('Send member reset password link', array_merge($this->request->input(), ['link' => $link]));
 
-        return $this->request->status(200);
+        return status(200);
     }
 
 }

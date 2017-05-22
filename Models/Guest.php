@@ -2,9 +2,7 @@
 
 namespace Modules\Auth\Models;
 
-use Modules\Auth\Contracts\GuestContract;
-
-class Guest extends Member implements GuestContract
+class Guest extends Member
 {
     /**
      * The guest member id.

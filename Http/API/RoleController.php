@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\Auth\Http\Controllers\API;
+namespace Modules\Auth\Http\API;
 
+use Jindowin\Request;
 use Modules\Auth\Models\Role;
 use Modules\Auth\Models\Guest;
 use Illuminate\Validation\Rule;
 use Illuminate\Routing\Controller;
-use Modules\Auth\Contracts\Request;
 
 
 class RoleController extends Controller
@@ -26,7 +26,7 @@ class RoleController extends Controller
     public function postRole()
     {
 
-        validate($this->request->data(), [
+        validate($this->request->input(), [
             'role_name' => 'required',
             'role_type' => ['required', Rule::in(['descendant', 'self'])],
             'role_status' => ['required', Rule::in(['forever', 'temporary'])],
@@ -35,14 +35,14 @@ class RoleController extends Controller
         $role = new Role;
 
         $role->role_creator_id = Guest::id();
-        $role->role_name = $this->request->data('role_name');
-        $role->role_type = $this->request->data('role_type');
-        $role->role_status = $this->request->data('role_status');
-        $role->role_desc = $this->request->data('role_desc', $role->role_desc);
-        $role->role_desc = $this->request->data('role_desc', $role->role_desc);
+        $role->role_name = $this->request->input('role_name');
+        $role->role_type = $this->request->input('role_type');
+        $role->role_status = $this->request->input('role_status');
+        $role->role_desc = $this->request->input('role_desc', $role->role_desc);
+        $role->role_desc = $this->request->input('role_desc', $role->role_desc);
 
 
-        return $this->request->status(200, $role);
+        return status(200, $role);
     }
 
 

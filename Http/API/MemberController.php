@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Auth\Http\Controllers\API;
+namespace Modules\Auth\Http\API;
 
+use Jindowin\Request;
 use Modules\Auth\Models\Member;
 use Illuminate\Routing\Controller;
-use Modules\Auth\Contracts\Request;
 
 class MemberController extends Controller
 {
@@ -18,7 +18,7 @@ class MemberController extends Controller
 
     public function postMember()
     {
-        return $this->request->status(200);
+        return status(200);
     }
 
     /**
@@ -33,12 +33,12 @@ class MemberController extends Controller
             exception(1001);
         }
 
-        $member->member_avatar = $this->request->data('member_avatar', $member->member_avatar);
-        $member->member_nickname = $this->request->data('member_nickname', $member->member_nickname);
+        $member->member_avatar = $this->request->input('member_avatar', $member->member_avatar);
+        $member->member_nickname = $this->request->input('member_nickname', $member->member_nickname);
 
         $member->save();
 
-        return $this->request->status(200);
+        return status(200);
 
     }
 
@@ -50,7 +50,7 @@ class MemberController extends Controller
 
     public function getMember($member_id)
     {
-        return $this->request->status(200, Member::find($member_id));
+        return status(200, Member::find($member_id));
     }
 
     public function getMembers()

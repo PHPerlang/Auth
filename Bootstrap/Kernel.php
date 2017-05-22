@@ -26,7 +26,7 @@ class Kernel
     |
     */
     public $providers = [
-        \Modules\Auth\Providers\CoreServiceProvider::class,
+        \Modules\Auth\Providers\AuthServiceProvider::class,
     ];
 
     /*

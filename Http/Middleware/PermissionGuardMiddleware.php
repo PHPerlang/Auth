@@ -77,7 +77,6 @@ class PermissionGuardMiddleware
 
         $this->access_token = $this->request->header('X-Access-Token', null);
 
-        $guest = AccessToken::where('access_token', $this->access_token)->first();
 
         if (!$this->route->open) {
 
@@ -86,22 +85,6 @@ class PermissionGuardMiddleware
                 exception(910);
             }
 
-            if (!$guest) {
-
-                exception(920);
-
-            }
-
-            if ($guest && config('app.permission_system')) {
-
-                $this->authGuestPermission($guest->member_id);
-            }
-
-        }
-
-        if ($guest) {
-
-            Guest::init($guest->member_id);
         }
 
         $response = $next($this->request);

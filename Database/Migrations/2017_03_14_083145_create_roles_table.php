@@ -23,7 +23,7 @@ class CreateRolesTable extends Migration
             $table->enum('role_type', ['forever', 'temp']);       // 角色类型, 永久角色、临时角色
             $table->enum('role_status', ['active', 'inactive']);  // 角色状态, 激活状态、停用状态
             $table->timestamp('started_at')->nullable();        // 角色生效时间
-            $table->timestamp('expired at')->nullable();        // 角色失效时间
+            $table->timestamp('expired_at')->nullable();        // 角色失效时间
             $table->timestamp('created_at')->nullable();        // 角色创建时间
             $table->timestamp('updated_at')->nullable();        // 角色最近更新时间
         });

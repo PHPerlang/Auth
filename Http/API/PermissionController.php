@@ -1,9 +1,10 @@
 <?php
 
-namespace Modules\Auth\Http\Controllers\API;
+namespace Modules\Auth\Http\API;
 
+use Jindowin\Request;
 use Illuminate\Routing\Controller;
-use Modules\Auth\Contracts\Request;
+
 
 class PermissionController extends Controller
 {

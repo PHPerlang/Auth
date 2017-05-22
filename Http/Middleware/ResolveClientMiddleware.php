@@ -32,7 +32,7 @@ class ResolveClientMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $client = $request->header('X-App-Id');
+        $client = strtolower($request->header('X-App-Id'));
 
         if (!$client) {
 
