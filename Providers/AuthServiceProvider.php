@@ -107,11 +107,16 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected function registerGuest()
     {
-        $access_token = AccessToken::where('access_token', app('request')->getAccessToken())->first();
+        try {
+            $access_token = AccessToken::where('access_token', app('request')->getAccessToken())->first();
 
-        if ($access_token) {
+            if ($access_token) {
 
-            Guest::init($access_token->member_id);
+                Guest::init($access_token->member_id);
+            }
+        } catch (\Exception $e) {
+
+            // If the database is not ready, ignore the database error.
         }
 
         $this->app->singleton(Guest::class, function ($app) {
