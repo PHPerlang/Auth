@@ -82,7 +82,7 @@ class AuthServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
             return $path . '/modules/Auth';
-        }, \Config::get('view.paths')), [$sourcePath]), 'Auth');
+        }, \Config::get('view.paths')), [$sourcePath]), 'auth');
     }
 
     /**
@@ -92,12 +92,15 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function registerTranslations()
     {
-        $langPath = base_path('resources/lang/modules/Auth');
+        $langPath = base_path('resources/lang/modules/auth');
 
         if (is_dir($langPath)) {
-            $this->loadTranslationsFrom($langPath, 'Auth');
+
+            $this->loadTranslationsFrom($langPath, 'auth');
+
         } else {
-            $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'Auth');
+
+            $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'auth');
         }
 
     }
