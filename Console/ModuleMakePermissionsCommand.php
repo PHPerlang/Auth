@@ -59,13 +59,10 @@ class ModuleMakePermissionsCommand extends Command
      */
     protected $deployFields = [
         'module_id' => '',
-        'forked_from' => null,
-        'permission_type' => 'forever',
         'permission_link' => '',
         'permission_level' => 10,
         'permission_relevance' => [],
         'permission_like' => [],
-        'permission_order' => 0,
     ];
 
     /**

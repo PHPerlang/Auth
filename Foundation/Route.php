@@ -18,7 +18,15 @@ class Route extends JindowinRoute
      *
      * @var array
      */
-    public $query = [];
+    public $guard = [];
+
+    /**
+     *
+     * Store the mask fileds.
+     *
+     * @var array
+     */
+    public $mask = [];
 
 
     /**
@@ -40,7 +48,7 @@ class Route extends JindowinRoute
      *
      * @return $this
      */
-    public function protect(array $identify)
+    public function mask(array $identify)
     {
         return $this;
     }
@@ -53,9 +61,9 @@ class Route extends JindowinRoute
      * @return $this
      *
      */
-    public function query(array $params)
+    public function guard(array $params)
     {
-        $this->query = $params;
+        $this->guard = $params;
 
         return $this;
     }

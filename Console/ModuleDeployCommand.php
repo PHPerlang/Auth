@@ -2,6 +2,7 @@
 
 namespace Modules\Auth\Console;
 
+use Modules\Auth\Models\Permission;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Jindowin\Commands\ModuleDeployCommand as JindowinModuleDeployCommand;
@@ -97,7 +98,7 @@ class ModuleDeployCommand extends JindowinModuleDeployCommand
 
             if (isset($deployConfig['permissions'])) {
 
-                $this->deployPermissions($module, $deployConfig['permissions']);
+                 $this->deployPermissions($module, $deployConfig['permissions']);
             }
 
             if (isset($deployConfig['installer']) && is_array($deployConfig['installer'])) {
@@ -121,11 +122,9 @@ class ModuleDeployCommand extends JindowinModuleDeployCommand
 
         Permission::where('module_id', $module)
             ->whereNotIn('permission_id', $registerPermissions)
-            ->where('forked_from', null)
             ->delete();
 
         $existPermissions = Permission::where('module_id', $module)
-            ->where('forked_from', null)
             ->pluck('permission_id');
 
         $collection->each(function ($item, $key) use ($existPermissions) {

@@ -12,19 +12,6 @@ use Modules\Auth\Models\Permission;
 
 class PermissionGuardMiddleware
 {
-    /**
-     * The request uri.
-     *
-     * @var string
-     */
-    protected $uri;
-
-    /**
-     * The request method.
-     *
-     * @var string
-     */
-    protected $method;
 
     /**
      * The request route object.
@@ -40,19 +27,6 @@ class PermissionGuardMiddleware
      */
     protected $request;
 
-    /**
-     * The access token from the header.
-     *
-     * @var string
-     */
-    protected $access_token;
-
-    /**
-     * The client object from the ResolveClientMiddleware.
-     *
-     * @var object
-     */
-    protected $client;
 
     /**
      * Handle the middleware process.
@@ -67,13 +41,7 @@ class PermissionGuardMiddleware
 
         $this->request = $request;
 
-        $this->method = strtolower($this->request->getMethod());
-
-        $this->uri = $this->request->path();
-
         $this->route = $this->request->route();
-
-        $this->client = $this->request->client;
 
         if (!$this->route->open) {
 
@@ -107,6 +75,18 @@ class PermissionGuardMiddleware
 
             exception(920, null);
         }
+    }
+
+    protected function authClient()
+    {
+        $client = $this->request->client;
+    }
+
+    protected function getCurrentPermission()
+    {
+        $method = strtolower($this->request->getMethod());
+
+        $uri = $this->request->path();
     }
 
     /**

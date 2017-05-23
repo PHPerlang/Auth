@@ -22,7 +22,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         1000 => '邮箱格式不正确',
         1001 => '图形验证码不正确',
         1002 => '该邮箱已注册',
-    ])->query([
+    ])->guard([
 
         'member_id' => resource_field(\Modules\Auth\Models\Member::class, 'member_id'),
 
@@ -35,7 +35,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         1000 => '数据校验失败',
         1001 => '该邮箱已注册',
         1002 => '邮箱验证码不正确',
-    ])->query([
+    ])->guard([
 
     ])->open();
 
@@ -94,7 +94,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     */
     Route::group(['prefix' => 'role'], function () {
 
-        Route::get('/', 'RoleController@getRole')->query([
+        Route::get('/', 'RoleController@getRole')->guard([
             'user_id'
         ]);
 

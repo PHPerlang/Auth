@@ -2,10 +2,10 @@
 
 namespace Modules\Auth\Database\Seeders;
 
-use Modules\Auth\Models\Constant;
+use Illuminate\Database\Seeder;
 use Modules\Auth\Models\Role;
 use Modules\Auth\Models\Member;
-use Illuminate\Database\Seeder;
+use Modules\Auth\Models\Constant;
 use Modules\Auth\Models\Permission;
 use Modules\Auth\Models\MemberRole;
 use Modules\Auth\Models\RolePermissions;
