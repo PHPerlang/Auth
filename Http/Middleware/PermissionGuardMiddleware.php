@@ -62,7 +62,7 @@ class PermissionGuardMiddleware
      *
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
 
         $this->request = $request;
@@ -77,15 +77,36 @@ class PermissionGuardMiddleware
 
         if (!$this->route->open) {
 
-            if (!Guest::id()) {
-
-                exception(910);
-            }
+            $this->checkAccessToken();
+            $this->checkGuestIsExist();
+            $this->authGuestPermission(Guest::id());
         }
 
         $response = $next($this->request);
 
         return $response;
+    }
+
+    /**
+     * Check access token when the api is not open.
+     */
+    protected function checkAccessToken()
+    {
+        if (!$this->request->getAccessToken()) {
+
+            exception(910, null);
+        }
+    }
+
+    /**
+     * Check guest when the api is not open.
+     */
+    protected function checkGuestIsExist()
+    {
+        if (!Guest::id()) {
+
+            exception(920, null);
+        }
     }
 
     /**
