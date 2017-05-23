@@ -3,10 +3,10 @@
 namespace Modules\Auth\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
+use Jindowin\Module;
+use Jindowin\Request;
 use Modules\Auth\Models\Guest;
 use Modules\Auth\Foundation\Route;
-use Modules\Auth\Models\AccessToken;
 use Modules\Auth\Models\MemberRole;
 use Modules\Auth\Models\Permission;
 
@@ -75,16 +75,12 @@ class PermissionGuardMiddleware
 
         $this->client = $this->request->client;
 
-        $this->access_token = $this->request->header('X-Access-Token', null);
-
-
         if (!$this->route->open) {
 
-            if (!$this->access_token) {
+            if (!Guest::id()) {
 
                 exception(910);
             }
-
         }
 
         $response = $next($this->request);
@@ -109,6 +105,7 @@ class PermissionGuardMiddleware
                 exception('当前用户无法操作该资源');
             }
         }
+
     }
 
     /**

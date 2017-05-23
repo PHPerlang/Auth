@@ -96,7 +96,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
 
         Route::get('/', 'RoleController@getRole')->query([
             'user_id'
-        ])->open();
+        ]);
 
     });
 
