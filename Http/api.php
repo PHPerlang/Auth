@@ -42,10 +42,10 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
 
     // 为新用户设置密码
     Route::post('/member/password', 'AuthController@postNewPassword')->codes([
-        200 => '注册成功',
+        200 => '用户密码修改成功',
         1001 => '该用户不存在',
         1002 => '邮箱验证码不正确',
-     ]);
+    ]);
 
     // 用户登录
     Route::post('/login', 'AuthController@postLogin')->codes([
