@@ -49,14 +49,30 @@ class RolePermissions extends Model
 
         $transit = strpos($value, '?') === false ? $value . '?' : $value;
 
-        if (!preg_match('/(.+):(.+@.+)(\?)(.*)/', $transit, $matches)) {
+        if (!preg_match('/(.+@.+)(\?)(.*)/', $transit, $matches)) {
 
-            throw new \Exception('Role permission format should be scope:method@uri[?limit], but ' . $transit . ' be provided . ');
+            throw new \Exception('Role permission format should be method@uri[?params], but ' . $transit . ' be provided . ');
         }
 
-        $this->attributes['scope'] = $matches[1];
-        $this->attributes['permission_id'] = $matches[2];
-        $this->attributes['restrict_fields'] = $matches[4];
+        $limit_parse = [];
+        $fields = explode('&', $matches[3]);
+
+        foreach ($fields as $filed) {
+
+            $explode = explode('=', $filed);
+
+            if (count($explode) === 2) {
+                if (strpos($explode[1], ',')) {
+                    $limit_parse[$explode[0]] = explode(',', $explode[1]);
+                } else {
+                    $limit_parse[$explode[0]] = [$explode[1]];
+                }
+            }
+        }
+
+        $this->attributes['permission_id'] = $matches[1];
+        $this->attributes['limit_params'] = $matches[3] ? $matches[3] : '*';
+        $this->attributes['limit_parse'] = count($limit_parse) > 0 ? json_encode($limit_parse) : null;
     }
 
 }

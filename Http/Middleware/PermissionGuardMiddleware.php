@@ -9,6 +9,7 @@ use Modules\Auth\Models\Guest;
 use Modules\Auth\Foundation\Route;
 use Modules\Auth\Models\MemberRole;
 use Modules\Auth\Models\Permission;
+use Modules\Auth\Models\RolePermissions;
 
 class PermissionGuardMiddleware
 {
@@ -47,7 +48,11 @@ class PermissionGuardMiddleware
 
             $this->checkAccessToken();
             $this->checkGuestIsExist();
-            $this->authGuestPermission(Guest::id());
+
+            if (!$this->authGuestPermission(Guest::id())) {
+
+                exception(403);
+            }
         }
 
         $response = $next($this->request);
@@ -87,7 +92,7 @@ class PermissionGuardMiddleware
      *
      * @return string
      */
-    protected function getCurrentRoutePermissionId()
+    protected function getRoutePermissionId()
     {
         $method = strtolower($this->request->getMethod());
 
@@ -100,19 +105,35 @@ class PermissionGuardMiddleware
      * Auth the guest if have the permission to access the api.
      *
      * @param $guest_id
+     *
+     * @return bool
      */
     protected function authGuestPermission($guest_id)
     {
-//        if ($affectMemberId = $this->request->query('member_id', null)) {
-//
-//            if ($affectMemberId != $guest_id) {
-//
-//                exception('当前用户无法操作该资源');
-//            }
-//        }
-        //$guest_roles = $this->getGuestRoles($guest_id)->toArray();
-        //$guest_permissions = $this->getGuestPermissions($guest_roles);
 
+        $guest_roles = $this->getGuestRoles($guest_id)->toArray();
+        $guest_permissions = $this->getGuestPermissions($guest_roles)->toArray();
+        $permissionLimitParams = $this->getPermissionLimitParams($guest_permissions);
+        $routeGuardFields = $this->getRouteGuardFields();
+
+        foreach ($routeGuardFields as $field) {
+
+            if (array_key_exists($field, $permissionLimitParams)) {
+
+                $input = $this->request->input($field);
+
+                foreach ($permissionLimitParams[$field] as $value) {
+
+                    if ($input == $value) {
+
+                        return true;
+                    }
+                }
+
+                return false;
+
+            }
+        }
     }
 
     /**
@@ -137,7 +158,68 @@ class PermissionGuardMiddleware
      */
     protected function getGuestPermissions(array $guest_roles)
     {
-        return Permission::whereIn('role_id', $guest_roles)->get('id');
+        return RolePermissions::where('permission_id', $this->getRoutePermissionId())
+            ->whereIn('role_id', $guest_roles)
+            ->get(['permission_id', 'limit_params', 'limit_parse', 'permission_type', 'expired_at']);
+    }
+
+    /**
+     * Get permission all limit params.
+     *
+     * @param array $guest_permissions
+     *
+     * @return array
+     */
+    protected function getPermissionLimitParams(array $guest_permissions)
+    {
+        $guard_fields = [];
+
+        foreach ($guest_permissions as $guest_permission) {
+
+            if (!$guest_permission['limit_parse']) {
+
+                continue;
+            }
+
+            $fields = json_decode($guest_permission['limit_parse'], true);
+
+            foreach ($fields as $filed => $value) {
+
+                if (key_exists($filed, $guard_fields)) {
+
+                    $guard_fields[$filed] = array_merge($guard_fields[$filed], $value);
+                } else {
+
+                    $guard_fields[$filed] = $value;
+                }
+            }
+        }
+
+
+        return $guard_fields;
+    }
+
+    /**
+     * Get route guard fields from route guard attribute.
+     *
+     * @return array
+     */
+    protected function getRouteGuardFields()
+    {
+        $guard_field = [];
+
+        foreach ($this->request->route()->guard as $key => $value) {
+
+            if (is_int($key)) {
+
+                array_push($guard_field, $value);
+            } else {
+
+                array_push($guard_field, $key);
+            }
+        }
+
+        return $guard_field;
     }
 
 
