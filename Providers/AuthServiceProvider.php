@@ -117,6 +117,7 @@ class AuthServiceProvider extends ServiceProvider
 
                 Guest::init($access_token->member_id);
             }
+
         } catch (\Exception $e) {
 
             // If the database is not ready, ignore the database error.

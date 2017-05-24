@@ -3,6 +3,7 @@
 namespace Modules\Auth\Models;
 
 use Jindowin\Model;
+use Mockery\Exception;
 
 class Permission extends Model
 {
@@ -36,38 +37,6 @@ class Permission extends Model
      */
     public $timestamps = true;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'permission_id',
-        'module_id',
-        'restrict_fields',
-        'permission_name',
-        'permission_type',
-        'permission_forked_from',
-        'permission_desc',
-        'permission_link',
-        'permission_level',
-        'permission_relevance',
-        'permission_like',
-        'permission_order',
-        'involve_resources',
-        'started_at',
-        'expired_at',
-    ];
-
-    /**
-     * Set the relevance permissions.
-     *
-     * @param array $value
-     */
-    public function setPermissionIdAttribute($value)
-    {
-        $this->attributes['permission_id'] = $value;
-    }
 
     /**
      * Set the relevance permissions.

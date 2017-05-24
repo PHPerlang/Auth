@@ -36,4 +36,27 @@ class RolePermissions extends Model
      */
     public $timestamps = true;
 
+
+    /**
+     * Set the relevance permissions.
+     *
+     * @param array $value
+     *
+     * @throws \Exception
+     */
+    public function setPermissionIdAttribute($value)
+    {
+
+        $transit = strpos($value, '?') === false ? $value . '?' : $value;
+
+        if (!preg_match('/(.+):(.+@.+)(\?)(.*)/', $transit, $matches)) {
+
+            throw new \Exception('Role permission format should be scope:method@uri[?limit], but ' . $transit . ' be provided . ');
+        }
+
+        $this->attributes['scope'] = $matches[1];
+        $this->attributes['permission_id'] = $matches[2];
+        $this->attributes['restrict_fields'] = $matches[4];
+    }
+
 }

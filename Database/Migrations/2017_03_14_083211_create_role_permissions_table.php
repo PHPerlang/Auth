@@ -16,7 +16,6 @@ class CreateRolePermissionsTable extends Migration
         Schema::create('role_permissions', function (Blueprint $table) {
             $table->bigInteger('role_id');                              // 角色 ID
             $table->string('permission_id');                            // 权限 ID
-            $table->string('permission_route');                         // 权限绑定的路由
             $table->string('restrict_fields', 512)->nullable();  // 权限限制的字段信息
             $table->enum('scope', ['descendant', 'self']);        // 权限 ID
             $table->json('restrict_fields_parse')->nullable();    // 解析存储的权限限制的字段信息

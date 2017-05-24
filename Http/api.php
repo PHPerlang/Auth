@@ -44,7 +44,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     Route::post('/member/password', 'AuthController@postNewPassword')->codes([
         200 => '注册成功',
         1001 => '该用户不存在',
-        1002 => '邮箱验证码正确',
+        1002 => '邮箱验证码不正确',
      ]);
 
     // 用户登录

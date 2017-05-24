@@ -183,7 +183,7 @@ class AuthController extends Controller
      */
     public function postNewPassword()
     {
-        $member_id = $this->request->query('member_id');
+        $member_id = $this->request->input('member_id');
 
         validate($this->request->input(), [
             'member_email' => 'required',

@@ -82,11 +82,18 @@ class PermissionGuardMiddleware
         $client = $this->request->client;
     }
 
-    protected function getCurrentPermission()
+    /**
+     * Get the current route permission identify.
+     *
+     * @return string
+     */
+    protected function getCurrentRoutePermissionId()
     {
         $method = strtolower($this->request->getMethod());
 
         $uri = $this->request->path();
+
+        return $method . '@' . $uri;
     }
 
     /**
@@ -96,16 +103,15 @@ class PermissionGuardMiddleware
      */
     protected function authGuestPermission($guest_id)
     {
-
-
-        if ($affectMemberId = $this->request->query('member_id', null)) {
-
-
-            if ($affectMemberId != $guest_id) {
-
-                exception('当前用户无法操作该资源');
-            }
-        }
+//        if ($affectMemberId = $this->request->query('member_id', null)) {
+//
+//            if ($affectMemberId != $guest_id) {
+//
+//                exception('当前用户无法操作该资源');
+//            }
+//        }
+        $guest_roles = $this->getGuestRoles($guest_id)->toArray();
+        $guest_permissions = $this->getGuestPermissions($guest_roles);
 
     }
 
@@ -118,7 +124,7 @@ class PermissionGuardMiddleware
      */
     protected function getGuestRoles($guest_id)
     {
-        return MemberRole::where('member_id', $guest_id)->list('role_id');
+        return MemberRole::where('member_id', $guest_id)->pluck('role_id');
     }
 
     /**
@@ -128,9 +134,9 @@ class PermissionGuardMiddleware
      *
      * @return array
      */
-    protected function getGuestPermissions($guest_id)
+    protected function getGuestPermissions(array $guest_roles)
     {
-        return Permission::whereIn('role_id', $this->getGuestRoles($guest_id))->list('id');
+        return Permission::whereIn('role_id', $guest_roles)->get('id');
     }
 
 

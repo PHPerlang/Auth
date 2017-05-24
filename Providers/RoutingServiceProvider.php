@@ -14,10 +14,12 @@ class RoutingServiceProvider extends JindowinRoutingServiceProvider
      */
     protected function registerRouter()
     {
+
         $this->app->singleton('router', function ($app) {
 
             return new Router($app['events'], $app);
         });
+
     }
 
 
