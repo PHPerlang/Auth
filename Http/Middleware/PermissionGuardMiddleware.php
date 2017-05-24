@@ -3,12 +3,10 @@
 namespace Modules\Auth\Http\Middleware;
 
 use Closure;
-use Jindowin\Module;
 use Jindowin\Request;
 use Modules\Auth\Models\Guest;
 use Modules\Auth\Foundation\Route;
 use Modules\Auth\Models\MemberRole;
-use Modules\Auth\Models\Permission;
 use Modules\Auth\Models\RolePermissions;
 
 class PermissionGuardMiddleware
@@ -118,13 +116,17 @@ class PermissionGuardMiddleware
 
         foreach ($routeGuardFields as $field) {
 
+            if (!$this->request->input($field)) {
+
+                exception('1000', $field . ' 字段不能为空');
+            }
+
             if (array_key_exists($field, $permissionLimitParams)) {
 
                 if (!$this->authLimitField($permissionLimitParams[$field], $field)) {
 
                     return false;
                 }
-
             }
         }
 
@@ -150,7 +152,7 @@ class PermissionGuardMiddleware
                 return true;
             }
 
-            if ($field == 'member_id' && $value == 'self') {
+            if ($field == 'member_id' && $value == 'guest') {
 
                 if ($this->request->input('member_id') == Guest::id()) {
 
