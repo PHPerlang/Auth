@@ -120,20 +120,48 @@ class PermissionGuardMiddleware
 
             if (array_key_exists($field, $permissionLimitParams)) {
 
-                $input = $this->request->input($field);
+                if (!$this->authLimitField($permissionLimitParams[$field], $field)) {
 
-                foreach ($permissionLimitParams[$field] as $value) {
-
-                    if ($input == $value) {
-
-                        return true;
-                    }
+                    return false;
                 }
-
-                return false;
 
             }
         }
+
+        return true;
+    }
+
+    /**
+     * Auth limit field value.
+     *
+     * @param array $list
+     * @param string $field
+     *
+     * @return bool
+     */
+    protected function authLimitField($list, $field)
+    {
+        $input = $this->request->input($field);
+
+        foreach ($list as $value) {
+
+            if ($input == $value || $value == '*') {
+
+                return true;
+            }
+
+            if ($field == 'member_id' && $value == 'self') {
+
+                if ($this->request->input('member_id') == Guest::id()) {
+
+                    return true;
+                }
+            }
+
+        }
+
+        return false;
+
     }
 
     /**

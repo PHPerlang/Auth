@@ -48,9 +48,7 @@ class RoleController extends Controller
 
     public function getRole()
     {
-        preg_match('/(.+):(.+@.+)(\?)(.*)/', 'descendant:post@api/auth/auth/member/new/password?member_id=123', $matches);
-
-        dd($matches);
+        die('权限走通了');
     }
 
 }
