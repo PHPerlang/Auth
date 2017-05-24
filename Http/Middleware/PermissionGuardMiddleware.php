@@ -110,8 +110,8 @@ class PermissionGuardMiddleware
 //                exception('当前用户无法操作该资源');
 //            }
 //        }
-        $guest_roles = $this->getGuestRoles($guest_id)->toArray();
-        $guest_permissions = $this->getGuestPermissions($guest_roles);
+        //$guest_roles = $this->getGuestRoles($guest_id)->toArray();
+        //$guest_permissions = $this->getGuestPermissions($guest_roles);
 
     }
 
@@ -130,9 +130,10 @@ class PermissionGuardMiddleware
     /**
      * Get the guest permissions.
      *
-     * @param string $guest_id
+     * @param array $guest_roles
      *
      * @return array
+     *
      */
     protected function getGuestPermissions(array $guest_roles)
     {

@@ -68,8 +68,4 @@ class Route extends JindowinRoute
         return $this;
     }
 
-    public function query($query)
-    {
-        return $this;
-    }
 }
