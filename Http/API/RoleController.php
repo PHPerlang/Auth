@@ -48,7 +48,8 @@ class RoleController extends Controller
 
     public function getRole()
     {
-        dd(Guest::params());
+        $query = new Role();
+        dd(Guest::limit($query)->get());
     }
 
 }

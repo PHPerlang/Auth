@@ -17,7 +17,7 @@ class CreateMemberRolesTable extends Migration
             $table->bigInteger('member_id');                    // 系统用户 ID
             $table->bigInteger('role_id');                      // 角色 ID
             $table->bigInteger('creator_id')->nullable();       // 创建此记录的用户 ID
-            $table->enum('role_type', ['master', 'attach']);    // 角色类型
+            $table->enum('role_type', ['master', 'attached']);  // 角色类型
             $table->timestamp('created_at')->nullable();        // 创建时间
         });
     }

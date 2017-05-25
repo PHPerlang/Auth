@@ -15,7 +15,6 @@ class CreateMembersTable extends Migration
     {
         Schema::create('members', function (Blueprint $table) {
             $table->bigIncrements('member_id');                      // 系统用户 ID
-            $table->bigInteger('member_role_id');                    // 系统用户主要角色 ID
             $table->string('member_account')->nullable();            // 系统用户用户名
             $table->string('member_email')->unique()->nullable();    // 系统用户邮箱
             $table->string('member_phone')->nullable();              // 系统用户电话号码

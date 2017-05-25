@@ -8,7 +8,7 @@ use Modules\Auth\Models\Member;
 use Modules\Auth\Models\Constant;
 use Modules\Auth\Models\Permission;
 use Modules\Auth\Models\MemberRole;
-use Modules\Auth\Models\RolePermissions;
+use Modules\Auth\Models\RolePermission;
 
 class DeployTableSeeder extends Seeder
 {
@@ -31,7 +31,7 @@ class DeployTableSeeder extends Seeder
         $permissions = Permission::renderTemplate(config('auth::roles.root.permissions'));
         foreach ($permissions as $permission) {
 
-            $rootPermission = new RolePermissions;
+            $rootPermission = new RolePermission;
             $rootPermission->role_id = $root->role_id;
             $rootPermission->permission_id = $permission;
             $rootPermission->created_at = timestamp();
@@ -44,9 +44,12 @@ class DeployTableSeeder extends Seeder
         $member->member_password = '123456';
         $member->member_avatar = null;
         $member->member_nickname = '古月';
-        $member->member_role_id = 100;
         $member->member_status = 'normal';
         $member->save();
+
+        // 为超级用户绑定创建者 ID
+        $root->creator_id = $member->member_id;
+        $root->save();
 
         // 绑定超级用户的角色
         $memberRole = new MemberRole;
@@ -71,13 +74,13 @@ class DeployTableSeeder extends Seeder
         $root_role_id = Constant::get('ROOT_ROLE_ID');
 
         // 删除超级用户的角色
-        MemberRole::where('member_id',$root_member_id)->delete();
+        MemberRole::where('member_id', $root_member_id)->delete();
 
         // 删除超级用户
         Member::find($root_member_id)->delete();
 
         // 删除超级角色的权限
-        RolePermissions::where('role_id', $root_role_id)->delete();
+        RolePermission::where('role_id', $root_role_id)->delete();
 
         // 删除超级角色
         Role::find($root_role_id)->delete();

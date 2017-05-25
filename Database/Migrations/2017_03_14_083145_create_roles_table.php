@@ -16,7 +16,7 @@ class CreateRolesTable extends Migration
         Schema::create('roles', function (Blueprint $table) {
             $table->bigIncrements('role_id');                   // 角色 ID
             $table->string('module_id')->nullable();            // 预注册角色模块 ID
-            $table->bigInteger('role_creator_id')->nullable();  // 创建角色的系统用户 ID
+            $table->bigInteger('creator_id')->nullable();  // 创建角色的系统用户 ID
             $table->string('role_name');                        // 角色名称
             $table->text('role_desc')->nullable();              // 角色描述
             $table->integer('permission_amount')->nullable();   // 角色权限数量

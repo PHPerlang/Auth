@@ -106,6 +106,22 @@ class Guest extends Member
             }
         }
 
+        foreach ($guard_fields as $field => $values) {
+
+            foreach ($values as $key => $value) {
+                switch ($value) {
+                    case '*':
+                        unset($guard_fields[$field]);
+                        break;
+                    case 'guest':
+                        $params[$field][$key] = (string)self::id();
+                        break;
+                }
+            }
+
+            $guard_fields[$field] = array_unique($guard_fields[$field]);
+        }
+
 
         return $guard_fields;
     }
@@ -144,5 +160,32 @@ class Guest extends Member
         return RolePermission::whereIn('role_id', self::roles())->get();
     }
 
+    /**
+     * Add guest resource query limit condition.
+     *
+     * @param $query
+     *
+     * @return mixed
+     */
+    public static function limit($query)
+    {
+        $params = self::params();
+
+        foreach ($params as $field => $values) {
+
+            switch (count($params[$field])) {
+                case 0:
+                    continue;
+                case 1:
+                    $query = $query->where($field, $params[$field][0]);
+                    break;
+                default:
+                    $query = $query->whereIn($field, $params[$field]);
+            }
+
+        }
+
+        return $query;
+    }
 
 }
