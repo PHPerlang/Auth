@@ -4,7 +4,7 @@ namespace Modules\Auth\Models;
 
 use Jindowin\Model;
 
-class RolePermissions extends Model
+class RolePermission extends Model
 {
 
     /**

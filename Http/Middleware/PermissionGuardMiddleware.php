@@ -6,8 +6,6 @@ use Closure;
 use Jindowin\Request;
 use Modules\Auth\Models\Guest;
 use Modules\Auth\Foundation\Route;
-use Modules\Auth\Models\MemberRole;
-use Modules\Auth\Models\RolePermissions;
 
 class PermissionGuardMiddleware
 {
@@ -47,7 +45,7 @@ class PermissionGuardMiddleware
             $this->checkAccessToken();
             $this->checkGuestIsExist();
 
-            if (!$this->authGuestPermission(Guest::id())) {
+            if (!$this->authGuestPermission()) {
 
                 exception(403);
             }
@@ -102,16 +100,14 @@ class PermissionGuardMiddleware
     /**
      * Auth the guest if have the permission to access the api.
      *
-     * @param $guest_id
-     *
      * @return bool
      */
-    protected function authGuestPermission($guest_id)
+    protected function authGuestPermission()
     {
 
-        $guest_roles = $this->getGuestRoles($guest_id)->toArray();
-        $guest_permissions = $this->getGuestPermissions($guest_roles)->toArray();
-        $permissionLimitParams = $this->getPermissionLimitParams($guest_permissions);
+        Guest::setRoutePermission($this->getRoutePermissionId());
+        $guest_permissions = Guest::permissions()->toArray();
+        $permissionLimitParams = Guest::params($guest_permissions);
         $routeGuardFields = $this->getRouteGuardFields();
 
         foreach ($routeGuardFields as $field) {
@@ -166,68 +162,6 @@ class PermissionGuardMiddleware
 
     }
 
-    /**
-     * Get the guest roles.
-     *
-     * @param string $guest_id
-     *
-     * @return array
-     */
-    protected function getGuestRoles($guest_id)
-    {
-        return MemberRole::where('member_id', $guest_id)->pluck('role_id');
-    }
-
-    /**
-     * Get the guest permissions.
-     *
-     * @param array $guest_roles
-     *
-     * @return array
-     *
-     */
-    protected function getGuestPermissions(array $guest_roles)
-    {
-        return RolePermissions::where('permission_id', $this->getRoutePermissionId())
-            ->whereIn('role_id', $guest_roles)
-            ->get(['permission_id', 'limit_params', 'limit_parse', 'permission_type', 'expired_at']);
-    }
-
-    /**
-     * Get permission all limit params.
-     *
-     * @param array $guest_permissions
-     *
-     * @return array
-     */
-    protected function getPermissionLimitParams(array $guest_permissions)
-    {
-        $guard_fields = [];
-
-        foreach ($guest_permissions as $guest_permission) {
-
-            if (!$guest_permission['limit_parse']) {
-
-                continue;
-            }
-
-            $fields = json_decode($guest_permission['limit_parse'], true);
-
-            foreach ($fields as $filed => $value) {
-
-                if (key_exists($filed, $guard_fields)) {
-
-                    $guard_fields[$filed] = array_merge($guard_fields[$filed], $value);
-                } else {
-
-                    $guard_fields[$filed] = $value;
-                }
-            }
-        }
-
-
-        return $guard_fields;
-    }
 
     /**
      * Get route guard fields from route guard attribute.

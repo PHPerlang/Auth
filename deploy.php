@@ -24,16 +24,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Register the module provided default roles without attached any member.
-    |--------------------------------------------------------------------------
-    |
-    | These are not assign to any member, just register in system.
-    |
-    */
-    'roles' => config('auth::roles'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Custom module data seeder.
     |--------------------------------------------------------------------------
     |
