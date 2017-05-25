@@ -101,6 +101,7 @@ class Guest extends Member
                     if (is_array($value)) {
 
                         $guard_fields[$filed] = array_merge($guard_fields[$filed], $value);
+
                     } else {
 
                         array_push($guard_fields[$filed], $value);
@@ -108,7 +109,7 @@ class Guest extends Member
 
                 } else {
 
-                    $guard_fields[$filed] = [$value];
+                    $guard_fields[$filed] = $value;
                 }
             }
         }
