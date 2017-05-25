@@ -19,3 +19,14 @@ function render_permisssion(array $permissions, array $vars = [])
     }
     return $permissions;
 }
+
+/**
+ * Add guest resource query limit condition.
+ *
+ * @param $query
+ * @return mixed
+ */
+function guard($query)
+{
+    return \Modules\Auth\Models\Guest::guard($query);
+}
