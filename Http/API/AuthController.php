@@ -5,6 +5,7 @@ namespace Modules\Auth\Http\API;
 use Carbon\Carbon;
 use Jindowin\Status;
 use Jindowin\Request;
+use Modules\Auth\Events\MemberRegisterEvent;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Models\EmailCode;
 use Illuminate\Routing\Controller;
@@ -144,10 +145,11 @@ class AuthController extends Controller
         $member->member_password = $this->request->input('member_password');
         $member->member_avatar = $this->request->input('member_avatar');
         $member->member_nickname = $this->request->input('member_nickname');
-        $member->member_role_id = 100;
         $member->member_status = 'normal';
 
         $member->save();
+
+        event(new MemberRegisterEvent($member, $this->request->input()));
 
         $accessToken = $this->saveMemberToken($member);
 
