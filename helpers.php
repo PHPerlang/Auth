@@ -28,5 +28,5 @@ function render_permisssion(array $permissions, array $vars = [])
  */
 function guard($query)
 {
-    return \Modules\Auth\Models\Guest::guard($query);
+    return \Modules\Auth\Models\Guest::guardPermissionParams($query);
 }

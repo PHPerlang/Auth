@@ -174,7 +174,7 @@ class Guest extends Member
      *
      * @return mixed
      */
-    public static function guard($query)
+    public static function guardPermissionParams($query)
     {
         $params = self::params();
 
