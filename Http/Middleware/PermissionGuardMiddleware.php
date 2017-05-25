@@ -45,7 +45,7 @@ class PermissionGuardMiddleware
             $this->checkAccessToken();
             $this->checkGuestIsExist();
 
-            if (!$this->authGuestPermission()) {
+            if (env('PERMISSION_SYSTEM') == 'on' && !$this->authGuestPermission()) {
 
                 exception(403);
             }
