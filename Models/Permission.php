@@ -59,27 +59,6 @@ class Permission extends Model
     }
 
     /**
-     * Fork a permission from $this.
-     */
-    public function fork()
-    {
-
-    }
-
-    /**
-     * Render permisssion template.
-     *
-     * @param array $permissions
-     * @param array $args
-     *
-     * @return array
-     */
-    public static function renderTemplate(array $permissions, array $args = [])
-    {
-        return $permissions;
-    }
-
-    /**
      * Permission belongs to many permissions.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

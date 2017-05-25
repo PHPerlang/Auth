@@ -24,11 +24,11 @@ class DeployTableSeeder extends Seeder
         $root->role_name = config('auth::roles.root.name');
         $root->module_id = 'Auth';
         $root->role_desc = config('auth::roles.root.desc');
-        $root->permission_amount = count(config('auth::roles.root.permissions'));
+        $root->permission_amount = count(config('auth::roles.root'));
         $root->save();
 
         // 绑定超级用户的权限
-        $permissions = Permission::renderTemplate(config('auth::roles.root.permissions'));
+        $permissions = render_permisssion(config('auth::roles.root'));
         foreach ($permissions as $permission) {
 
             $rootPermission = new RolePermission;

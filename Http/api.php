@@ -95,9 +95,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     Route::group(['prefix' => 'role'], function () {
 
         Route::get('/', 'RoleController@getRole')->guard([
-            'team_id',
-            'member_id',
-            'app_id',
+            'role_id',
         ]);
 
     });

@@ -57,13 +57,19 @@ class Route extends JindowinRoute
      * Register the route received query params.
      *
      * @param array $params
+     * @param string $model
      *
      * @return $this
      *
      */
-    public function guard(array $params)
+    public function guard($params, $model = '')
     {
-        $this->guard = $params;
+        if (is_array($params)) {
+            $this->guard = $params;
+
+        } else if (is_string($params)) {
+            $this->guard = [$params => $model];
+        }
 
         return $this;
     }

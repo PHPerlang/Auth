@@ -18,6 +18,7 @@ class CreateRolePermissionsTable extends Migration
             $table->string('permission_id');                            // 权限 ID
             $table->string('limit_params', 512)->nullable();  // 权限限制的字段信息
             $table->json('limit_parse')->nullable();    // 解析存储的权限限制的字段信息
+            $table->string('permission_tag')->nullable();  // 权限限制的字段信息
             $table->enum('permission_type', ['forever', 'temp']); // 权限类型,  永久权限、临时权限
             $table->string('permission_name')->nullable();        // 权限名称
             $table->text('permission_desc')->nullable();          // 权限名称

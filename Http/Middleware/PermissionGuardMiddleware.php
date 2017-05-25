@@ -105,10 +105,14 @@ class PermissionGuardMiddleware
     protected function authGuestPermission()
     {
         Guest::setRoutePermission($this->getRoutePermission());
-        
+
         $guest_permissions = Guest::permissions()->toArray();
         $permissionLimitParams = Guest::params($guest_permissions);
         $routeGuardFields = $this->getRouteGuardFields();
+
+        if (!$guest_permissions) {
+            return false;
+        }
 
         foreach ($routeGuardFields as $field) {
 
@@ -119,7 +123,7 @@ class PermissionGuardMiddleware
 
             if (array_key_exists($field, $permissionLimitParams)) {
 
-                if (!$this->authLimitField($permissionLimitParams[$field], $field)) {
+                if (!$this->authLimitField($permissionLimitParams, $field)) {
 
                     return false;
                 }
@@ -132,14 +136,21 @@ class PermissionGuardMiddleware
     /**
      * Auth limit field value.
      *
-     * @param array $list
+     * @param array $permissionLimitParams
      * @param string $field
      *
      * @return bool
      */
-    protected function authLimitField($list, $field)
+    protected function authLimitField($permissionLimitParams, $field)
     {
+        if (!isset($permissionLimitParams[$field])) {
+
+            return true;
+        }
+
         $input = $this->request->input($field);
+
+        $list = $permissionLimitParams[$field];
 
         foreach ($list as $value) {
 
@@ -177,6 +188,7 @@ class PermissionGuardMiddleware
             if (is_int($key)) {
 
                 array_push($guard_field, $value);
+
             } else {
 
                 array_push($guard_field, $key);

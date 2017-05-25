@@ -48,13 +48,13 @@ class RoleController extends Controller
 
     public function getRole()
     {
-        dd(render_permisssion(config('auth::roles.root'), [
-            'team_id' => 1,
-            'sense_id' => 2,
-            'phase_id' => 3,
+
+        $team_id = 1;
+
+        dd(render_permisssion(config('kong::roles.team_admin'), [
+            'team_id' => $team_id,
         ]));
-        $query = new Role();
-        dd(Guest::limit($query)->get());
+
     }
 
 }
