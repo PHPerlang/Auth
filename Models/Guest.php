@@ -103,7 +103,7 @@ class Guest extends Member
                         $guard_fields[$filed] = array_merge($guard_fields[$filed], $value);
                     } else {
 
-                        array_push($guard_fields[$filed], (array)$value);
+                        array_push($guard_fields[$filed], $value);
                     }
 
                 } else {
