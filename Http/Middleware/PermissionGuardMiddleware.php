@@ -88,7 +88,7 @@ class PermissionGuardMiddleware
      *
      * @return string
      */
-    protected function getRoutePermissionId()
+    protected function getRoutePermission()
     {
         $method = strtolower($this->request->getMethod());
 
@@ -104,8 +104,8 @@ class PermissionGuardMiddleware
      */
     protected function authGuestPermission()
     {
-
-        Guest::setRoutePermission($this->getRoutePermissionId());
+        Guest::setRoutePermission($this->getRoutePermission());
+        
         $guest_permissions = Guest::permissions()->toArray();
         $permissionLimitParams = Guest::params($guest_permissions);
         $routeGuardFields = $this->getRouteGuardFields();

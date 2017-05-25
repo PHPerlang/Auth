@@ -48,7 +48,7 @@ class RoleController extends Controller
 
     public function getRole()
     {
-        die('权限走通了');
+        dd(Guest::params());
     }
 
 }
