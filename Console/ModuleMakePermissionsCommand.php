@@ -193,7 +193,7 @@ class ModuleMakePermissionsCommand extends Command
      */
     protected function generatePermissionListId($method, $uri)
     {
-        return 'descendant:' . $this->generatePermissionId($method, $uri);
+        return $this->generatePermissionId($method, $uri);
     }
 
     /**

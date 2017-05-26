@@ -81,4 +81,20 @@ return [
         'permission_name' => '',
         'permission_desc' => '',
     ],
+    'get@api/kong/scene/setting/scene' => [ 
+        'permission_name' => '',
+        'permission_desc' => '',
+    ],
+    'put@api/kong/scene/setting/scene' => [ 
+        'permission_name' => '',
+        'permission_desc' => '',
+    ],
+    'get@api/kong/fields' => [ 
+        'permission_name' => '',
+        'permission_desc' => '',
+    ],
+    'get@api/kong/field' => [ 
+        'permission_name' => '',
+        'permission_desc' => '',
+    ],
 ];

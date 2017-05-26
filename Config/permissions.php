@@ -141,4 +141,32 @@ return [
         'permission_relevance' => [],
         'permission_like' => [],
     ],
+    'get@api/kong/scene/setting/scene' => [ 
+        'module_id' => 'Auth',
+        'permission_link' => '',
+        'permission_level' => 10,
+        'permission_relevance' => [],
+        'permission_like' => [],
+    ],
+    'put@api/kong/scene/setting/scene' => [ 
+        'module_id' => 'Auth',
+        'permission_link' => '',
+        'permission_level' => 10,
+        'permission_relevance' => [],
+        'permission_like' => [],
+    ],
+    'get@api/kong/fields' => [ 
+        'module_id' => 'Auth',
+        'permission_link' => '',
+        'permission_level' => 10,
+        'permission_relevance' => [],
+        'permission_like' => [],
+    ],
+    'get@api/kong/field' => [ 
+        'module_id' => 'Auth',
+        'permission_link' => '',
+        'permission_level' => 10,
+        'permission_relevance' => [],
+        'permission_like' => [],
+    ],
 ];
