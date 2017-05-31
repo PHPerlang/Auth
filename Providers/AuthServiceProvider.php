@@ -3,6 +3,7 @@
 namespace Modules\Auth\Providers;
 
 use Modules\Auth\Models\Guest;
+use Illuminate\Support\Facades\DB;
 use Modules\Auth\Models\AccessToken;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +27,18 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
+
+        file_put_contents(base_path('storage/logs/mysql.log'), PHP_EOL . PHP_EOL, FILE_APPEND);
+
+        DB::listen(function ($query) {
+            $sql = $query->sql;
+            foreach ($query->bindings as $replace) {
+                $value = is_numeric($replace) ? $replace : "'" . $replace . "'";
+                $sql = preg_replace('/\?/', $value, $sql, 1);
+            }
+            file_put_contents(base_path('storage/logs/mysql.log'), timestamp() . ': ' . $sql . PHP_EOL, FILE_APPEND);
+        });
+
     }
 
     /**
