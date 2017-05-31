@@ -3,7 +3,6 @@
 namespace Modules\Auth\Providers;
 
 use Modules\Auth\Models\Guest;
-use Illuminate\Support\Facades\DB;
 use Modules\Auth\Models\AccessToken;
 use Illuminate\Support\ServiceProvider;
 
@@ -28,17 +27,25 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
 
-        file_put_contents(base_path('storage/logs/mysql.log'), PHP_EOL . PHP_EOL, FILE_APPEND);
 
-        DB::listen(function ($query) {
-            $sql = $query->sql;
-            foreach ($query->bindings as $replace) {
-                $value = is_numeric($replace) ? $replace : "'" . $replace . "'";
-                $sql = preg_replace('/\?/', $value, $sql, 1);
-            }
-            file_put_contents(base_path('storage/logs/mysql.log'), timestamp() . ': ' . $sql . PHP_EOL, FILE_APPEND);
-        });
+        if (env('APP_ENV') != 'production') {
 
+            $log_file = base_path('storage/logs/mysql.log');
+            file_put_contents($log_file, PHP_EOL . PHP_EOL, FILE_APPEND);
+
+            \Illuminate\Support\Facades\DB::listen(function ($query) use ($log_file) {
+
+                $sql = $query->sql;
+
+                foreach ($query->bindings as $replace) {
+                    $value = is_numeric($replace) ? $replace : "'" . $replace . "'";
+                    $sql = preg_replace('/\?/', $value, $sql, 1);
+                }
+
+                file_put_contents($log_file, timestamp() . ': ' . $sql . PHP_EOL, FILE_APPEND);
+            });
+
+        }
     }
 
     /**
