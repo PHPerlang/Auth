@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Core\Foundation;
+namespace Modules\Auth\Foundation;
 
 use Illuminate\Support\Str;
 use Illuminate\Routing\UrlGenerator as LaravelUrlGenerator;
