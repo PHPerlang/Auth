@@ -34,14 +34,18 @@ class ResolveClientMiddleware
     {
         $client = strtolower($request->header('X-App-Id'));
 
-        if (!$client) {
+        if (!$request->route()->open) {
 
-            exception(900);
-        }
+            if (!$client) {
 
-        if (!preg_match('/.+:[0-9]+(\.[0-9]+)*/', $client)) {
+                exception(900);
+            }
 
-            exception(901);
+            if (!preg_match('/.+:[0-9]+(\.[0-9]+)*/', $client)) {
+
+                exception(901);
+            }
+
         }
 
         list($this->client_id, $this->client_version) = explode(':', $client);
