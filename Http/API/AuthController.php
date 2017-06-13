@@ -2,10 +2,10 @@
 
 namespace Modules\Auth\Http\API;
 
-use Carbon\Carbon;
 use Jindowin\Status;
 use Jindowin\Request;
-use Modules\Auth\Events\MemberRegisterEvent;
+use Modules\Auth\Models\SmsCode;
+use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Models\EmailCode;
 use Illuminate\Routing\Controller;
@@ -16,6 +16,7 @@ use Modules\Auth\Emails\RegisterLink;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Modules\Auth\Emails\RestPasswordLink;
+use Modules\Auth\Events\MemberRegisterEvent;
 
 class AuthController extends Controller
 {
@@ -79,13 +80,23 @@ class AuthController extends Controller
         return $accessToken;
     }
 
+    /**
+     * 生成验证码
+     *
+     * @return string
+     */
+    protected function generateCode()
+    {
+        return mt_rand(100000, 999999);
+    }
+
 
     /**
      * 发送邮箱注册码接口
      *
      * @return Status
      */
-    public function postRegisterCode()
+    public function postRegisterEmailCode()
     {
         validate($this->request->input(), ['member_email' => 'required|email|max:255']);
 
@@ -94,7 +105,7 @@ class AuthController extends Controller
             exception(1002);
         }
 
-        $code = mt_rand(100000, 999999);
+        $code = $this->generateCode();
 
         $key = $this->request->input('member_email');
 
@@ -113,11 +124,60 @@ class AuthController extends Controller
     }
 
     /**
-     * 注册用户接口
+     * 发送短信注册码接口
+     *
+     * 短信验证码 1 分钟内不得重新发送，同一个手机号一天只能发 5 次，可以在配置文件中配置。
      *
      * @return Status
      */
-    public function postRegister()
+    public function postRegisterSmsCode()
+    {
+
+        validate($this->request->input(), ['member_phone' => 'required|size:11']);
+
+        if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
+
+            exception(1002);
+        }
+
+        $code = $this->generateCode();
+
+        $key = $this->request->input('member_phone');
+
+        Cache::tags($this->registerCodeCacheTag)->put($key, $code, 10);
+
+        $yunpian = YunpianClient::create(config('auth::config.yunpian_apikey'));
+
+        $param = [
+            YunpianClient::MOBILE => $this->request->input('member_phone'),
+            YunpianClient::TEXT => str_replace('#code#', $code, config('auth::config.yunpian_code_template')),
+        ];
+
+        $send_sms_result = $yunpian->sms()->single_send($param);
+
+        if ($send_sms_result->code() !== 0) {
+
+            return status(1003, $send_sms_result);
+        }
+
+        $email_code = new SmsCode();
+        $email_code->code = $code;
+        $email_code->phone = $this->request->input('member_phone');
+        $email_code->type = 'register';
+        $email_code->expired_at = timestamp(10 * 60);
+        $email_code->save();
+
+        return status(200);
+
+    }
+
+
+    /**
+     * 通过邮箱注册用户接口
+     *
+     * @return Status
+     */
+    public function postEmailRegister()
     {
         validate($this->request->input(), [
             'member_email' => 'required|email|max:255',
@@ -142,6 +202,51 @@ class AuthController extends Controller
         $member = new Member;
 
         $member->member_email = $this->request->input('member_email');
+        $member->member_password = $this->request->input('member_password');
+        $member->member_avatar = $this->request->input('member_avatar');
+        $member->member_nickname = $this->request->input('member_nickname');
+        $member->member_status = 'normal';
+
+        $member->save();
+
+        event(new MemberRegisterEvent($member, $this->request->input()));
+
+        $accessToken = $this->saveMemberToken($member);
+
+        return status(200, $accessToken);
+    }
+
+
+    /**
+     * 通过短信注册用户接口
+     *
+     * @return Status
+     */
+    public function postSmsRegister()
+    {
+        validate($this->request->input(), [
+            'member_phone' => 'required|size:11',
+            'member_password' => 'sometimes|min:6',
+            'sms_code' => 'required|size:6',
+        ]);
+
+        if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
+
+            exception(1001);
+        }
+
+        $key = $this->request->input('member_phone');
+
+        $code = Cache::tags($this->registerCodeCacheTag)->get($key, null);
+
+        if (!$this->checkRegisterCode($this->request->input('member_phone'), $code)) {
+
+            exception(1002);
+        }
+
+        $member = new Member;
+
+        $member->member_phone = $this->request->input('member_phone');
         $member->member_password = $this->request->input('member_password');
         $member->member_avatar = $this->request->input('member_avatar');
         $member->member_nickname = $this->request->input('member_nickname');

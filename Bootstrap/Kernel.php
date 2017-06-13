@@ -19,6 +19,21 @@ class Kernel
 
     /*
     |--------------------------------------------------------------------------
+    | Bind Events
+    |--------------------------------------------------------------------------
+    |
+    */
+    public $listen = [
+        \Modules\Storage\Events\UploadDoneEvent::class => [
+            \Modules\Auth\Events\Handlers\AvatarUploadDoneHandler::class,
+        ],
+        \Modules\Storage\Events\UploadFilterEvent::class => [
+            \Modules\Auth\Events\Handlers\AvatarUploadFilterHandler::class,
+        ],
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
     | Auto loaded service providers
     |--------------------------------------------------------------------------
     |

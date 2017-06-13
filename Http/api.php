@@ -10,35 +10,38 @@
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Modules\Auth\Http\API'], function () {
+
     /*
      |--------------------------------------------------------------------------
      | 认证路由
      |--------------------------------------------------------------------------
      |
      */
+
     // 用户注册发送邮箱验证码
-    Route::post('/register/code', 'AuthController@postRegisterCode')->codes([
-        200 => '注册码发送成功',
+    Route::post('/register/email/code', 'AuthController@postRegisterEmailCode')->codes([
+        200 => '邮箱注册码发送成功',
         1000 => '邮箱格式不正确',
         1001 => '图形验证码不正确',
         1002 => '该邮箱已注册',
-    ])->guard([
-
-        'member_id' => resource_field(\Modules\Auth\Models\Member::class, 'member_id'),
-
     ])->open();
 
+    // 用户注册发送段兴验证码
+    Route::post('/register/sms/code', 'AuthController@postRegisterSmsCode')->codes([
+        200 => '短信注册码发送成功',
+        1000 => '邮箱格式不正确',
+        1001 => '图形验证码不正确',
+        1002 => '该手机已注册',
+        1003 => '短信网络配置错误',
+    ])->open();
 
-    // 用户注册
-    Route::post('/register', 'AuthController@postRegister')->codes([
+    // 用户通过邮箱注册
+    Route::post('/register/email', 'AuthController@postEmailRegister')->codes([
         200 => '注册成功',
         1000 => '数据校验失败',
         1001 => '该邮箱已注册',
         1002 => '邮箱验证码不正确',
-    ])->guard([
-
     ])->open();
-
 
     // 为新用户设置密码
     Route::post('/member/password', 'AuthController@postNewPassword')->codes([
