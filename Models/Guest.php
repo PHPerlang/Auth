@@ -56,7 +56,9 @@ class Guest extends Member
      */
     public static function instance()
     {
-        return self::find(self::$id);
+        $guest = self::find(self::$id);
+
+        return $guest ? $guest : new Member();
     }
 
     /**
