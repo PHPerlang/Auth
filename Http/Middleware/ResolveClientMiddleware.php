@@ -46,15 +46,14 @@ class ResolveClientMiddleware
                 exception(901);
             }
 
+            list($this->client_id, $this->client_version) = explode(':', $client);
+
+            $request->client = new \StdClass();
+            $request->client->id = $this->client_id;
+            $request->client->version = $this->client_version;
+            $request->client->group = $this->getClientGroup($this->client_id);
+
         }
-
-        list($this->client_id, $this->client_version) = explode(':', $client);
-
-        $request->client = new \StdClass();
-        $request->client->id = $this->client_id;
-        $request->client->version = $this->client_version;
-        $request->client->group = $this->getClientGroup($this->client_id);
-
 
         return $next($request);
     }
