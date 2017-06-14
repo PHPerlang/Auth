@@ -5,6 +5,8 @@ namespace Modules\Auth\Http\API;
 use Carbon\Carbon;
 use Jindowin\Status;
 use Jindowin\Request;
+use Modules\Auth\Models\Guest;
+use Swoole\Memory\Storage;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Models\SmsCode;
@@ -28,11 +30,17 @@ class AuthController extends Controller
 
     protected $registerCodeTimerTag;
 
+    protected $ResetPasswordCacheTag;
+
+    protected $ResetPasswordTimerTag;
+
     public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->registerCodeCacheTag = ['register', 'code'];
-        $this->registerCodeTimerTag = ['register', 'timer'];
+        $this->registerCodeCacheTag = ['auth.register', 'code'];
+        $this->registerCodeTimerTag = ['auth.register', 'timer'];
+        $this->ResetPasswordCacheTag = ['auth.reset', 'code'];
+        $this->ResetPasswordTimerTag = ['auth.reset', 'timer'];
     }
 
     /**
@@ -57,6 +65,31 @@ class AuthController extends Controller
             }
         }
     }
+
+
+    /**
+     * 检查邮箱注册码
+     *
+     * @param string $key
+     * @param string $input
+     *
+     * @return bool
+     */
+    protected function checkResetPasswordCode($key, $input)
+    {
+
+        $required = Cache::tags($this->ResetPasswordCacheTag)->get($key, uniqid());
+
+        if ($input != $required) {
+
+            if (config('app.env') == 'production' || $input != '888888') {
+
+                exception(1300);
+
+            }
+        }
+    }
+
 
     /**
      *  检查注册类型
@@ -125,7 +158,17 @@ class AuthController extends Controller
 
             Cache::tags($this->registerCodeTimerTag)->put($key, [$last[0]++, time()], $this->getTheDayLeftMinutes());
         }
+    }
 
+
+    /**
+     * 删除缓存的注册验证码
+     *
+     * @param $key
+     */
+    protected function forgetRegisterCode($key)
+    {
+        Cache::tags($this->registerCodeCacheTag)->forget($key);
     }
 
     /**
@@ -136,6 +179,61 @@ class AuthController extends Controller
     protected function checkSendRegisterCodeFrequency($key)
     {
         $last = Cache::tags($this->registerCodeTimerTag)->get($key);
+
+        if ($last) {
+
+            if ($last[0] > config('auth::config.send_code_max_times') - 1) {
+
+                exception(2001);
+            }
+
+            if (time() - $last[1] <= 60) {
+
+                exception(2002);
+            }
+        }
+    }
+
+    /**
+     * 缓存忘记密码验证码
+     *
+     * @param string $key
+     * @param integer $code
+     */
+    protected function cacheResetPasswordCode($key, $code)
+    {
+        Cache::tags($this->ResetPasswordCacheTag)->put($key, $code, 10);
+
+        $last = Cache::tags($this->ResetPasswordTimerTag)->get($key);
+
+        if (!$last) {
+
+            Cache::tags($this->ResetPasswordTimerTag)->put($key, [0, time()], $this->getTheDayLeftMinutes());
+
+        } else {
+
+            Cache::tags($this->ResetPasswordTimerTag)->put($key, [$last[0]++, time()], $this->getTheDayLeftMinutes());
+        }
+    }
+
+    /**
+     * 删除缓存的注册验证码
+     *
+     * @param $key
+     */
+    protected function forgetResetPasswordCode($key)
+    {
+        Cache::tags($this->ResetPasswordCacheTag)->forget($key);
+    }
+
+    /**
+     * 检查发送注册验证码频率
+     *
+     * @param string $key
+     */
+    protected function checkSendResetPasswordCodeFrequency($key)
+    {
+        $last = Cache::tags($this->ResetPasswordTimerTag)->get($key);
 
         if ($last) {
 
@@ -196,6 +294,54 @@ class AuthController extends Controller
     }
 
     /**
+     * 发送邮箱验证码
+     *
+     * @param integer $code
+     * @param string $type
+     */
+    protected function sendEmailCode($code, $type)
+    {
+        Mail::to($this->request->input('member_email'))->queue(new RegisterLink(($code)));
+
+        $email_code = new EmailCode;
+        $email_code->code = $code;
+        $email_code->email = $this->request->input('member_email');
+        $email_code->type = $type;
+        $email_code->expired_at = timestamp(10 * 60);
+        $email_code->save();
+    }
+
+    /**
+     * 发送短信验证码
+     *
+     * @param integer $code
+     * @param string $type
+     */
+    protected function sendSmsCode($code, $type)
+    {
+        $yunpian = YunpianClient::create(config('auth::config.yunpian_apikey'));
+
+        $param = [
+            YunpianClient::MOBILE => $this->request->input('member_phone'),
+            YunpianClient::TEXT => str_replace('#code#', $code, config('auth::config.yunpian_code_template')),
+        ];
+
+        $send_sms_result = $yunpian->sms()->single_send($param);
+
+        if ($send_sms_result->code() !== 0) {
+
+            exception(1003, $send_sms_result);
+        }
+
+        $email_code = new SmsCode();
+        $email_code->code = $code;
+        $email_code->phone = $this->request->input('member_phone');
+        $email_code->type = $type;
+        $email_code->expired_at = timestamp(10 * 60);
+        $email_code->save();
+    }
+
+    /**
      * 发送邮箱注册码接口
      *
      * @return Status
@@ -236,14 +382,7 @@ class AuthController extends Controller
                         exception(3002);
                     }
 
-                    Mail::to($this->request->input('member_email'))->queue(new RegisterLink(($code)));
-
-                    $email_code = new EmailCode;
-                    $email_code->code = $code;
-                    $email_code->email = $this->request->input('member_email');
-                    $email_code->type = 'register';
-                    $email_code->expired_at = timestamp(10 * 60);
-                    $email_code->save();
+                    $this->sendEmailCode($code, 'register');
 
                     break;
 
@@ -253,26 +392,7 @@ class AuthController extends Controller
                         exception(3003);
                     }
 
-                    $yunpian = YunpianClient::create(config('auth::config.yunpian_apikey'));
-
-                    $param = [
-                        YunpianClient::MOBILE => $this->request->input('member_phone'),
-                        YunpianClient::TEXT => str_replace('#code#', $code, config('auth::config.yunpian_code_template')),
-                    ];
-
-                    $send_sms_result = $yunpian->sms()->single_send($param);
-
-                    if ($send_sms_result->code() !== 0) {
-
-                        return status(1003, $send_sms_result);
-                    }
-
-                    $email_code = new SmsCode();
-                    $email_code->code = $code;
-                    $email_code->phone = $this->request->input('member_phone');
-                    $email_code->type = 'register';
-                    $email_code->expired_at = timestamp(10 * 60);
-                    $email_code->save();
+                    $this->sendSmsCode($code, 'register');
 
                     break;
             }
@@ -342,12 +462,17 @@ class AuthController extends Controller
                     exception(3004);
                 }
 
+                if (!$this->request->input('member_password')) {
+
+                    exception(3005);
+                }
+
                 $member->member_account = $this->request->input('member_account');
 
                 break;
         }
 
-        $member->member_password = $this->request->input('member_password');
+        $member->member_password = $this->request->input('member_password', uniqid());
         $member->member_avatar = $this->request->input('member_avatar');
         $member->member_nickname = $this->request->input('member_nickname');
         $member->member_status = 'normal';
@@ -371,12 +496,33 @@ class AuthController extends Controller
     {
 
         validate($this->request->input(), [
-            'member_email' => 'required|email|max:255',
+            'member_phone' => 'sometimes|size:11',
+            'member_email' => 'sometimes|email|max:255',
             'member_password' => 'required|min:6',
+            'login_type' => 'required',
             'captcha' => 'sometimes|size:6',
         ]);
 
-        $member = Member::where('member_email', $this->request->input('member_email'))->first();
+        $login_type = $this->request->input('login_type');
+
+        if ($this->checkLoginType($login_type)) {
+
+            exception(2000);
+        }
+
+        $member = null;
+
+        switch ($login_type) {
+            case 'email':
+                $member = Member::where('member_email', $this->request->input('member_email'))->first();
+                break;
+            case 'sms':
+                $member = Member::where('member_phone', $this->request->input('member_phone'))->first();
+                break;
+            case 'username':
+                $member = Member::where('member_account', $this->request->input('member_account'))->first();
+                break;
+        }
 
         if (!$member || $member->member_password != $member->encryptMemberPassword($this->request->input('member_password'))) {
 
@@ -391,63 +537,146 @@ class AuthController extends Controller
      */
     public function postNewPassword()
     {
-        $member_id = $this->request->input('member_id');
 
         validate($this->request->input(), [
-            'member_email' => 'required',
+            'member_email' => 'sometimes|email|max:255',
+            'member_phone' => 'sometimes|email|size:255',
             'member_password' => 'required|min:6',
-            'email_code' => 'required',
+            'register_code' => 'required',
+            'register_type' => 'required',
         ]);
 
-        $member = Member::find($member_id);
+        $register_type = $this->request->input('register_type');
 
-        if (!$member) {
-
-            exception(1001);
+        // 检查注册类型是否开启
+        if (!$this->checkRegisterType($register_type)) {
+            exception(2000);
         }
 
-        $key = $this->request->input('member_email');
+        $member = Guest::instance();
 
-        $code = Cache::tags($this->registerCodeCacheTag)->get($key, null);
+        $key = $register_type == 'email' ? $this->request->input('member_email') : $this->request->input('member_phone');
 
-        if (!$this->checkRegisterCode($this->request->input('email_code'), $code)) {
-
-            exception(1002);
-        }
-
-        Cache::tags($this->registerCodeCacheTag)->forget($key);
+        $this->checkRegisterCode($key, $this->request->input('register_code'));
 
         $member->member_password = $this->request->input('member_password');
 
         $member->save();
+
+        $this->forgetRegisterCode($key);
 
         return status(200);
     }
 
 
     /**
-     * 发送密码重置链接.
+     * 发送忘记密码重置链接.
      *
      * @return Status
      */
     public function postForgotPassword()
     {
         validate($this->request->input(), [
-            'member_email' => 'required|email|max:255',
+            'member_email' => 'sometimes|email|max:255',
+            'member_phone' => 'sometimes|size:11',
+            'find_password_type' => 'required',
         ]);
 
-        $token = md5(time());
+        $find_password_type = $this->request->input('find_password_type');
 
-        $salt = Crypt::encryptString(json_encode([
-            'member_email' => $this->request->input('member_eamil'),
-            'token' => $token,
-        ]));
+        if (!$this->checkFindPasswordType($find_password_type)) {
 
-        $link = 'http://test.kong.com/' . $salt;
+            exception(2000);
+        }
 
-        Mail::to($this->request->input('member_email'))->queue(new RestPasswordLink($link));
+        $code = $this->generateCode();
 
-        Log::info('Send member reset password link', array_merge($this->request->input(), ['link' => $link]));
+        switch ($find_password_type) {
+
+            case 'email':
+
+                $key = $this->request->input('member_email');
+
+                if (!Member::where('member_email', $key)->first()) {
+                    exception(2010);
+                }
+
+                $this->checkSendResetPasswordCodeFrequency($key);
+
+                $this->cacheResetPasswordCode($key, $code);
+
+                $this->sendEmailCode($code, 'reset');
+
+                break;
+
+            case 'phone':
+
+                $key = $this->request->input('member_phone');
+
+                if (!Member::where('member_phone', $key)->first()) {
+                    exception(2010);
+                }
+
+                $this->checkSendResetPasswordCodeFrequency($key);
+
+                $this->cacheResetPasswordCode($key, $code);
+
+                $this->sendSmsCode($code, 'reset');
+
+                break;
+        }
+
+        return status(200);
+    }
+
+    /**
+     * 重置忘记密码
+     *
+     * @return Status
+     */
+    public function resetForgetPassword()
+    {
+        validate($this->request->input(), [
+            'member_email' => 'sometimes|email|max:255',
+            'member_phone' => 'sometimes|size:11',
+            'find_password_type' => 'required',
+            'reset_code' => 'required',
+            'member_password' => 'required',
+        ]);
+
+        $find_password_type = $this->request->input('find_password_type');
+
+        if (!$this->checkFindPasswordType($find_password_type)) {
+
+            exception(2000);
+        }
+
+        $key = $find_password_type == 'email' ? $this->request->input('member_email') : $this->request->input('member_phone');
+
+        $this->checkResetPasswordCode($key, $this->request->input('reset_code'));
+
+        $member = null;
+
+        switch ($find_password_type) {
+
+            case 'email':
+                $member = Member::where('member_email', $this->request->input('member_email'))->first();
+
+                break;
+            case 'sms':
+                $member = Member::where('member_phone', $this->request->input('member_phone'))->first();
+
+                break;
+        }
+
+        if (!$member) {
+
+            exception('1001');
+        }
+
+        $member->member_password = $this->request->input('member_password');
+
+        $member->save();
 
         return status(200);
     }

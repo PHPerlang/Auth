@@ -42,6 +42,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         3002 => '该邮箱已注册',
         3003 => '该手机号已注册',
         3004 => '该用户名已注册',
+        3005 => '密码不能为空',
 
     ])->open();
 
@@ -49,19 +50,32 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     Route::post('/member/password', 'AuthController@postNewPassword')->codes([
         200 => '用户密码修改成功',
         1001 => '该用户不存在',
-        1002 => '邮箱验证码不正确',
+        1300 => '验证码不正确',
+
     ]);
 
     // 用户登录
     Route::post('/login', 'AuthController@postLogin')->codes([
         200 => '登录成功',
         1000 => '数据校验失败',
-        1001 => '邮箱或密码不正确'
+        1001 => '账号或密码不正确',
+        2000 => '该登录类型通道已关闭',
     ])->open();
 
-    // 发送密码重置邮件
+    // 发送密码重置验证码
     Route::post('/forgot/password', 'AuthController@postForgotPassword')->codes([
-        200 => '密码重置邮件发送成功',
+        200 => '密码重置验证码发送成功',
+        2000 => '该找回密码通道已关闭',
+        2001 => '注册码已超出最大发送次数，请明天再试',
+        2002 => '发送太频繁，请 60 秒后再试',
+        2010 => '该用户不存在',
+    ])->open();
+
+    // 重置找回密码
+    Route::post('/forgot/password/reset', 'AuthController@resetForgetPassword')->codes([
+        1300 => '验证码不正确',
+        1000 => '数据校验失败',
+        2000 => '该找回密码通道已关闭',
     ])->open();
 
     // 用户退出登录
