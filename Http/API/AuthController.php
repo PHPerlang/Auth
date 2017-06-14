@@ -2,11 +2,12 @@
 
 namespace Modules\Auth\Http\API;
 
+use Carbon\Carbon;
 use Jindowin\Status;
 use Jindowin\Request;
-use Modules\Auth\Models\SmsCode;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
+use Modules\Auth\Models\SmsCode;
 use Modules\Auth\Models\EmailCode;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
@@ -25,33 +26,129 @@ class AuthController extends Controller
 
     protected $registerCodeCacheTag;
 
+    protected $registerCodeTimerTag;
+
     public function __construct(Request $request)
     {
         $this->request = $request;
         $this->registerCodeCacheTag = ['register', 'code'];
+        $this->registerCodeTimerTag = ['register', 'timer'];
     }
 
     /**
      * 检查邮箱注册码
      *
+     * @param string $key
      * @param string $input
-     * @param string $required
      *
      * @return bool
      */
-    protected function checkRegisterCode($input, $required)
+    protected function checkRegisterCode($key, $input)
     {
 
-        if ($input == $required) {
+        $required = Cache::tags($this->registerCodeCacheTag)->get($key, uniqid());
 
-            return true;
+        if ($input != $required) {
 
-        } else if (config('app.env') != 'production' && $input == '888888') {
+            if (config('app.env') == 'production' || $input != '888888') {
 
-            return true;
+                exception(1300);
+
+            }
+        }
+    }
+
+    /**
+     *  检查注册类型
+     *
+     * @param string $input
+     *
+     * @return bool
+     */
+    protected function checkRegisterType($input)
+    {
+        return in_array($input, config('auth::config.register_types'));
+    }
+
+    /**
+     *  检查登录类型
+     *
+     * @param string $input
+     *
+     * @return bool
+     */
+    protected function checkLoginType($input)
+    {
+        return in_array($input, config('auth::config.login_types'));
+    }
+
+    /**
+     *  检查找回密码方式
+     *
+     * @param string $input
+     *
+     * @return bool
+     */
+    protected function checkFindPasswordType($input)
+    {
+        return in_array($input, config('auth::config.find_password_types'));
+    }
+
+    /**
+     * 获取缓存的 KEY 值
+     *
+     * @return mixed
+     */
+    protected function getCacheKey()
+    {
+        return $this->request->input('register_type') == 'email' ? $this->request->input('member_email', null) : $this->request->input('member_phone', null);
+    }
+
+
+    /**
+     * 缓存注册验证码
+     *
+     * @param string $key
+     * @param integer $code
+     */
+    protected function cacheRegisterCode($key, $code)
+    {
+        Cache::tags($this->registerCodeCacheTag)->put($key, $code, 10);
+
+        $last = Cache::tags($this->registerCodeTimerTag)->get($key);
+
+        if (!$last) {
+
+            Cache::tags($this->registerCodeTimerTag)->put($key, [0, time()], $this->getTheDayLeftMinutes());
+
+        } else {
+
+            Cache::tags($this->registerCodeTimerTag)->put($key, [$last[0]++, time()], $this->getTheDayLeftMinutes());
         }
 
-        return false;
+    }
+
+    /**
+     * 检查发送注册验证码频率
+     *
+     * @param string $key
+     */
+    protected function checkSendRegisterCodeFrequency($key)
+    {
+        $last = Cache::tags($this->registerCodeTimerTag)->get($key);
+
+        if ($last) {
+
+            if ($last[0] > config('auth::config.send_code_max_times') - 1) {
+
+                exception(2001);
+            }
+
+            if (time() - $last[1] <= 60) {
+
+                exception(2002);
+            }
+        }
     }
 
     /**
@@ -90,118 +187,166 @@ class AuthController extends Controller
         return mt_rand(100000, 999999);
     }
 
+    /**
+     * 获取离第二天前剩余的分钟数
+     */
+    protected function getTheDayLeftMinutes()
+    {
+        return (strtotime(date("Y-m-d", strtotime("+1 day")) . ' 00:00:00') - time()) / 60;
+    }
 
     /**
      * 发送邮箱注册码接口
      *
      * @return Status
      */
-    public function postRegisterEmailCode()
-    {
-        validate($this->request->input(), ['member_email' => 'required|email|max:255']);
-
-        if (Member::where('member_email', $this->request->input('member_email'))->first()) {
-
-            exception(1002);
-        }
-
-        $code = $this->generateCode();
-
-        $key = $this->request->input('member_email');
-
-        Cache::tags($this->registerCodeCacheTag)->put($key, $code, 10);
-
-        Mail::to($this->request->input('member_email'))->queue(new RegisterLink(($code)));
-
-        $email_code = new EmailCode;
-        $email_code->code = $code;
-        $email_code->email = $this->request->input('member_email');
-        $email_code->type = 'register';
-        $email_code->expired_at = timestamp(10 * 60);
-        $email_code->save();
-
-        return status(200);
-    }
-
-    /**
-     * 发送短信注册码接口
-     *
-     * 短信验证码 1 分钟内不得重新发送，同一个手机号一天只能发 5 次，可以在配置文件中配置。
-     *
-     * @return Status
-     */
-    public function postRegisterSmsCode()
+    public function postRegisterCode()
     {
 
-        validate($this->request->input(), ['member_phone' => 'required|size:11']);
-
-        if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
-
-            exception(1002);
-        }
-
-        $code = $this->generateCode();
-
-        $key = $this->request->input('member_phone');
-
-        Cache::tags($this->registerCodeCacheTag)->put($key, $code, 10);
-
-        $yunpian = YunpianClient::create(config('auth::config.yunpian_apikey'));
-
-        $param = [
-            YunpianClient::MOBILE => $this->request->input('member_phone'),
-            YunpianClient::TEXT => str_replace('#code#', $code, config('auth::config.yunpian_code_template')),
-        ];
-
-        $send_sms_result = $yunpian->sms()->single_send($param);
-
-        if ($send_sms_result->code() !== 0) {
-
-            return status(1003, $send_sms_result);
-        }
-
-        $email_code = new SmsCode();
-        $email_code->code = $code;
-        $email_code->phone = $this->request->input('member_phone');
-        $email_code->type = 'register';
-        $email_code->expired_at = timestamp(10 * 60);
-        $email_code->save();
-
-        return status(200);
-
-    }
-
-
-    /**
-     * 通过邮箱注册用户接口
-     *
-     * @return Status
-     */
-    public function postEmailRegister()
-    {
         validate($this->request->input(), [
-            'member_email' => 'required|email|max:255',
-            'member_password' => 'sometimes|min:6',
-            'email_code' => 'required|size:6',
+            'member_email' => 'sometimes|email|max:255',
+            'member_phone' => 'sometimes|size:11',
+            'register_type' => 'required'
         ]);
 
-        if (Member::where('member_email', $this->request->input('member_email'))->first()) {
-
-            exception(1001);
+        // 检查注册类型是否开启
+        if (!$this->checkRegisterType($this->request->input('register_type'))) {
+            exception(2000);
         }
 
-        $key = $this->request->input('member_email');
+        if ($this->request->input('member_email') || $this->request->input('member_phone')) {
 
-        $code = Cache::tags($this->registerCodeCacheTag)->get($key, null);
+            // 获取缓存键值
+            $key = $this->getCacheKey();
 
-        if (!$this->checkRegisterCode($this->request->input('email_code'), $code)) {
+            // 检查注册验证码发送频率
+            $this->checkSendRegisterCodeFrequency($key);
 
-            exception(1002);
+            // 生成随机验证码
+            $code = $this->generateCode();
+
+            // 缓存注册验证码
+            $this->cacheRegisterCode($key, $code);
+
+            switch ($this->request->input('register_type')) {
+
+                case 'email';
+
+                    if (Member::where('member_email', $this->request->input('member_email'))->first()) {
+                        exception(3002);
+                    }
+
+                    Mail::to($this->request->input('member_email'))->queue(new RegisterLink(($code)));
+
+                    $email_code = new EmailCode;
+                    $email_code->code = $code;
+                    $email_code->email = $this->request->input('member_email');
+                    $email_code->type = 'register';
+                    $email_code->expired_at = timestamp(10 * 60);
+                    $email_code->save();
+
+                    break;
+
+                case 'sms';
+
+                    if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
+                        exception(3003);
+                    }
+
+                    $yunpian = YunpianClient::create(config('auth::config.yunpian_apikey'));
+
+                    $param = [
+                        YunpianClient::MOBILE => $this->request->input('member_phone'),
+                        YunpianClient::TEXT => str_replace('#code#', $code, config('auth::config.yunpian_code_template')),
+                    ];
+
+                    $send_sms_result = $yunpian->sms()->single_send($param);
+
+                    if ($send_sms_result->code() !== 0) {
+
+                        return status(1003, $send_sms_result);
+                    }
+
+                    $email_code = new SmsCode();
+                    $email_code->code = $code;
+                    $email_code->phone = $this->request->input('member_phone');
+                    $email_code->type = 'register';
+                    $email_code->expired_at = timestamp(10 * 60);
+                    $email_code->save();
+
+                    break;
+            }
+
+            return status(200);
+        }
+
+        return status(1001);
+    }
+
+    /**
+     * 注册用户
+     *
+     * 注意：注册的用户的时候不能同时填充 member_phone, member_email, member_account 字段，以保证登录账号不会重复。
+     * 它们三者同时存在的时候，需要严格进行值检查。
+     *
+     * @return Status
+     */
+    public function postRegister()
+    {
+        validate($this->request->input(), [
+            'register_type' => 'required',
+            'member_email' => 'sometimes|email|max:255',
+            'member_phone' => 'sometimes|size:11',
+            'member_password' => 'sometimes|min:6',
+        ]);
+
+        $register_type = $this->request->input('register_type');
+
+        // 检查注册类型是否开启
+        if (!$this->checkRegisterType($register_type)) {
+            exception(2000);
         }
 
         $member = new Member;
 
-        $member->member_email = $this->request->input('member_email');
+        switch ($register_type) {
+
+            case 'email':
+
+                if (Member::where('member_email', $this->request->input('member_email'))->first()) {
+                    exception(3002);
+                }
+
+                $this->checkRegisterCode($this->request->input('member_email'), $this->request->input('register_code'));
+
+                $member->member_email = $this->request->input('member_email');
+
+                break;
+
+            case 'sms':
+
+                if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
+                    exception(3003);
+                }
+
+                $this->checkRegisterCode($this->request->input('member_phone'), $this->request->input('register_code'));
+
+                $member->member_phone = $this->request->input('member_phone');
+
+
+                break;
+
+            case 'username':
+
+                if (Member::where('member_account', $this->request->input('member_account'))->first()) {
+                    exception(3004);
+                }
+
+                $member->member_account = $this->request->input('member_account');
+
+                break;
+        }
+
         $member->member_password = $this->request->input('member_password');
         $member->member_avatar = $this->request->input('member_avatar');
         $member->member_nickname = $this->request->input('member_nickname');
@@ -216,50 +361,6 @@ class AuthController extends Controller
         return status(200, $accessToken);
     }
 
-
-    /**
-     * 通过短信注册用户接口
-     *
-     * @return Status
-     */
-    public function postSmsRegister()
-    {
-        validate($this->request->input(), [
-            'member_phone' => 'required|size:11',
-            'member_password' => 'sometimes|min:6',
-            'sms_code' => 'required|size:6',
-        ]);
-
-        if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
-
-            exception(1001);
-        }
-
-        $key = $this->request->input('member_phone');
-
-        $code = Cache::tags($this->registerCodeCacheTag)->get($key, null);
-
-        if (!$this->checkRegisterCode($this->request->input('member_phone'), $code)) {
-
-            exception(1002);
-        }
-
-        $member = new Member;
-
-        $member->member_phone = $this->request->input('member_phone');
-        $member->member_password = $this->request->input('member_password');
-        $member->member_avatar = $this->request->input('member_avatar');
-        $member->member_nickname = $this->request->input('member_nickname');
-        $member->member_status = 'normal';
-
-        $member->save();
-
-        event(new MemberRegisterEvent($member, $this->request->input()));
-
-        $accessToken = $this->saveMemberToken($member);
-
-        return status(200, $accessToken);
-    }
 
     /**
      * 用户登录接口.

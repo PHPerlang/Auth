@@ -18,29 +18,31 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
      |
      */
 
-    // 用户注册发送邮箱验证码
-    Route::post('/register/email/code', 'AuthController@postRegisterEmailCode')->codes([
-        200 => '邮箱注册码发送成功',
+    // 用户注册发送验证码，支持手机验证码，邮箱验证码
+    Route::post('/register/code', 'AuthController@postRegisterCode')->codes([
+        200 => '验证码发送成功',
         1000 => '邮箱格式不正确',
-        1001 => '图形验证码不正确',
-        1002 => '该邮箱已注册',
+        1001 => '邮箱或手机不能为空',
+        2000 => '该注册类型通道已关闭',
+        2001 => '注册码已超出最大发送次数，请明天再试',
+        2002 => '发送太频繁，请 60 秒后再试',
+        3001 => '图形验证码不正确',
+        3002 => '该邮箱已注册',
+        3003 => '该手机号已注册',
+        3004 => '短信网络配置错误',
     ])->open();
 
-    // 用户注册发送段兴验证码
-    Route::post('/register/sms/code', 'AuthController@postRegisterSmsCode')->codes([
-        200 => '短信注册码发送成功',
-        1000 => '邮箱格式不正确',
-        1001 => '图形验证码不正确',
-        1002 => '该手机已注册',
-        1003 => '短信网络配置错误',
-    ])->open();
-
-    // 用户通过邮箱注册
-    Route::post('/register/email', 'AuthController@postEmailRegister')->codes([
+    // 用户注册
+    Route::post('/register', 'AuthController@postRegister')->codes([
         200 => '注册成功',
         1000 => '数据校验失败',
-        1001 => '该邮箱已注册',
-        1002 => '邮箱验证码不正确',
+        1300 => '验证码不正确',
+        2000 => '该注册类型通道已关闭',
+        3001 => '图形验证码不正确',
+        3002 => '该邮箱已注册',
+        3003 => '该手机号已注册',
+        3004 => '该用户名已注册',
+
     ])->open();
 
     // 为新用户设置密码
