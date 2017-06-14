@@ -131,6 +131,7 @@ class AuthServiceProvider extends ServiceProvider
     protected function registerGuest()
     {
         try {
+
             $access_token = AccessToken::where('access_token', app('request')->getAccessToken())->first();
 
             if ($access_token) {
