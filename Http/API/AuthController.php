@@ -526,7 +526,7 @@ class AuthController extends Controller
      *
      * @return Status
      */
-    public function postForgotPasswordCode()
+    public function postResetPasswordCode()
     {
         validate($this->request->input(), [
             'member_email' => 'sometimes|email|max:255',
@@ -596,7 +596,7 @@ class AuthController extends Controller
      *
      * @return Status
      */
-    public function resetForgetPassword()
+    public function putResetPassword()
     {
         validate($this->request->input(), [
             'member_email' => 'sometimes|email|max:255',

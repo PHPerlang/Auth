@@ -63,7 +63,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     ])->open();
 
     // 发送密码重置验证码
-    Route::post('/forgot/password', 'AuthController@postForgotPasswordCode')->codes([
+    Route::post('/reset/password/code', 'AuthController@postResetPasswordCode')->codes([
         200 => '密码重置验证码发送成功',
         2000 => '该找回密码通道已关闭',
         2001 => '注册码已超出最大发送次数，请明天再试',
@@ -72,9 +72,10 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     ])->open();
 
     // 重置找回密码
-    Route::post('/forgot/password/reset', 'AuthController@resetForgetPassword')->codes([
-        1300 => '验证码不正确',
+    Route::put('/reset/password', 'AuthController@putResetPassword')->codes([
+        200 => '重置密码成功',
         1000 => '数据校验失败',
+        1300 => '验证码不正确',
         2000 => '该找回密码通道已关闭',
     ])->open();
 
@@ -120,3 +121,4 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     });
 
 });
+
