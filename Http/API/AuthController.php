@@ -44,31 +44,6 @@ class AuthController extends Controller
     }
 
     /**
-     * 检查缓存的验证码
-     *
-     * @param string $tag
-     * @param string $key
-     * @param string $input
-     *
-     * @return bool
-     */
-    protected function checkCacheCode($tag, $key, $input)
-    {
-
-        $required = Cache::tags($tag)->get($key, uniqid());
-
-        if ($input != $required) {
-
-            if (config('app.env') == 'production' || $input != '888888') {
-
-                exception(1300);
-
-            }
-        }
-    }
-
-
-    /**
      *  检查注册类型
      *
      * @param string $input
@@ -114,27 +89,52 @@ class AuthController extends Controller
         return $this->request->input('register_type') == 'email' ? $this->request->input('member_email', null) : $this->request->input('member_phone', null);
     }
 
+    /**
+     * 检查缓存的验证码
+     *
+     * @param string $tag
+     * @param string $key
+     * @param string $input
+     *
+     * @return bool
+     */
+    protected function checkCacheCode($tag, $key, $input)
+    {
+
+        $required = Cache::tags($this->cache_tag[$tag])->get($key, uniqid());
+
+        if ($input != $required) {
+
+            if (config('app.env') == 'production' || $input != '888888') {
+
+                exception(1300);
+
+            }
+        }
+    }
+
 
     /**
      * 缓存验证码
      *
      * @param string $tag
+     * @param string $timer
      * @param string $key
      * @param integer $code
      */
-    protected function cacheCode($tag, $key, $code)
+    protected function cacheCode($tag, $timer, $key, $code)
     {
-        Cache::tags($tag)->put($key, $code, 10);
+        Cache::tags($this->cache_tag[$tag])->put($key, $code, 10);
 
-        $last = Cache::tags($tag)->get($key);
+        $last = Cache::tags($this->cache_tag[$timer])->get($key);
 
         if (!$last) {
 
-            Cache::tags($tag)->put($key, [0, time()], $this->getTheDayLeftMinutes());
+            Cache::tags($this->cache_tag[$timer])->put($key, [0, time()], $this->getTheDayLeftMinutes());
 
         } else {
 
-            Cache::tags($tag)->put($key, [$last[0]++, time()], $this->getTheDayLeftMinutes());
+            Cache::tags($this->cache_tag[$timer])->put($key, [$last[0]++, time()], $this->getTheDayLeftMinutes());
         }
     }
 
@@ -147,18 +147,18 @@ class AuthController extends Controller
      */
     protected function forgetCode($tag, $key)
     {
-        Cache::tags($tag)->forget($key);
+        Cache::tags($this->cache_tag[$tag])->forget($key);
     }
 
     /**
      * 检查验证码发送频率
      *
-     * @param string $tag
+     * @param string $timer
      * @param string $key
      */
-    protected function checkCodeFrequency($tag, $key)
+    protected function checkCodeFrequency($timer, $key)
     {
-        $last = Cache::tags($tag)->get($key);
+        $last = Cache::tags($this->cache_tag[$timer])->get($key);
 
         if ($last) {
 
@@ -299,7 +299,7 @@ class AuthController extends Controller
             $code = $this->generateCode();
 
             // 缓存注册验证码
-            $this->cacheCode('register_cod', $key, $code);
+            $this->cacheCode('register_code', 'register_timer', $key, $code);
 
             switch ($this->request->input('register_type')) {
 
@@ -560,7 +560,7 @@ class AuthController extends Controller
                 $this->checkCodeFrequency('reset_password_timer', $key);
 
                 // 缓存验证码
-                $this->cacheCode('reset_password_code', $key, $code);
+                $this->cacheCode('reset_password_code', 'reset_password_timer', $key, $code);
 
                 // 通过邮件发送验证码
                 $this->sendEmailCode($code, 'reset');
@@ -580,7 +580,7 @@ class AuthController extends Controller
                 $this->checkCodeFrequency('reset_password_timer', $key);
 
                 // 缓存验证码
-                $this->cacheCode('reset_password_code', $key, $code);
+                $this->cacheCode('reset_password_code', 'reset_password_timer', $key, $code);
 
                 // 通过手机短信发送验证码
                 $this->sendSmsCode($code, 'reset');
