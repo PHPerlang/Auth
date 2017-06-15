@@ -25,5 +25,11 @@ class AvatarUploadDoneHandler
     public function handle(UploadDoneEvent $event)
     {
 
+        if ($event->token == 'auth.avatar') {
+
+
+
+        }
+
     }
 }

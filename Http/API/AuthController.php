@@ -2,83 +2,60 @@
 
 namespace Modules\Auth\Http\API;
 
-use Carbon\Carbon;
 use Jindowin\Status;
 use Jindowin\Request;
 use Modules\Auth\Models\Guest;
-use Swoole\Memory\Storage;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Models\SmsCode;
 use Modules\Auth\Models\EmailCode;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Modules\Auth\Models\AccessToken;
 use Modules\Auth\Emails\RegisterLink;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Crypt;
-use Modules\Auth\Emails\RestPasswordLink;
 use Modules\Auth\Events\MemberRegisterEvent;
 
 class AuthController extends Controller
 {
 
+    /**
+     * 客户端请求
+     *
+     * @var Request
+     */
     public $request;
 
-    protected $registerCodeCacheTag;
-
-    protected $registerCodeTimerTag;
-
-    protected $ResetPasswordCacheTag;
-
-    protected $ResetPasswordTimerTag;
+    /**
+     * 定义当前控制器用到的缓存标签
+     *
+     * @var array
+     */
+    protected $cache_tag = [
+        'register_code' => ['auth.register', 'code'],
+        'register_timer' => ['auth.register', 'timer'],
+        'reset_password_code' => ['auth.reset', 'code'],
+        'reset_password_timer' => ['auth.reset', 'timer'],
+    ];
 
     public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->registerCodeCacheTag = ['auth.register', 'code'];
-        $this->registerCodeTimerTag = ['auth.register', 'timer'];
-        $this->ResetPasswordCacheTag = ['auth.reset', 'code'];
-        $this->ResetPasswordTimerTag = ['auth.reset', 'timer'];
     }
 
     /**
-     * 检查邮箱注册码
+     * 检查缓存的验证码
      *
+     * @param string $tag
      * @param string $key
      * @param string $input
      *
      * @return bool
      */
-    protected function checkRegisterCode($key, $input)
+    protected function checkCacheCode($tag, $key, $input)
     {
 
-        $required = Cache::tags($this->registerCodeCacheTag)->get($key, uniqid());
-
-        if ($input != $required) {
-
-            if (config('app.env') == 'production' || $input != '888888') {
-
-                exception(1300);
-
-            }
-        }
-    }
-
-
-    /**
-     * 检查邮箱注册码
-     *
-     * @param string $key
-     * @param string $input
-     *
-     * @return bool
-     */
-    protected function checkResetPasswordCode($key, $input)
-    {
-
-        $required = Cache::tags($this->ResetPasswordCacheTag)->get($key, uniqid());
+        $required = Cache::tags($tag)->get($key, uniqid());
 
         if ($input != $required) {
 
@@ -139,101 +116,49 @@ class AuthController extends Controller
 
 
     /**
-     * 缓存注册验证码
+     * 缓存验证码
      *
+     * @param string $tag
      * @param string $key
      * @param integer $code
      */
-    protected function cacheRegisterCode($key, $code)
+    protected function cacheCode($tag, $key, $code)
     {
-        Cache::tags($this->registerCodeCacheTag)->put($key, $code, 10);
+        Cache::tags($tag)->put($key, $code, 10);
 
-        $last = Cache::tags($this->registerCodeTimerTag)->get($key);
+        $last = Cache::tags($tag)->get($key);
 
         if (!$last) {
 
-            Cache::tags($this->registerCodeTimerTag)->put($key, [0, time()], $this->getTheDayLeftMinutes());
+            Cache::tags($tag)->put($key, [0, time()], $this->getTheDayLeftMinutes());
 
         } else {
 
-            Cache::tags($this->registerCodeTimerTag)->put($key, [$last[0]++, time()], $this->getTheDayLeftMinutes());
+            Cache::tags($tag)->put($key, [$last[0]++, time()], $this->getTheDayLeftMinutes());
         }
     }
 
 
     /**
-     * 删除缓存的注册验证码
+     * 清除验证码缓存
      *
-     * @param $key
-     */
-    protected function forgetRegisterCode($key)
-    {
-        Cache::tags($this->registerCodeCacheTag)->forget($key);
-    }
-
-    /**
-     * 检查发送注册验证码频率
-     *
+     * @param string $tag
      * @param string $key
      */
-    protected function checkSendRegisterCodeFrequency($key)
+    protected function forgetCode($tag, $key)
     {
-        $last = Cache::tags($this->registerCodeTimerTag)->get($key);
-
-        if ($last) {
-
-            if ($last[0] > config('auth::config.send_code_max_times') - 1) {
-
-                exception(2001);
-            }
-
-            if (time() - $last[1] <= 60) {
-
-                exception(2002);
-            }
-        }
+        Cache::tags($tag)->forget($key);
     }
 
     /**
-     * 缓存忘记密码验证码
+     * 检查验证码发送频率
      *
-     * @param string $key
-     * @param integer $code
-     */
-    protected function cacheResetPasswordCode($key, $code)
-    {
-        Cache::tags($this->ResetPasswordCacheTag)->put($key, $code, 10);
-
-        $last = Cache::tags($this->ResetPasswordTimerTag)->get($key);
-
-        if (!$last) {
-
-            Cache::tags($this->ResetPasswordTimerTag)->put($key, [0, time()], $this->getTheDayLeftMinutes());
-
-        } else {
-
-            Cache::tags($this->ResetPasswordTimerTag)->put($key, [$last[0]++, time()], $this->getTheDayLeftMinutes());
-        }
-    }
-
-    /**
-     * 删除缓存的注册验证码
-     *
-     * @param $key
-     */
-    protected function forgetResetPasswordCode($key)
-    {
-        Cache::tags($this->ResetPasswordCacheTag)->forget($key);
-    }
-
-    /**
-     * 检查发送注册验证码频率
-     *
+     * @param string $tag
      * @param string $key
      */
-    protected function checkSendResetPasswordCodeFrequency($key)
+    protected function checkCodeFrequency($tag, $key)
     {
-        $last = Cache::tags($this->ResetPasswordTimerTag)->get($key);
+        $last = Cache::tags($tag)->get($key);
 
         if ($last) {
 
@@ -287,6 +212,8 @@ class AuthController extends Controller
 
     /**
      * 获取离第二天前剩余的分钟数
+     *
+     * @return integer
      */
     protected function getTheDayLeftMinutes()
     {
@@ -366,13 +293,13 @@ class AuthController extends Controller
             $key = $this->getCacheKey();
 
             // 检查注册验证码发送频率
-            $this->checkSendRegisterCodeFrequency($key);
+            $this->checkCodeFrequency('register_timer', $key);
 
             // 生成随机验证码
             $code = $this->generateCode();
 
             // 缓存注册验证码
-            $this->cacheRegisterCode($key, $code);
+            $this->cacheCode('register_cod', $key, $code);
 
             switch ($this->request->input('register_type')) {
 
@@ -433,24 +360,30 @@ class AuthController extends Controller
 
             case 'email':
 
+                // 检查邮箱是否注册
                 if (Member::where('member_email', $this->request->input('member_email'))->first()) {
                     exception(3002);
                 }
 
-                $this->checkRegisterCode($this->request->input('member_email'), $this->request->input('register_code'));
+                // 检查验证码
+                $this->checkCacheCode('register_code', $this->request->input('member_email'), $this->request->input('register_code'));
 
+                // 保存用户邮箱
                 $member->member_email = $this->request->input('member_email');
 
                 break;
 
             case 'sms':
 
+                // 检查该手机是否注册
                 if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
                     exception(3003);
                 }
 
-                $this->checkRegisterCode($this->request->input('member_phone'), $this->request->input('register_code'));
+                // 检查验证码
+                $this->checkCacheCode('register_code', $this->request->input('member_phone'), $this->request->input('register_code'));
 
+                // 保存电话号码
                 $member->member_phone = $this->request->input('member_phone');
 
 
@@ -458,15 +391,18 @@ class AuthController extends Controller
 
             case 'username':
 
+                // 检查该用户名是否已经注册
                 if (Member::where('member_account', $this->request->input('member_account'))->first()) {
                     exception(3004);
                 }
 
+                // 用户名注册要求必须填密码
                 if (!$this->request->input('member_password')) {
 
                     exception(3005);
                 }
 
+                // 保存用户名
                 $member->member_account = $this->request->input('member_account');
 
                 break;
@@ -555,26 +491,42 @@ class AuthController extends Controller
 
         $member = Guest::instance();
 
-        $key = $register_type == 'email' ? $this->request->input('member_email') : $this->request->input('member_phone');
+        $key = null;
 
-        $this->checkRegisterCode($key, $this->request->input('register_code'));
+        // 判断注册类型
+        switch ($register_type) {
 
+            case 'email':
+
+                $key = $this->request->input('member_email');
+                break;
+
+            case 'sms':
+
+                $this->request->input('member_phone');
+                break;
+        }
+
+        // 检查验证码
+        $this->checkCacheCode('register_code', $key, $this->request->input('register_code'));
+
+        // 保存新密码
         $member->member_password = $this->request->input('member_password');
 
         $member->save();
 
-        $this->forgetRegisterCode($key);
+        $this->forgetCode('register_code', $key);
 
         return status(200);
     }
 
 
     /**
-     * 发送忘记密码重置链接.
+     * 发送忘记密码重置验证码
      *
      * @return Status
      */
-    public function postForgotPassword()
+    public function postForgotPasswordCode()
     {
         validate($this->request->input(), [
             'member_email' => 'sometimes|email|max:255',
@@ -584,11 +536,13 @@ class AuthController extends Controller
 
         $find_password_type = $this->request->input('find_password_type');
 
+        // 检查找回密码方式是否开启
         if (!$this->checkFindPasswordType($find_password_type)) {
 
             exception(2000);
         }
 
+        // 生成验证码
         $code = $this->generateCode();
 
         switch ($find_password_type) {
@@ -597,14 +551,18 @@ class AuthController extends Controller
 
                 $key = $this->request->input('member_email');
 
+                // 检查该邮箱用户是否存在
                 if (!Member::where('member_email', $key)->first()) {
                     exception(2010);
                 }
 
-                $this->checkSendResetPasswordCodeFrequency($key);
+                // 检查验证码发送频率
+                $this->checkCodeFrequency('reset_password_timer', $key);
 
-                $this->cacheResetPasswordCode($key, $code);
+                // 缓存验证码
+                $this->cacheCode('reset_password_code', $key, $code);
 
+                // 通过邮件发送验证码
                 $this->sendEmailCode($code, 'reset');
 
                 break;
@@ -613,14 +571,18 @@ class AuthController extends Controller
 
                 $key = $this->request->input('member_phone');
 
+                // 检查该手机用户是否存在
                 if (!Member::where('member_phone', $key)->first()) {
                     exception(2010);
                 }
 
-                $this->checkSendResetPasswordCodeFrequency($key);
+                // 检查验证码发送频率
+                $this->checkCodeFrequency('reset_password_timer', $key);
 
-                $this->cacheResetPasswordCode($key, $code);
+                // 缓存验证码
+                $this->cacheCode('reset_password_code', $key, $code);
 
+                // 通过手机短信发送验证码
                 $this->sendSmsCode($code, 'reset');
 
                 break;
@@ -646,24 +608,32 @@ class AuthController extends Controller
 
         $find_password_type = $this->request->input('find_password_type');
 
+        // 检查找回密码方式是否开启
         if (!$this->checkFindPasswordType($find_password_type)) {
 
             exception(2000);
         }
-
-        $key = $find_password_type == 'email' ? $this->request->input('member_email') : $this->request->input('member_phone');
-
-        $this->checkResetPasswordCode($key, $this->request->input('reset_code'));
 
         $member = null;
 
         switch ($find_password_type) {
 
             case 'email':
+
+                // 检查验证码
+                $this->checkCacheCode('reset_password_code', $this->request->input('member_email'), $this->request->input('reset_code'));
+
+                // 获取该邮箱用户
                 $member = Member::where('member_email', $this->request->input('member_email'))->first();
 
                 break;
+
             case 'sms':
+
+                // 检查验证码
+                $this->checkCacheCode('reset_password_code', $this->request->input('member_phone'), $this->request->input('reset_code'));
+
+                // 获取该邮箱用户
                 $member = Member::where('member_phone', $this->request->input('member_phone'))->first();
 
                 break;
