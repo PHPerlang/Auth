@@ -4,6 +4,7 @@ namespace Modules\Auth\Http\API;
 
 use Jindowin\Status;
 use Jindowin\Request;
+use Modules\Auth\Emails\ResetPasswordLink;
 use Modules\Auth\Models\Guest;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
@@ -12,9 +13,10 @@ use Modules\Auth\Models\EmailCode;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
 use Modules\Auth\Models\AccessToken;
-use Modules\Auth\Emails\RegisterLink;
+use Modules\Auth\Emails\RegisterCode;
 use Illuminate\Support\Facades\Cache;
 use Modules\Auth\Events\MemberRegisterEvent;
+use Illuminate\Support\Facades\Crypt;
 
 class AuthController extends Controller
 {
@@ -228,12 +230,34 @@ class AuthController extends Controller
      */
     protected function sendEmailCode($code, $type)
     {
-        Mail::to($this->request->input('member_email'))->queue(new RegisterLink(($code)));
+        Mail::to($this->request->input('member_email'))->queue(new RegisterCode(($code)));
 
         $email_code = new EmailCode;
         $email_code->code = $code;
         $email_code->email = $this->request->input('member_email');
         $email_code->type = $type;
+        $email_code->expired_at = timestamp(10 * 60);
+        $email_code->save();
+    }
+
+
+    /**
+     * 发送邮箱重置密码链接, 链接里面加密了验证码
+     *
+     * @param string $email
+     * @param integer $code
+     */
+    protected function sendPasswordResetLinkEmail($email, $code)
+    {
+
+        $link = url('/api/auth/reset/password/' . Crypt::encryptString($email) . '/' . Crypt::encryptString($code));
+
+        Mail::to($email)->queue(new ResetPasswordLink(($link)));
+
+        $email_code = new EmailCode;
+        $email_code->code = $code;
+        $email_code->email = $this->request->input('member_email');
+        $email_code->type = 'reset';
         $email_code->expired_at = timestamp(10 * 60);
         $email_code->save();
     }
@@ -522,7 +546,7 @@ class AuthController extends Controller
 
 
     /**
-     * 发送忘记密码重置验证码
+     * 发送忘记密码重置验证码，邮箱的发发送重置链接
      *
      * @return Status
      */
@@ -562,8 +586,8 @@ class AuthController extends Controller
                 // 缓存验证码
                 $this->cacheCode('reset_password_code', 'reset_password_timer', $key, $code);
 
-                // 通过邮件发送验证码
-                $this->sendEmailCode($code, 'reset');
+                // 通过邮件发送重置链接
+                $this->sendPasswordResetLinkEmail($key, $code);
 
                 break;
 
@@ -589,6 +613,25 @@ class AuthController extends Controller
         }
 
         return status(200);
+    }
+
+    /**
+     * 重置密码链接跳转
+     *
+     * @param string $encrypt_email
+     * @param string $encrypt_code
+     *
+     * @return \Illuminate\Routing\Redirector
+     */
+    public function getResetPasswordLinkRedirect($encrypt_email, $encrypt_code)
+    {
+        $email = Crypt::decryptString($encrypt_email);
+
+        $code = Crypt::decryptString($encrypt_code);
+
+        $url = config_path('auth::config.reset_password_redirect_link') . "?email=$email&code=$code";
+
+        return redirect($url);
     }
 
     /**

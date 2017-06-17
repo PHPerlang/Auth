@@ -7,21 +7,21 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class RegisterLink extends Mailable
+class ResetPasswordLink extends Mailable
 {
     use Queueable, SerializesModels;
 
-    protected $code;
-    
-    public function __construct($code)
+    protected $link;
+
+    public function __construct($link)
     {
-        $this->code = $code;
+        $this->link = $link;
     }
 
     public function build()
     {
-        return $this->view('Auth::mails.register-link')->with([
-            'code' => $this->code,
+        return $this->view('Auth::mails.reset-password-link.blade.php')->with([
+            'link' => $this->link,
         ]);
     }
 

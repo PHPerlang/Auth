@@ -71,6 +71,9 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         2010 => '该用户不存在',
     ])->open();
 
+    // 重置密码邮件链接跳转
+    Route::get('/reset/password/{encrypt_email}/{encrypt_code}', 'AuthController@getResetPasswordLinkRedirect')->open();
+
     // 重置找回密码
     Route::put('/reset/password', 'AuthController@putResetPassword')->codes([
         200 => '重置密码成功',
