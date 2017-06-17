@@ -465,7 +465,7 @@ class AuthController extends Controller
 
         $login_type = $this->request->input('login_type');
 
-        if ($this->checkLoginType($login_type)) {
+        if (!$this->checkLoginType($login_type)) {
 
             exception(2000);
         }
