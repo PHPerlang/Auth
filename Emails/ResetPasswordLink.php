@@ -20,7 +20,7 @@ class ResetPasswordLink extends Mailable
 
     public function build()
     {
-        return $this->view('Auth::mails.reset-password-link.blade.php')->with([
+        return $this->view('auth::mails.reset-password-link')->with([
             'link' => $this->link,
         ]);
     }

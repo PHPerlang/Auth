@@ -4,7 +4,6 @@ namespace Modules\Auth\Http\API;
 
 use Jindowin\Status;
 use Jindowin\Request;
-use Modules\Auth\Emails\ResetPasswordLink;
 use Modules\Auth\Models\Guest;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
@@ -13,10 +12,11 @@ use Modules\Auth\Models\EmailCode;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
 use Modules\Auth\Models\AccessToken;
-use Modules\Auth\Emails\RegisterCode;
 use Illuminate\Support\Facades\Cache;
-use Modules\Auth\Events\MemberRegisterEvent;
 use Illuminate\Support\Facades\Crypt;
+use Modules\Auth\Emails\RegisterCode;
+use Modules\Auth\Emails\ResetPasswordLink;
+use Modules\Auth\Events\MemberRegisterEvent;
 
 class AuthController extends Controller
 {
@@ -627,9 +627,7 @@ class AuthController extends Controller
     {
         $email = Crypt::decryptString($encrypt_email);
 
-        $code = Crypt::decryptString($encrypt_code);
-
-        $url = config_path('auth::config.reset_password_redirect_link') . "?email=$email&code=$code";
+        $url = config('auth::config.reset_password_redirect_link') . "?email=$email&code=$encrypt_code";
 
         return redirect($url);
     }
@@ -663,8 +661,11 @@ class AuthController extends Controller
 
             case 'email':
 
+                // 如果是邮箱链接则需要解密验证码
+                $code = Crypt::decryptString($this->request->input('reset_code'));
+
                 // 检查验证码
-                $this->checkCacheCode('reset_password_code', $this->request->input('member_email'), $this->request->input('reset_code'));
+                $this->checkCacheCode('reset_password_code', $this->request->input('member_email'), $code);
 
                 // 获取该邮箱用户
                 $member = Member::where('member_email', $this->request->input('member_email'))->first();
