@@ -1,1 +1,1 @@
-您的密码重置链接为： <a href="{{ $link }}" target="_blank">{{ $link }}</a>
+您的密码重置链接为（有效期为10分钟）： <a href="{{ $link }}" target="_blank">{{ $link }}</a>

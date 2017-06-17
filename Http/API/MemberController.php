@@ -3,6 +3,7 @@
 namespace Modules\Auth\Http\API;
 
 use Jindowin\Request;
+use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Models\Member;
 use Illuminate\Routing\Controller;
 
@@ -39,6 +40,8 @@ class MemberController extends Controller
         $member->member_nickname = $this->request->input('member_nickname', $member->member_nickname);
 
         $member->save();
+
+        event(new MemberUpdateEvent($member, $this->request->input()));
 
         return status(200);
 
