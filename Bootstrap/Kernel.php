@@ -129,7 +129,10 @@ class Kernel
 
         'admin' => [],
 
-        'web' => [],
+        'web' => [
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        ],
     ];
 
 

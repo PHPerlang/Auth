@@ -20,7 +20,7 @@ class RegisterCode extends Mailable
 
     public function build()
     {
-        return $this->view('auth::mails.register-link')->with([
+        return $this->view('auth::mails.register-code')->with([
             'code' => $this->code,
         ]);
     }
