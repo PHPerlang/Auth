@@ -10,7 +10,7 @@ return [
     | 支持 3 种注册方式，邮箱，短信和用户名。
     |
     */
-    'register_types' => ['email', 'sms', 'username'],
+    'register_types' => ['email', 'mobile', 'username'],
 
     /*
     |--------------------------------------------------------------------------
@@ -20,7 +20,7 @@ return [
     | 支持 3 种登录方式，邮箱，短信和用户名。
     |
     */
-    'login_types' => ['email', 'sms', 'username'],
+    'login_types' => ['email', 'mobile', 'username'],
 
     /*
     |--------------------------------------------------------------------------
@@ -30,7 +30,7 @@ return [
     | 支持 3 种通行证方式，邮箱，短信。
     |
     */
-    'find_password_types' => ['email', 'sms'],
+    'find_password_types' => ['email', 'mobile'],
 
 
     /*

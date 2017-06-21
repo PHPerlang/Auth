@@ -337,7 +337,7 @@ class AuthController extends Controller
 
                     break;
 
-                case 'sms';
+                case 'mobile';
 
                     if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
                         exception(3003);
@@ -397,7 +397,7 @@ class AuthController extends Controller
 
                 break;
 
-            case 'sms':
+            case 'mobile':
 
                 // 检查该手机是否注册
                 if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
@@ -476,7 +476,7 @@ class AuthController extends Controller
             case 'email':
                 $member = Member::where('member_email', $this->request->input('member_email'))->first();
                 break;
-            case 'sms':
+            case 'mobile':
                 $member = Member::where('member_phone', $this->request->input('member_phone'))->first();
                 break;
             case 'username':
@@ -525,7 +525,7 @@ class AuthController extends Controller
                 $key = $this->request->input('member_email');
                 break;
 
-            case 'sms':
+            case 'mobile':
 
                 $this->request->input('member_phone');
                 break;
@@ -672,7 +672,7 @@ class AuthController extends Controller
 
                 break;
 
-            case 'sms':
+            case 'mobile':
 
                 // 检查验证码
                 $this->checkCacheCode('reset_password_code', $this->request->input('member_phone'), $this->request->input('reset_code'));
