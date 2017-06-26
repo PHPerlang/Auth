@@ -1,5 +1,8 @@
 # Jindowin 认证登录
 
+[TOC]
+
+<!-- [TOC] -->
 
 ## 配置
  
@@ -71,3 +74,9 @@ YUNPIAN_APIKEY=             # 云片秘钥
 YUNPIAN_CODE_TEMPLATE=      # 云片验证码模板
 
 ```
+
+## API 
+
+[登录](Document/api/login.md)
+[注册](Document/api/login.md)
+
