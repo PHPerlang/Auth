@@ -77,6 +77,6 @@ YUNPIAN_CODE_TEMPLATE=      # 云片验证码模板
 
 ## API 
 
-[登录](Document/api/login.md)
-[注册](Document/api/login.md)
+* [登录](Document/api/login.md)
+* [注册](Document/api/login.md)
 
