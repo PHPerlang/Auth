@@ -82,6 +82,12 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         2000 => '该找回密码通道已关闭',
     ])->open();
 
+    // 更改密码
+    Route::put('/password', 'AuthController@putPassword')->codes([
+        1000 => '密码格式校验错误',
+        10001 => '新密码不能与原密码相同',
+    ]);
+
     // 用户退出登录
     Route::post('/logout', 'AuthController@postLogout', [
 

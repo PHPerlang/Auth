@@ -5,6 +5,7 @@ namespace Modules\Auth\Http\API;
 use Jindowin\Status;
 use Jindowin\Request;
 use Modules\Auth\Models\Guest;
+use Swoole\View;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Models\SmsCode;
@@ -689,6 +690,44 @@ class AuthController extends Controller
         }
 
         $member->member_password = $this->request->input('member_password');
+
+        $member->save();
+
+        return status(200);
+    }
+
+
+    /**
+     * 更改密码
+     *
+     * @return View
+     */
+    public function putPassword()
+    {
+
+        validate($this->request->input(), [
+            'origin_password' => 'required|min:6',
+            'new_password' => 'required|min:6',
+        ]);
+
+        $member = Guest::instance();
+        $new_password = $this->request->input('new_password');
+        $origin_password = $this->request->input('origin_password');
+
+        // 检查原密码是否正确
+        if ($member->encryptMemberPassword($origin_password) != $member->member_password) {
+
+            exception(1001);
+        }
+
+
+        // 新密码不能与原密码相同
+        if ($new_password == $origin_password || $member->encryptMemberPassword($new_password) == $member->member_password) {
+
+            exception(1002);
+        }
+
+        $member->member_password = $new_password;
 
         $member->save();
 
