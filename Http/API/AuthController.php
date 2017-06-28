@@ -16,6 +16,7 @@ use Modules\Auth\Models\AccessToken;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Modules\Auth\Emails\RegisterCode;
+use Modules\Auth\Emails\ChangeEmailLink;
 use Modules\Auth\Emails\ResetPasswordLink;
 use Modules\Auth\Events\MemberRegisterEvent;
 
@@ -39,8 +40,15 @@ class AuthController extends Controller
         'register_timer' => ['auth.register', 'timer'],
         'reset_password_code' => ['auth.reset', 'code'],
         'reset_password_timer' => ['auth.reset', 'timer'],
+        'change_email_code' => ['auth.change.email', 'code'],
+        'change_email_timer' => ['auth.change.email', 'timer'],
     ];
 
+    /**
+     * 构造函数
+     *
+     * @param Request $request
+     */
     public function __construct(Request $request)
     {
         $this->request = $request;
@@ -98,10 +106,11 @@ class AuthController extends Controller
      * @param string $tag
      * @param string $key
      * @param string $input
+     * @param bool $exception
      *
      * @return bool
      */
-    protected function checkCacheCode($tag, $key, $input)
+    protected function checkCacheCode($tag, $key, $input, $exception = true)
     {
 
         $required = Cache::tags($this->cache_tag[$tag])->get($key, uniqid());
@@ -110,10 +119,16 @@ class AuthController extends Controller
 
             if (config('app.env') == 'production' || $input != '888888') {
 
-                exception(1300);
+                if ($exception) {
+                    exception(1300);
+                } else {
+                    return false;
+                }
 
             }
         }
+
+        return true;
     }
 
 
@@ -262,6 +277,28 @@ class AuthController extends Controller
         $email_code->expired_at = timestamp(10 * 60);
         $email_code->save();
     }
+
+    /**
+     * 发送更换邮箱链接
+     *
+     * @param $email
+     * @param $code
+     */
+    protected function sendChangeEmailLinkEmail($email, $code)
+    {
+
+        $link = url('/api/auth/change/email' . Crypt::encryptString($email) . '/' . Crypt::encryptString($code));
+
+        Mail::to($email)->queue(new ChangeEmailLink(($link)));
+
+        $email_code = new EmailCode;
+        $email_code->code = $code;
+        $email_code->email = $this->request->input('member_email');
+        $email_code->type = 'change.email';
+        $email_code->expired_at = timestamp(10 * 60);
+        $email_code->save();
+    }
+
 
     /**
      * 发送短信验证码
@@ -732,6 +769,70 @@ class AuthController extends Controller
         $member->save();
 
         return status(200);
+    }
+
+
+    /**
+     * 用户更换邮箱接口
+     *
+     * @return mixed
+     */
+    public function postChangeEmailLink()
+    {
+        validate($this->request->input(), [
+            'member_email' => 'required|email'
+        ]);
+
+        $email = $this->request->input('member_email');
+
+        // 新邮箱不能与原邮箱相同
+        if ($email == Guest::instance()->member_id) {
+
+            exception(1001);
+        }
+
+        // 检查新邮箱是否已经存在
+        if (Member::where('member_email', $email)->first()) {
+
+            exception(1002);
+        }
+
+        $code = $this->generateCode();
+
+        $this->cacheCode('change_email_code', 'change_email_timer', Guest::instance()->member_email, $code);
+
+        $this->sendChangeEmailLinkEmail($email, $code);
+
+        return status(200);
+    }
+
+    /**
+     * 用户点击更换邮箱链接跳转
+     *
+     * @param $encrypt_email
+     * @param $encrypt_code
+     *
+     * @return \Illuminate\Routing\Redirector
+     */
+    public function getChangeEmail($encrypt_email, $encrypt_code)
+    {
+
+        $email = Crypt::decryptString($encrypt_email);
+        $code = Crypt::decryptString($encrypt_code);
+
+        $status = 'failed';
+
+        if ($this->checkCacheCode('change_email_code', Guest::instance()->member_email, $code, false)) {
+
+            $status = 'success';
+            $member = Guest::instance();
+            $member->member_email = $email;
+            $member->save();
+        }
+
+        $url = config('auth::config.change_email_redirect_link') . "?email=$email&status=$status";
+
+        return redirect($url);
     }
 
 }

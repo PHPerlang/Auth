@@ -89,11 +89,21 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     ]);
 
     // 用户退出登录
-    Route::post('/logout', 'AuthController@postLogout', [
+    Route::post('/logout', 'AuthController@postLogout')->open();
 
-    ])->open();
-
+    // 发送忘记密码链接
     Route::get('/forgot/password/link', 'AuthController@getForgotPasswordLink');
+
+    // 发送更换邮箱链接
+    Route::post('/change/email', 'AuthController@postChangeEmailLink')->codes([
+        1000 => '邮箱格式错误',
+        1001 => '新邮箱不能与原邮箱相同',
+        1002 => '新邮箱是已经存在',
+    ]);
+
+    // 更换邮箱链接点击跳转
+    Route::get('/change/email/{encrypt_email}/{encrypt_code}', 'AuthController@getChangeEmail')->open();
+
 
     /*
     |--------------------------------------------------------------------------
