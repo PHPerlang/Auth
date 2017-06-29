@@ -102,7 +102,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     ]);
 
     // 更换邮箱链接点击跳转
-    Route::get('/change/email/{encrypt_email}/{encrypt_code}', 'AuthController@getChangeEmail')->open();
+    Route::get('/change/email/{encrypt}', 'AuthController@getChangeEmail')->open();
 
 
     /*

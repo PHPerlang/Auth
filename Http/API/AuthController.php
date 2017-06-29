@@ -284,10 +284,15 @@ class AuthController extends Controller
      * @param $email
      * @param $code
      */
-    protected function sendChangeEmailLinkEmail($email, $code)
+    protected function sendChangeEmailLinkEmail($member_id, $email, $code)
     {
+        $encrypt = Crypt::encryptString(json_encode([
+            'member_id' => $member_id,
+            'email' => $email,
+            'code' => $code
+        ]));
 
-        $link = url('/api/auth/change/email/' . Crypt::encryptString($email) . '/' . Crypt::encryptString($code));
+        $link = url('/api/auth/change/email/' . $encrypt);
 
         Mail::to($email)->queue(new ChangeEmailLink(($link)));
 
@@ -786,7 +791,7 @@ class AuthController extends Controller
         $email = $this->request->input('member_email');
 
         // 新邮箱不能与原邮箱相同
-        if ($email == Guest::instance()->member_id) {
+        if ($email == Guest::instance()->member_email) {
 
             exception(1001);
         }
@@ -799,9 +804,9 @@ class AuthController extends Controller
 
         $code = $this->generateCode();
 
-        $this->cacheCode('change_email_code', 'change_email_timer', Guest::instance()->member_email, $code);
+        $this->cacheCode('change_email_code', 'change_email_timer', $email, $code);
 
-        $this->sendChangeEmailLinkEmail($email, $code);
+        $this->sendChangeEmailLinkEmail(Guest::instance()->member_id, $email, $code);
 
         return status(200);
     }
@@ -809,23 +814,26 @@ class AuthController extends Controller
     /**
      * 用户点击更换邮箱链接跳转
      *
-     * @param $encrypt_email
-     * @param $encrypt_code
+     * @param $encrypt
      *
      * @return \Illuminate\Routing\Redirector
      */
-    public function getChangeEmail($encrypt_email, $encrypt_code)
+    public function getChangeEmail($encrypt)
     {
 
-        $email = Crypt::decryptString($encrypt_email);
-        $code = Crypt::decryptString($encrypt_code);
+        $params = json_decode(Crypt::decryptString($encrypt));
+
+        $code = $params->code;
+        $email = $params->email;
+        $member_id = $params->member_id;
 
         $status = 'failed';
 
-        if ($this->checkCacheCode('change_email_code', Guest::instance()->member_email, $code, false)) {
+        if ($this->checkCacheCode('change_email_code', $email, $code, false)) {
 
             $status = 'success';
-            $member = Guest::instance();
+
+            $member = Member::where('member_id', $member_id)->first();
             $member->member_email = $email;
             $member->save();
         }
