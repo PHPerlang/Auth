@@ -53,7 +53,7 @@ return [
     |更换邮箱跳转链接
     |--------------------------------------------------------------------------
     */
-    'change_email_redirect_link' => 'http://app.kong72.com/#/change-email-success',
+    'change_email_redirect_link' => 'http://app.kong72.com/#/change-email',
 
     /*
     |--------------------------------------------------------------------------
