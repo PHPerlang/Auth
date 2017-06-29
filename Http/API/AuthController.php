@@ -287,7 +287,7 @@ class AuthController extends Controller
     protected function sendChangeEmailLinkEmail($email, $code)
     {
 
-        $link = url('/api/auth/change/email' . Crypt::encryptString($email) . '/' . Crypt::encryptString($code));
+        $link = url('/api/auth/change/email/' . Crypt::encryptString($email) . '/' . Crypt::encryptString($code));
 
         Mail::to($email)->queue(new ChangeEmailLink(($link)));
 
