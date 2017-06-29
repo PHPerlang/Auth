@@ -79,3 +79,4 @@ YUNPIAN_CODE_TEMPLATE=      # 云片验证码模板
 * [注册](Document/api/register.md)
 * [忘记密码](Document/api/forgot.md)
 * [添加用户](Document/api/add-user.md)
+* [重置密码](Document/api/reset.md)
