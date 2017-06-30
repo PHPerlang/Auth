@@ -2,7 +2,9 @@
 
 [TOC]
 
-## 配置
+<!-- [TOC] -->
+
+## 1. 配置
  
 支持三种注册登录方式: 邮箱、手机号码、和用户名。
 
@@ -65,7 +67,7 @@ return [
 ];
 ```
 
-## 环境变量
+## 2. 环境变量
 
 ```
 YUNPIAN_APIKEY=             # 云片秘钥
@@ -73,7 +75,9 @@ YUNPIAN_CODE_TEMPLATE=      # 云片验证码模板
 
 ```
 
-## API 
+## 3. API 
 
 * [登录](Document/api/login.md)
 * [注册](Document/api/register.md)
+* [忘记密码](Document/api/forgot.md)
+* [添加用户](Document/api/add-user.md)
