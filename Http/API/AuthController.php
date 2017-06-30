@@ -4,6 +4,7 @@ namespace Modules\Auth\Http\API;
 
 use Jindowin\Status;
 use Jindowin\Request;
+use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Models\Guest;
 use Swoole\View;
 use Yunpian\Sdk\YunpianClient;
@@ -836,6 +837,8 @@ class AuthController extends Controller
             $member = Member::where('member_id', $member_id)->first();
             $member->member_email = $email;
             $member->save();
+
+            event(new MemberUpdateEvent($member, $this->request->input()));
         }
 
         $url = config('auth::config.change_email_redirect_link') . "?email=$email&status=$status";
