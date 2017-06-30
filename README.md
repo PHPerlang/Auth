@@ -2,8 +2,6 @@
 
 [TOC]
 
-<!-- [TOC] -->
-
 ## 1. 配置
  
 支持三种注册登录方式: 邮箱、手机号码、和用户名。
@@ -81,3 +79,5 @@ YUNPIAN_CODE_TEMPLATE=      # 云片验证码模板
 * [注册](Document/api/register.md)
 * [忘记密码](Document/api/forgot.md)
 * [添加用户](Document/api/add-user.md)
+* [重置密码](Document/api/reset.md)
+* TRY
