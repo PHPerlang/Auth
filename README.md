@@ -77,9 +77,9 @@ data|数据部分|mixed
 
 配置文件：
 
-```php
-// Config/config.php
+> modules/Auth/Config/config.php
 
+```php
 <?php
 
 return [
