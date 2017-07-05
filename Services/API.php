@@ -29,25 +29,24 @@ class API
 
     public static function get($uri, $params)
     {
-        return self::make('POST', $uri, $params);
+        return self::make('GET', $uri, $params);
     }
 
     public static function put($uri, $data = [])
     {
-        return self::make('POST', $uri, $data);
+        return self::make('PUT', $uri, $data);
     }
 
     public static function delete($uri, $params)
     {
-        return self::make('POST', $uri, $params);
+        return self::make('DELETE', $uri, $params);
     }
-
 
     protected static function make($method, $uri, $parameters)
     {
         $kernel = app(\Illuminate\Contracts\Http\Kernel::class);
         $request = Request::createFromBase(SymfonyRequest::create(
-            $uri = '/' . rtrim($uri, '/'),
+            $uri = '/' . ltrim($uri, '/'),
             $method,
             $parameters,
             $cookies = $_COOKIE,
