@@ -14,7 +14,7 @@ class AvatarUploadDoneHandler
      */
     public function handle(UploadDoneEvent $event)
     {
-
+        dd($event);
         if ($event->token == 'auth.upload.avatar') {
 
             // 保存用户头像

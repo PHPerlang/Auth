@@ -518,12 +518,15 @@ class AuthController extends Controller
 
         switch ($login_type) {
             case 'email':
+                validate($this->request->input(), ['member_email' => 'required']);
                 $member = Member::where('member_email', $this->request->input('member_email'))->first();
                 break;
             case 'mobile':
+                validate($this->request->input(), ['member_phone' => 'required']);
                 $member = Member::where('member_phone', $this->request->input('member_phone'))->first();
                 break;
             case 'username':
+                validate($this->request->input(), ['member_account' => 'required']);
                 $member = Member::where('member_account', $this->request->input('member_account'))->first();
                 break;
         }

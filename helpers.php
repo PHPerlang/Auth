@@ -30,3 +30,4 @@ function guard($query)
 {
     return \Modules\Auth\Models\Guest::guardPermissionParams($query);
 }
+
