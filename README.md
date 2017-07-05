@@ -11,12 +11,12 @@ $ gindowin install Auth
 
 ## 2. 接口列表
 
-* [用户注册发送验证邮件验证码 /api/auth/register/code](post/auth/register/code.md)
+* [用户注册发送验证验证码 /api/auth/register/code](post/auth/register/code.md)
 * [用户注册 /api/auth/register](post/auth/register.md)
 * [编辑用户资料 /api/member](put/auth/member.md)
 * [设置新用户密码 /api/member/password](put/auth/member/password.md)
 * [用户登录 /api/auth/login](post/auth/login.md)
-* [忘记密码发送邮件验证码 /api/auth/reset/password/code](post/auth/reset/password/code.md)
+* [忘记密码发送验证码 /api/auth/reset/password/code](post/auth/reset/password/code.md)
 * [重置密码 /api/auth/reset/password](post/auth/reset/password.md)
 * [安全密码 /api/auth/password](put/auth/password.md)
 * [更换邮箱 /api/auth/change/email](post/auth/change/email.md)
@@ -64,7 +64,7 @@ data|数据部分|mixed
 930 | 查询数据为空 | 只要是数据库查询结果为空的给出此状态码
 1000 | 数据校验错误 | 系统针对批量数据校验统一给出 1000 状态码
 
-### 3.4 批量数据校验统一响应格式
+### 3.4 数据格式校验响应
 
 ```json
 {
