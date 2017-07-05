@@ -16,7 +16,7 @@
 :---:|:---|:---:|:---:|:---
 member_id | 用户 ID | int | 是 | 3
 member_avatar | 用户头像链接地址 | string | 否 | http://example.com/avatar.png
-member_nickname | 用户昵称 | string | 古月
+member_nickname | 用户昵称 | string | 否 | 古月
 
 ## 4. 响应状态
 
