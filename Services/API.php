@@ -3,58 +3,67 @@
 namespace Modules\Auth\Services;
 
 use Jindowin\Request;
+use Jindowin\Status;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class API
 {
 
+    protected static $headers = [];
+
+
     public static function headers($headers = [])
     {
+        foreach ($headers as $header => $value) {
 
+            $_SERVER["HTTP_$header"] = $value;
+        }
+
+        return new static;
     }
 
     public static function post($uri, $data = [])
     {
+        return self::make('POST', $uri, $data);
+    }
 
-        //$request = app('request');
-//        $_SERVER['REQUEST_URI'] = $uri;
-//        $_SERVER['REQUEST_METHOD'] = 'POST';
-//        $_SERVER['QUERY_STRING'] = 'POST';
-//        dd($_SERVER);
-//        $request->setMethod('get');
+    public static function get($uri, $params)
+    {
+        return self::make('POST', $uri, $params);
+    }
+
+    public static function put($uri, $data = [])
+    {
+        return self::make('POST', $uri, $data);
+    }
+
+    public static function delete($uri, $params)
+    {
+        return self::make('POST', $uri, $params);
+    }
+
+
+    protected static function make($method, $uri, $parameters)
+    {
         $kernel = app(\Illuminate\Contracts\Http\Kernel::class);
         $request = Request::createFromBase(SymfonyRequest::create(
-            $uri,
-            $method = 'POST',
-            $parameters = $data,
+            $uri = '/' . rtrim($uri, '/'),
+            $method,
+            $parameters,
             $cookies = $_COOKIE,
             $files = $_FILES,
             $server = $_SERVER,
             $content = null)
         );
+
         $response = $kernel->handle($request);
 
-        return $response;
-    }
+        if ($response->original instanceof Status) {
 
-    public static function get($uri, $params)
-    {
+            return json_decode($response->getContent());
+        }
 
-    }
-
-    public static function put($uri, $data = [])
-    {
-
-    }
-
-    public static function delete($uri, $params)
-    {
-
-    }
-
-    protected static function make()
-    {
-
+        return false;
     }
 
 }
