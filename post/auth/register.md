@@ -57,7 +57,7 @@ register_code | 邮箱里接收的验证码 | string | 是 | 089463
 
 > POST /api/auth/register
 
-### 请求数据：
+**请求数据：**
 
 ```josn
 {
@@ -68,7 +68,7 @@ register_code | 邮箱里接收的验证码 | string | 是 | 089463
 }
 ```
 
-### 响应结果：
+**响应结果：**
 
 ```josn
 {
