@@ -21,7 +21,7 @@
 :---:|:---|:---:|:---:|:---
 member_email| 用户邮箱 | string | 当 `register_type=email` 必须 | im@koyeo.io
 member_phone| 手机号码 | number | 当`register_type=mobile`时必须 | 188****8888
-register_type | 标识注册类型 | string | 是 | `email`
+register_type | 标识注册类型 | string | 是 | `email` / `mobile`
 captcha（预留字段） | 图像验证码，一个邮箱每天超过3次发送验证码时，要求输入图形验证码 | string | 否 | 6c5a70
 
 
