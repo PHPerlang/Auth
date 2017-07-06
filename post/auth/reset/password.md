@@ -8,7 +8,7 @@
 
 ## 2. 调用方法
 
-> POST /api/auth/reset/password
+> PUT /api/auth/reset/password
 
 ## 3. 请求参数
 
@@ -31,26 +31,30 @@ member_passwrod | 用户密码 | string | 是 | 123456
 
 ## 5. 响应数据
 
-参数 | 解释 | 类型 | 示例数据
-:---:|:---|:---:|:---
-参数名 | 参数解释 | string | 示例数据
+```json
+{
+    "code": 200,
+    "message": "操作成功",
+    "data": null
+}
+```
 
 ## 6. 示例
 
 > POST /api/auth/reset/password
 
-### 请求数据：
+**请求数据：**
 
 ```josn
 {
-  "member_email" : "im@koyeo.io",
-  "find_passwrod_type":"email",
+  "member_phone" : "im@koyeo.io",
+  "find_passwrod_type":"mobile",
   "reset_code" : "用户重置密码验证码",
   "member_password" : "123456"
 }
 ```
 
-### 响应结果：
+** 响应结果：**
 
 ```josn
 {
