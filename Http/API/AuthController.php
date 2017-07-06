@@ -638,7 +638,7 @@ class AuthController extends Controller
 
                 break;
 
-            case 'phone':
+            case 'mobile':
 
                 $key = $this->request->input('member_phone');
 
