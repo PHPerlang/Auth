@@ -12,7 +12,8 @@
     }
   ],
   "require": {
-    "yunpian/yunpian-php-sdk": "~1.0"
+    "yunpian/yunpian-php-sdk": "~1.0",
+    "mews/captcha": "^2.1"
   },
   "require-dev": {},
   "scripts": {}

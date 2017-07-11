@@ -106,6 +106,9 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
 
     // 获取图形验证码
     Route::get('/captcha', 'AuthController@getCaptcha')->open();
+    Route::get('/api/auth/captcha/{config?}', '\Mews\Captcha\CaptchaController@getCaptcha')
+        ->middleware('web')
+        ->open();
 
 
     /*
