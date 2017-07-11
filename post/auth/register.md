@@ -19,6 +19,7 @@ member_phone | 用户手机 | string | `当 register_type=mobile` 必须 | `188*
 member_password | 用户密码，6~32 位，且必须是数字字母的组合，如果没有密码，系统将分配随机密码 | string | 否 | Hello7
 register_type | 标识注册类型 | string | 是 | `email`/`mobile`
 register_code | 邮箱里接收的验证码 | string | 是 | 089463
+captcha | 图形验证码 | stirng | 否 | 024n
 
 ## 3. 响应状态
 
