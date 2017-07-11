@@ -20,6 +20,7 @@ $ gindowin install Auth
 * [重置密码 /api/auth/reset/password](post/auth/reset/password.md)
 * [安全密码 /api/auth/password](put/auth/password.md)
 * [更换邮箱 /api/auth/change/email](post/auth/change/email.md)
+* [获取图形验证码](get/auth/captcha.md)
 
 ## 3. 接口规范
 
