@@ -4,12 +4,11 @@ namespace Modules\Auth\Http\API;
 
 use Jindowin\Status;
 use Jindowin\Request;
-use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Models\Guest;
-use Swoole\View;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Models\SmsCode;
+use Mews\Captcha\Facades\Captcha;
 use Modules\Auth\Models\EmailCode;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Mail;
@@ -18,6 +17,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Modules\Auth\Emails\RegisterCode;
 use Modules\Auth\Emails\ChangeEmailLink;
+use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Emails\ResetPasswordLink;
 use Modules\Auth\Events\MemberRegisterEvent;
 
@@ -419,7 +419,15 @@ class AuthController extends Controller
 
         // 检查注册类型是否开启
         if (!$this->checkRegisterType($register_type)) {
+
             exception(2000);
+        }
+
+        // 检查是否需要图形验证码
+        if (config('auth::config.register_email_auth') == 'always') {
+            validate($this->request->input(), [
+                'captcha' => 'captcha'
+            ], [], 3001);
         }
 
         $member = new Member;
@@ -434,7 +442,9 @@ class AuthController extends Controller
                 }
 
                 // 检查验证码
-                $this->checkCacheCode('register_code', $this->request->input('member_email'), $this->request->input('register_code'));
+                if (config('auth::config.register_email_auth')) {
+                    $this->checkCacheCode('register_code', $this->request->input('member_email'), $this->request->input('register_code'));
+                }
 
                 // 保存用户邮箱
                 $member->member_email = $this->request->input('member_email');
@@ -449,7 +459,9 @@ class AuthController extends Controller
                 }
 
                 // 检查验证码
-                $this->checkCacheCode('register_code', $this->request->input('member_phone'), $this->request->input('register_code'));
+                if (config('auth::config.register_mobile_auth')) {
+                    $this->checkCacheCode('register_code', $this->request->input('member_phone'), $this->request->input('register_code'));
+                }
 
                 // 保存电话号码
                 $member->member_phone = $this->request->input('member_phone');
@@ -847,6 +859,14 @@ class AuthController extends Controller
         $url = config('auth::config.change_email_redirect_link') . "?email=$email&status=$status";
 
         return redirect($url);
+    }
+
+    /**
+     * 获取图形验证码
+     */
+    public function getCaptcha()
+    {
+        return status(200, ['captcha_src' => Captcha::src()]);
     }
 
 }

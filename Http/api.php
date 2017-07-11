@@ -104,6 +104,9 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     // 更换邮箱链接点击跳转
     Route::get('/change/email/{encrypt}', 'AuthController@getChangeEmail')->open();
 
+    // 获取图形验证码
+    Route::get('/captcha', 'AuthController@getCaptcha')->open();
+
 
     /*
     |--------------------------------------------------------------------------

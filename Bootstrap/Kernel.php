@@ -44,6 +44,7 @@ class Kernel
     */
     public $providers = [
         \Modules\Auth\Providers\AuthServiceProvider::class,
+        \Modules\Auth\Providers\CaptchaServiceProvider::class,
     ];
 
     /*
@@ -57,6 +58,7 @@ class Kernel
     |
     */
     public $aliases = [
+        'Captcha' => \Mews\Captcha\Facades\Captcha::class,
     ];
 
 
