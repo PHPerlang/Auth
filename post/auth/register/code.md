@@ -4,12 +4,7 @@
 
 ## 1. API 描述：
 
-支持邮箱发送验证码和短信发送验证码，由 `register_type` 区分。
-
-查询验证码：
-
-* 邮箱验证码： 数据表 `email_codes` 
-* 短信验证码： 数据表 `sms_codes`
+支持邮箱发送验证码和短信发送验证码，由 `register_type` 区分。测试环境下验证码可在 `email_codes` 或 `sms_codes` 中查询。
 
 ## 2. 调用方法
 
