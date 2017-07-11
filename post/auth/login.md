@@ -18,7 +18,7 @@ member_email | 用户邮箱 | string | `login_type=email` | `im@koyeo.io`
 member_email | 用户手机 | number | `login_type=mobile` | `188****8888`
 member_account | 用户名 | string | `login_type=username` | `koyeo`
 member_password | 用户密码，不低于 6 位 | string | 是 | x123456
-captcha（预留字段） | 图形验证码，当用户输入账户密码错误 3 次后需要 | string | 否 |  x7fj
+captcha | 图形验证码 | string | 否 |  x7fj
 login_type | 标识登录类型 | string | 是 | `email`/`mobile`/`username`
 
 ## 3. 响应状态
