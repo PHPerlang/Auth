@@ -426,7 +426,7 @@ class AuthController extends Controller
         // 检查是否需要图形验证码
         if (config('auth::config.register_email_auth') == 'always') {
             validate($this->request->input(), [
-                'captcha' => 'captcha'
+                'captcha' => 'required|captcha'
             ], [], 3001);
         }
 
