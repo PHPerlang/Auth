@@ -121,13 +121,17 @@ class AuthController extends Controller
             if (config('app.env') == 'production' || $input != '888888') {
 
                 if ($exception) {
+
                     exception(1300);
                 } else {
+
                     return false;
                 }
 
             }
         }
+
+        $this->forgetCode($this->cache_tag[$tag], $key);
 
         return true;
     }
@@ -425,9 +429,12 @@ class AuthController extends Controller
 
         // 检查是否需要图形验证码
         if (config('auth::config.register_email_auth') == 'always') {
-            validate($this->request->input(), [
-                'captcha' => 'required|captcha'
-            ], [], 3001);
+//            validate($this->request->input(), [
+//                'captcha' => 'required|captcha'
+//            ], [
+//                'captcha.required' => '图形验证码不正确',
+//                'captcha.captcha' => '图形验证码不正确',
+//            ], 3001);
         }
 
         $member = new Member;
