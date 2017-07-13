@@ -10,7 +10,7 @@
 
 > POST /api/auth/register
 
-## 2. 请求参数
+## 3. 请求参数
 
 参数 | 解释 | 类型 | 是否必须 | 示例数据
 :---:|:---|:---:|:---:|:---
@@ -21,7 +21,7 @@ register_type | 标识注册类型 | string | 是 | `email`/`mobile`
 register_code | 邮箱里接收的验证码 | string | 是 | 089463
 captcha | 图形验证码 | stirng | 否 | 024n
 
-## 3. 响应状态
+## 4. 响应状态
 
 状态码 | 说明
 :---:|:---
@@ -35,7 +35,7 @@ captcha | 图形验证码 | stirng | 否 | 024n
 3004 | 该用户名已注册
 3005 | 密码不能为空
 
-## 4. 响应数据
+## 5. 响应数据
 
 ```json
 {
@@ -54,7 +54,7 @@ captcha | 图形验证码 | stirng | 否 | 024n
 }
 ```
 
-## 5. 示例
+## 6. 示例
 
 > POST /api/auth/register
 
