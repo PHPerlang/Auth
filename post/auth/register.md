@@ -17,7 +17,7 @@
 member_email | 用户邮箱 | string | `当 register_type=email` 必须 | im@koyeo.io
 member_phone | 用户手机 | string | `当 register_type=mobile` 必须 | `188****8888`
 member_password | 用户密码 | string | 否 | Hello7
-register_type | 标识注册类型 | string | 是 | `email`/`mobile`
+register_type | 标识注册类型 | string | 是 | `email`、`mobile`
 register_code | 邮箱里接收的验证码 | string | 是 | 089463
 captcha | 图形验证码 | stirng | 否 | 024n
 
