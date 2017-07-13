@@ -15,8 +15,9 @@
 参数 | 解释 | 类型 | 是否必须 | 示例数据
 :---:|:---|:---:|:---:|:---
 参数名 | 参数解释 | string | 是 | 示例数据
-member_email | 用户邮箱 | string | 是 | im@koyeo.io
-find_passwrod_type | 找回密码方式 | string | 是 | email
+member_email | 用户邮箱 | string | 当 `find_password_type=email` 时必须 | `im@koyeo.io`
+member_phone | 用户手机 | string | 当 `find_password_type=mobile` 时必须 |`188****8888`
+find_passwrod_type | 找回密码方式 | string | 是 | `email` 或 `mobile`
 
 
 ## 4. 响应状态
@@ -43,8 +44,8 @@ find_passwrod_type | 找回密码方式 | string | 是 | email
 
 ```josn
 {
-  "member_email" : "im@koyeo.io",
-  "find_passwrod_type":"email"
+  "member_phone" : "188****8888",
+  "find_passwrod_type":"mobile"
 }
 ```
 
