@@ -27,7 +27,8 @@
     "code": 200,
     "message": "操作成功",
     "data": {
-        "captcha_src": "http://gindowin.com/api/auth/captcha/default?tDnZi9bE"
+        "captcha_src": "http://127.0.0.1:8000/api/auth/captcha/default?VZTwt5OM",   // 图形验证码地址
+        "captcha_token": "198c4ef13b134acb21a4ca5cc8056d92" // 图形验证码 TOKEN
     }
 }
 ```
@@ -47,7 +48,8 @@
     "code": 200,
     "message": "操作成功",
     "data": {
-        "captcha_src": "http://gindowin.com/api/auth/captcha/default?tDnZi9bE"
+        "captcha_src": "http://127.0.0.1:8000/api/auth/captcha/default?VZTwt5OM",
+        "captcha_token": "198c4ef13b134acb21a4ca5cc8056d92"
     }
 }
 ```
