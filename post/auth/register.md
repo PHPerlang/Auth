@@ -16,10 +16,12 @@
 :---:|:---|:---:|:---:|:---
 member_email | 用户邮箱 | string | `当 register_type=email` 必须 | im@koyeo.io
 member_phone | 用户手机 | string | `当 register_type=mobile` 必须 | `188****8888`
-member_password | 用户密码，6~32 位，且必须是数字字母的组合，如果没有密码，系统将分配随机密码 | string | 否 | Hello7
+member_password | 用户密码 | string | 否 | Hello7
 register_type | 标识注册类型 | string | 是 | `email`/`mobile`
 register_code | 邮箱里接收的验证码 | string | 是 | 089463
 captcha | 图形验证码 | stirng | 否 | 024n
+
+用户密码要求6~32 位，且必须是数字字母的组合，如果不传用户密码，系统将为该用户分配随机密码。
 
 ## 4. 响应状态
 
