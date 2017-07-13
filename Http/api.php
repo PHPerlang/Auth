@@ -109,7 +109,15 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
 
     // 获取图形验证码
     Route::get('/captcha', 'AuthController@getCaptcha')->open();
+
+    // 刷新图形验证码图片
     Route::get('/captcha/{config?}', 'AuthController@getCaptchaImage')->open();
+
+    // 校验单个图像验证码
+    Route::post('/check/captcha', 'AuthController@postCheckCaptchaCode')->codes([
+        '200' => '验证成功',
+        '1001' => '图形验证码不正确',
+    ])->open();
 
     /*
     |--------------------------------------------------------------------------

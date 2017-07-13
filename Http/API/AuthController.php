@@ -4,6 +4,7 @@ namespace Modules\Auth\Http\API;
 
 use Jindowin\Status;
 use Jindowin\Request;
+use Modules\Auth\Http\Middleware\StartSession;
 use Modules\Auth\Models\Guest;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
@@ -894,6 +895,23 @@ class AuthController extends Controller
     public function getCaptchaImage(Captcha $captcha, $config = 'default')
     {
         return $captcha->create($config);
+    }
+
+    /**
+     * 校验图形验证码
+     *
+     * @param Captcha $captcha
+     *
+     * @return Status
+     */
+    public function postCheckCaptchaCode(Captcha $captcha)
+    {
+        if (!$captcha->check($this->request->input('captcha_code'))) {
+
+            return status(1001);
+        }
+
+        return status(200);
     }
 
 }

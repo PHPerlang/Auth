@@ -193,7 +193,7 @@ class Captcha
         $this->hasher = $hasher;
         $this->str = $str;
         $this->characters = config('captcha.characters', '2346789abcdefghjmnpqrtuxyzABCDEFGHJMNPQRTUXYZ');
-        $this->captcha_token = $this->request->header('X-Captcha-Token');
+        $this->captcha_token = $this->request->input('captcha_token');
     }
 
     /**
@@ -438,9 +438,21 @@ class Captcha
         Cache::tags('captcha')->put($this->captcha_token, true, 3);
 
         return [
-            'captcha_src' => url('/api/auth/captcha' . ($config ? '/' . $config : '/default')) . '?' . $this->str->random(8),
+            'captcha_src' => url('/api/auth/captcha' . ($config ? '/' . $config : '/default')) . '?' . $this->str->random(8) . '&captcha_token=' . $this->captcha_token,
             'captcha_token' => $this->captcha_token,
         ];
+    }
+
+    /**
+     * Get the captcha image src.
+     *
+     * @param null $config
+     *
+     * @return string
+     */
+    public function src($config = null)
+    {
+        return url('/api/auth/captcha' . ($config ? '/' . $config : '/default')) . '?' . $this->str->random(8);
     }
 
 }
