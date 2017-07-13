@@ -32,15 +32,18 @@ find_passwrod_type | 找回密码方式 | string | 是 | `email` 或 `mobile`
 
 ## 5. 响应数据
 
-参数 | 解释 | 类型 | 示例数据
-:---:|:---|:---:|:---
-参数名 | 参数解释 | string | 示例数据
+```josn
+{
+  "member_phone" : "188****8888",
+  "find_passwrod_type":"mobile"
+}
+```
 
 ## 6. 示例
 
 > POST /api/auth/reset/password/code
 
-### 请求数据：
+**请求数据：**
 
 ```josn
 {
@@ -49,7 +52,7 @@ find_passwrod_type | 找回密码方式 | string | 是 | `email` 或 `mobile`
 }
 ```
 
-### 响应结果：
+**响应结果：**
 
 ```josn
 {
