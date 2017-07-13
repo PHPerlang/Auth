@@ -43,12 +43,15 @@ code | 手机验证码或邮箱验证码 | number | 是 | 123423
 > POST /api/auth/check/code
 
 **请求数据：**
+
+```json
 {
 	"auth_type": "mobile",
 	"auth_scene": "register_code",
 	"member_phone": 188****8888,
 	"code": 122123
 }
+```
 
 **响应结果：**
 
