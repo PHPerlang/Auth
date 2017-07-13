@@ -15,7 +15,7 @@
 参数|解释|类型|是否必须|示例数据
 :----|:---|:---|:---|:---
 member_phone | 用户手机 | number | 当 `auth_type=mobile` 时必须 | `188****8888`
-member_email | 用户邮箱 | string | 当 `auth_type=email` 时必须` | `hello@koyeo.io`
+member_email | 用户邮箱 | string | 当 `auth_type=email` 时必须` | `hello@gindowin.com`
 auth_type | 验证类型 | string | 是 | `mobile` 、`email`
 code | 手机验证码或邮箱验证码 | number | 是 | 123423
 
