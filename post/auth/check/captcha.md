@@ -43,7 +43,11 @@ captcha | 图形验证码 | string | 是 | xrjs
 
 **请求数据：**
 
-无
+```json
+{
+    "captcha": "x2dk"
+}
+```
 
 **响应结果：**
 
