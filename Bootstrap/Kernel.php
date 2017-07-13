@@ -58,7 +58,6 @@ class Kernel
     |
     */
     public $aliases = [
-        'Captcha' => \Mews\Captcha\Facades\Captcha::class,
     ];
 
 
@@ -124,6 +123,7 @@ class Kernel
         'api' => [
             'throttle:60,1',
             'bindings',
+            \Modules\Auth\Http\Middleware\StartSession::class,
             \Modules\Auth\Http\Middleware\ResolveStatusMiddleware::class,
             \Modules\Auth\Http\Middleware\ResolveClientMiddleware::class,
             \Modules\Auth\Http\Middleware\PermissionGuardMiddleware::class,

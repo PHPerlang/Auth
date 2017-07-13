@@ -56,6 +56,8 @@ class AuthServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerGuest();
+
+//        $this->app->singleton(\Modules\Auth\Http\Middleware\StartSession::class);
     }
 
     /**

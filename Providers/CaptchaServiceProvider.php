@@ -24,17 +24,6 @@ class CaptchaServiceProvider extends ServiceProvider
             base_path('vendor/mews/captcha/config/captcha.php') => config_path('captcha.php')
         ], 'config');
 
-        // HTTP routing
-        if (strpos($this->app->version(), 'Lumen') !== false) {
-            $this->app->get('captcha[/{config}]', 'Mews\Captcha\LumenCaptchaController@getCaptcha');
-        } else {
-            if ((double)$this->app->version() >= 5.2) {
-                $this->app['router']->get('/api/auth/captcha/{config?}', '\Mews\Captcha\CaptchaController@getCaptcha')->middleware('web')->open();
-            } else {
-                $this->app['router']->get('/api/auth/captcha/{config?}', '\Mews\Captcha\CaptchaController@getCaptcha')->open();
-            }
-        }
-
         // Validator extensions
         $this->app['validator']->extend('captcha', function ($attribute, $value, $parameters) {
             return captcha_check($value);

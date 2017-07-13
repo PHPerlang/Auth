@@ -20,12 +20,11 @@ class Captcha extends Base
             $bag .= $characters[rand(0, count($characters) - 1)];
         }
 
-       session(['captcha' => [
+        session(['captcha' => [
             'sensitive' => $this->sensitive,
             'key' => $this->hasher->make($this->sensitive ? $bag : $this->str->lower($bag))
         ]]);
 
-dd('ok');
         return $bag;
     }
 
@@ -37,7 +36,6 @@ dd('ok');
      */
     public function check($value)
     {
-        dd(session('captcha'));
         if (!$this->session->has('captcha')) {
             return false;
         }
