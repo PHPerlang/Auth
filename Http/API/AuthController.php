@@ -880,7 +880,7 @@ class AuthController extends Controller
      */
     public function getCaptcha(Captcha $captcha)
     {
-        return status(200, ['captcha_src' => $captcha->src()]);
+        return status(200, $captcha->token());
     }
 
     /**
