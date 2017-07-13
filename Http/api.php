@@ -107,13 +107,20 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     // 更换邮箱链接点击跳转
     Route::get('/change/email/{encrypt}', 'AuthController@getChangeEmail')->open();
 
+    // 校验验证码
+    Route::post('/check/code', 'AuthController@postCheckCode')->codes([
+        '200' => '验证成功',
+        '1000' => '数据格式错误',
+        '1300' => '验证码不正确'
+    ])->open();
+
     // 获取图形验证码
     Route::get('/captcha', 'AuthController@getCaptcha')->open();
 
     // 刷新图形验证码图片
     Route::get('/captcha/{config?}', 'AuthController@getCaptchaImage')->open();
 
-    // 校验单个图像验证码
+    // 校验图像验证码
     Route::post('/check/captcha', 'AuthController@postCheckCaptchaCode')->codes([
         '200' => '验证成功',
         '1001' => '图形验证码不正确',

@@ -135,8 +135,6 @@ class AuthController extends Controller
             }
         }
 
-        $this->forgetCode($this->cache_tag[$tag], $key);
-
         return true;
     }
 
@@ -405,6 +403,45 @@ class AuthController extends Controller
         }
 
         return status(1001);
+    }
+
+    /**
+     * 校验验证码，支持 cache_tag 所包含的验证码类型。
+     *
+     * @return Status
+     */
+    public function postCheckCode()
+    {
+        $rule = [
+            'code' => 'required',
+            'auth_type' => 'required',
+            'auth_scene' => 'required',
+        ];
+
+        $key = null;
+
+        switch ($this->request->input('auth_type')) {
+            case 'mobile':
+
+                $key = $this->request->input('member_phone');
+
+                $rule = array_merge($rule, ['member_phone' => 'required|size:11']);
+
+                break;
+            case 'email':
+
+                $key = $this->request->input('member_email');
+
+                $rule = array_merge($rule, ['member_email' => 'required|email']);
+
+                break;
+        }
+
+        validate($this->request->input(), $rule);
+
+        $this->checkCacheCode($this->request->input('auth_scene'), $key, $this->request->input('code'));
+
+        return status(200);
     }
 
     /**
