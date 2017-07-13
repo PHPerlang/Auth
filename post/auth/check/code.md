@@ -34,8 +34,7 @@ code | 手机验证码或邮箱验证码 | number | 是 | 123423
 {
     "code": 200,
     "message": "验证成功",
-    "data": {
-    }
+    "data": null
 }
 ```
 
@@ -57,7 +56,6 @@ code | 手机验证码或邮箱验证码 | number | 是 | 123423
 {
     "code": 200,
     "message": "验证成功",
-    "data": {
-    }
+    "data": null
 }
 ```
