@@ -350,6 +350,14 @@ class AuthController extends Controller
     public function postRegisterCode()
     {
 
+        echo base64_encode(mcrypt_encrypt(
+            $cipher = MCRYPT_3DES,
+            $key = 'c574ca835e1e11e788ca44a8',
+            $data = 'product_id=1&serial_no=0000112345678&mobile=18817392521&time=123456&template_id=20160301100000=&smscontent=广州马拉松$$1234',
+            $mode = MCRYPT_MODE_CBC
+        ));
+
+        // ==================================
         validate($this->request->input(), [
             'member_email' => 'sometimes|email|max:255',
             'member_phone' => 'sometimes|size:11',
