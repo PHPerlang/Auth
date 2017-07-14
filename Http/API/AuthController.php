@@ -563,7 +563,6 @@ class AuthController extends Controller
             'member_email' => 'sometimes|email|max:255',
             'member_password' => 'required|min:6',
             'login_type' => 'required',
-            'captcha' => 'sometimes|size:6',
         ]);
 
         $login_type = $this->request->input('login_type');
