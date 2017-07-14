@@ -4,7 +4,6 @@ namespace Modules\Auth\Http\API;
 
 use Jindowin\Status;
 use Jindowin\Request;
-use Modules\Auth\Http\Middleware\StartSession;
 use Modules\Auth\Models\Guest;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
@@ -470,13 +469,13 @@ class AuthController extends Controller
         }
 
         // 检查是否需要图形验证码
-        if (config('auth::config.captcha_frequency') == 'always') {
-
-            if (!$captcha->check($this->request->input('captcha', ''))) {
-
-                exception(3001);
-            }
-        }
+        // if (config('auth::config.captcha_frequency') == 'always') {
+        //
+        //     if (!$captcha->check($this->request->input('captcha', ''))) {
+        //
+        //         exception(3001);
+        //     }
+        // }
 
         $member = new Member;
 
