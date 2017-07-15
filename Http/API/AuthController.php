@@ -310,6 +310,48 @@ class AuthController extends Controller
         $email_code->save();
     }
 
+    public function sendSmsCodeByUnioncast($code, $type)
+    {
+        $mobile = $this->request->input('member_phone');
+        $serial_no = mt_rand(1000000000, 9999999999) . mt_rand(1000000000, 9999999999);
+        $time = date('YmdHis', time());
+        $template = config('services.unioncast.template');
+        $param = mb_convert_encoding("product_id=2&serial_no=$serial_no&mobile=$mobile&time=$time&template_id=35&smscontent=$template", 'GBK');
+        $customer_no = config('services.unioncast.customer_no');
+
+        $block_size = mcrypt_get_block_size('tripledes', 'ecb');
+        $padding_char = $block_size - (strlen($param) % $block_size);
+        $param .= str_repeat(chr($padding_char), $padding_char);
+
+
+        $token = base64_encode(mcrypt_encrypt(
+            $cipher = MCRYPT_3DES,
+            $key = config('services.unioncast.key'),
+            $data = $param,
+            $mode = 'ecb'
+        ));
+
+        $url = "http://123.103.15.165:6000/smscode?encrypt=1&customer_no=$customer_no&reqstr=$token";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+
+        $response = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if ($status == 200) {
+            //$data = json_decode($response);
+        } else {
+            exception(1003);
+        }
+
+        curl_close($ch);
+
+        dd($response);
+
+
+    }
 
     /**
      * 发送短信验证码
@@ -319,19 +361,21 @@ class AuthController extends Controller
      */
     protected function sendSmsCode($code, $type)
     {
-        $yunpian = YunpianClient::create(config('auth::config.yunpian_apikey'));
+//        $yunpian = YunpianClient::create(config('auth::config.yunpian_apikey'));
+//
+//        $param = [
+//            YunpianClient::MOBILE => $this->request->input('member_phone'),
+//            YunpianClient::TEXT => str_replace('#code#', $code, config('auth::config.yunpian_code_template')),
+//        ];
+//
+//        $send_sms_result = $yunpian->sms()->single_send($param);
+//
+//        if ($send_sms_result->code() !== 0) {
+//
+//            exception(1003, $send_sms_result);
+//        }
 
-        $param = [
-            YunpianClient::MOBILE => $this->request->input('member_phone'),
-            YunpianClient::TEXT => str_replace('#code#', $code, config('auth::config.yunpian_code_template')),
-        ];
-
-        $send_sms_result = $yunpian->sms()->single_send($param);
-
-        if ($send_sms_result->code() !== 0) {
-
-            exception(1003, $send_sms_result);
-        }
+        $this->sendSmsCodeByUnioncast($code, $type);
 
         $email_code = new SmsCode();
         $email_code->code = $code;
@@ -349,15 +393,6 @@ class AuthController extends Controller
      */
     public function postRegisterCode()
     {
-
-        echo base64_encode(mcrypt_encrypt(
-            $cipher = MCRYPT_3DES,
-            $key = 'c574ca835e1e11e788ca44a8',
-            $data = 'product_id=1&serial_no=0000112345678&mobile=18817392521&time=123456&template_id=20160301100000=&smscontent=广州马拉松$$1234',
-            $mode = MCRYPT_MODE_CBC
-        ));
-
-        // ==================================
         validate($this->request->input(), [
             'member_email' => 'sometimes|email|max:255',
             'member_phone' => 'sometimes|size:11',
