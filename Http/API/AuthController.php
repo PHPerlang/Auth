@@ -315,7 +315,7 @@ class AuthController extends Controller
         $mobile = $this->request->input('member_phone');
         $serial_no = mt_rand(1000000000, 9999999999) . mt_rand(1000000000, 9999999999);
         $time = date('YmdHis', time());
-        $template = config('services.unioncast.template');
+        $template = config('services.unioncast.template').$code;
         $param = mb_convert_encoding("product_id=2&serial_no=$serial_no&mobile=$mobile&time=$time&template_id=35&smscontent=$template", 'GBK');
         $customer_no = config('services.unioncast.customer_no');
 
