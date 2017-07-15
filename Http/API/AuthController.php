@@ -319,12 +319,12 @@ class AuthController extends Controller
         $param = mb_convert_encoding("product_id=2&serial_no=$serial_no&mobile=$mobile&time=$time&template_id=35&smscontent=$template", 'GBK');
         $customer_no = config('services.unioncast.customer_no');
 
-        $block_size = mcrypt_get_block_size('tripledes', 'ecb');
+        $block_size = @mcrypt_get_block_size('tripledes', 'ecb');
         $padding_char = $block_size - (strlen($param) % $block_size);
         $param .= str_repeat(chr($padding_char), $padding_char);
 
 
-        $token = base64_encode(mcrypt_encrypt(
+        $token = base64_encode(@mcrypt_encrypt(
             $cipher = MCRYPT_3DES,
             $key = config('services.unioncast.key'),
             $data = $param,
@@ -332,8 +332,8 @@ class AuthController extends Controller
         ));
 
         $url = "http://123.103.15.165:6000/smscode?encrypt=1&customer_no=$customer_no&reqstr=$token";
-
-        $ch = curl_init();
+        
+	$ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
 
@@ -348,9 +348,19 @@ class AuthController extends Controller
 
         curl_close($ch);
 
-        dd($response);
+	try{
+		$p = xml_parser_create();
+		xml_parse_into_struct($p, $response, $vals, $index);
+		xml_parser_free($p);
 
-
+		foreach($vals as $val){
+			if(is_array($val)&&$val['type']=='complete'&&$val['tag']=='STATUS'&&$val['value']==0){
+			return true;
+			}
+		}
+    	}catch(\Exception $error){
+		exception(1003);
+	}
     }
 
     /**
@@ -375,7 +385,6 @@ class AuthController extends Controller
 //            exception(1003, $send_sms_result);
 //        }
 
-        $this->sendSmsCodeByUnioncast($code, $type);
 
         $email_code = new SmsCode();
         $email_code->code = $code;
@@ -383,6 +392,7 @@ class AuthController extends Controller
         $email_code->type = $type;
         $email_code->expired_at = timestamp(10 * 60);
         $email_code->save();
+        return $this->sendSmsCodeByUnioncast($code, $type);
     }
 
 
