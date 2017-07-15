@@ -332,8 +332,8 @@ class AuthController extends Controller
         ));
 
         $url = "http://123.103.15.165:6000/smscode?encrypt=1&customer_no=$customer_no&reqstr=$token";
-        
-	$ch = curl_init();
+
+        $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
 
@@ -348,19 +348,19 @@ class AuthController extends Controller
 
         curl_close($ch);
 
-	try{
-		$p = xml_parser_create();
-		xml_parse_into_struct($p, $response, $vals, $index);
-		xml_parser_free($p);
+        try {
+            $p = xml_parser_create();
+            xml_parse_into_struct($p, $response, $vals, $index);
+            xml_parser_free($p);
 
-		foreach($vals as $val){
-			if(is_array($val)&&$val['type']=='complete'&&$val['tag']=='STATUS'&&$val['value']==0){
-			return true;
-			}
-		}
-    	}catch(\Exception $error){
-		exception(1003);
-	}
+            foreach ($vals as $val) {
+                if (is_array($val) && $val['type'] == 'complete' && $val['tag'] == 'STATUS' && $val['value'] == 0) {
+                    return true;
+                }
+            }
+        } catch (\Exception $error) {
+            exception(1003);
+        }
     }
 
     /**
@@ -368,9 +368,12 @@ class AuthController extends Controller
      *
      * @param integer $code
      * @param string $type
+     *
+     * @return bool
      */
     protected function sendSmsCode($code, $type)
     {
+
 //        $yunpian = YunpianClient::create(config('auth::config.yunpian_apikey'));
 //
 //        $param = [
@@ -392,6 +395,7 @@ class AuthController extends Controller
         $email_code->type = $type;
         $email_code->expired_at = timestamp(10 * 60);
         $email_code->save();
+
         return $this->sendSmsCodeByUnioncast($code, $type);
     }
 
