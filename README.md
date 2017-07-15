@@ -13,7 +13,7 @@ $ gindowin install Auth
 
 * [用户注册发送验证验证码 /api/auth/register/code](Document/post/auth/register/code.md)
 * [用户注册 /api/auth/register](Document/post/auth/register.md)
-* [编辑用户资料 /api/member](Document/put/auth/member.md)
+* [编辑登录用户资料 /api/member](Document/put/auth/member.md)
 * [设置新用户密码 /api/member/password](Document/put/auth/member/password.md)
 * [用户登录 /api/auth/login](Document/post/auth/login.md)
 * [忘记密码发送验证码 /api/auth/reset/password/code](Document/post/auth/reset/password/code.md)
@@ -23,6 +23,7 @@ $ gindowin install Auth
 * [获取图形验证码 /api/auth/captcha](Document/get/auth/captcha.md)
 * [校验图形验证码 /api/auth/chek/captcha](Document/post/auth/check/captcha.md)
 * [校验手机验证码或邮箱验证码 /api/auth/chek/captcha](Document/post/auth/check/code.md)
+* [获取登录用户资料 /api/auth/guest](Document/get/auth/guest.md)
 
 ## 3. 接口规范
 
