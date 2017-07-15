@@ -9,6 +9,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+
 Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Modules\Auth\Http\API'], function () {
 
     /*
@@ -23,6 +24,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         200 => '验证码发送成功',
         1000 => '邮箱格式不正确',
         1001 => '邮箱或手机不能为空',
+        1003 => '短信服务配置错误',
         2000 => '该注册类型通道已关闭',
         2001 => '注册码已超出最大发送次数，请明天再试',
         2002 => '发送太频繁，请 60 秒后再试',
@@ -31,6 +33,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         3003 => '该手机号已注册',
         3004 => '短信网络配置错误',
     ])->open();
+
 
     // 用户注册
     Route::post('/register', 'AuthController@postRegister')->codes([
@@ -104,9 +107,24 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     // 更换邮箱链接点击跳转
     Route::get('/change/email/{encrypt}', 'AuthController@getChangeEmail')->open();
 
+    // 校验验证码
+    Route::post('/check/code', 'AuthController@postCheckCode')->codes([
+        '200' => '验证成功',
+        '1000' => '数据格式错误',
+        '1300' => '验证码不正确'
+    ])->open();
+
     // 获取图形验证码
     Route::get('/captcha', 'AuthController@getCaptcha')->open();
-    Route::get('/captcha/{config?}', '\Mews\Captcha\CaptchaController@getCaptcha')->open()->middleware('web');
+
+    // 刷新图形验证码图片
+    Route::get('/captcha/{config?}', 'AuthController@getCaptchaImage')->open();
+
+    // 校验图像验证码
+    Route::post('/check/captcha', 'AuthController@postCheckCaptchaCode')->codes([
+        '200' => '验证成功',
+        '1001' => '图形验证码不正确',
+    ])->open();
 
     /*
     |--------------------------------------------------------------------------

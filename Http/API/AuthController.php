@@ -8,18 +8,20 @@ use Modules\Auth\Models\Guest;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Models\SmsCode;
-use Mews\Captcha\Facades\Captcha;
 use Modules\Auth\Models\EmailCode;
 use Illuminate\Routing\Controller;
+use Modules\Auth\Services\Captcha;
 use Illuminate\Support\Facades\Mail;
 use Modules\Auth\Models\AccessToken;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Modules\Auth\Emails\RegisterCode;
 use Modules\Auth\Emails\ChangeEmailLink;
+use Illuminate\Support\Facades\Validator;
 use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Emails\ResetPasswordLink;
 use Modules\Auth\Events\MemberRegisterEvent;
+
 
 class AuthController extends Controller
 {
@@ -123,6 +125,7 @@ class AuthController extends Controller
                 if ($exception) {
 
                     exception(1300);
+
                 } else {
 
                     return false;
@@ -130,8 +133,6 @@ class AuthController extends Controller
 
             }
         }
-
-        $this->forgetCode($this->cache_tag[$tag], $key);
 
         return true;
     }
@@ -340,6 +341,7 @@ class AuthController extends Controller
         $email_code->save();
     }
 
+
     /**
      * 发送邮箱注册码接口
      *
@@ -403,6 +405,45 @@ class AuthController extends Controller
     }
 
     /**
+     * 校验验证码，支持 cache_tag 所包含的验证码类型。
+     *
+     * @return Status
+     */
+    public function postCheckCode()
+    {
+        $rule = [
+            'code' => 'required',
+            'auth_type' => 'required',
+            'auth_scene' => 'required',
+        ];
+
+        $key = null;
+
+        switch ($this->request->input('auth_type')) {
+            case 'mobile':
+
+                $key = $this->request->input('member_phone');
+
+                $rule = array_merge($rule, ['member_phone' => 'required|size:11']);
+
+                break;
+            case 'email':
+
+                $key = $this->request->input('member_email');
+
+                $rule = array_merge($rule, ['member_email' => 'required|email']);
+
+                break;
+        }
+
+        validate($this->request->input(), $rule);
+
+        $this->checkCacheCode($this->request->input('auth_scene'), $key, $this->request->input('code'));
+
+        return status(200);
+    }
+
+    /**
      * 注册用户
      *
      * 注意：注册的用户的时候不能同时填充 member_phone, member_email, member_account 字段，以保证登录账号不会重复。
@@ -410,7 +451,7 @@ class AuthController extends Controller
      *
      * @return Status
      */
-    public function postRegister()
+    public function postRegister(Captcha $captcha)
     {
         validate($this->request->input(), [
             'register_type' => 'required',
@@ -428,14 +469,13 @@ class AuthController extends Controller
         }
 
         // 检查是否需要图形验证码
-        if (config('auth::config.register_email_auth') == 'always') {
-//            validate($this->request->input(), [
-//                'captcha' => 'required|captcha'
-//            ], [
-//                'captcha.required' => '图形验证码不正确',
-//                'captcha.captcha' => '图形验证码不正确',
-//            ], 3001);
-        }
+        // if (config('auth::config.captcha_frequency') == 'always') {
+        //
+        //     if (!$captcha->check($this->request->input('captcha', ''))) {
+        //
+        //         exception(3001);
+        //     }
+        // }
 
         $member = new Member;
 
@@ -523,7 +563,6 @@ class AuthController extends Controller
             'member_email' => 'sometimes|email|max:255',
             'member_password' => 'required|min:6',
             'login_type' => 'required',
-            'captcha' => 'sometimes|size:6',
         ]);
 
         $login_type = $this->request->input('login_type');
@@ -869,11 +908,45 @@ class AuthController extends Controller
     }
 
     /**
-     * 获取图形验证码
+     * 获取图形验证码信息
+     *
+     * @param Captcha $captcha
+     *
+     * @return mixed
      */
-    public function getCaptcha()
+    public function getCaptcha(Captcha $captcha)
     {
-        return status(200, ['captcha_src' => Captcha::src()]);
+        return status(200, $captcha->token());
+    }
+
+    /**
+     * 获取图形验证码图片
+     *
+     * @param Captcha $captcha
+     * @param string $config
+     *
+     * @return \Intervention\Image\ImageManager
+     */
+    public function getCaptchaImage(Captcha $captcha, $config = 'default')
+    {
+        return $captcha->create($config);
+    }
+
+    /**
+     * 校验图形验证码
+     *
+     * @param Captcha $captcha
+     *
+     * @return Status
+     */
+    public function postCheckCaptchaCode(Captcha $captcha)
+    {
+        if (!$captcha->check($this->request->input('captcha_code'))) {
+
+            return status(1001);
+        }
+
+        return status(200);
     }
 
 }

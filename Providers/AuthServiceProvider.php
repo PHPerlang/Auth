@@ -4,6 +4,7 @@ namespace Modules\Auth\Providers;
 
 use Modules\Auth\Models\Guest;
 use Modules\Auth\Models\AccessToken;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -22,6 +23,8 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        Schema::defaultStringLength(191);
 
         $this->registerTranslations();
         $this->registerConfig();
@@ -56,6 +59,8 @@ class AuthServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerGuest();
+
+//        $this->app->singleton(\Modules\Auth\Http\Middleware\StartSession::class);
     }
 
     /**
