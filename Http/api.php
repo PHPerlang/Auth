@@ -126,6 +126,10 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         '1001' => '图形验证码不正确',
     ])->open();
 
+    // 获取当前登录用户信息
+    Route::get('/guest', 'AuthController@getGuest');
+
+
     /*
     |--------------------------------------------------------------------------
     | 用户路由
