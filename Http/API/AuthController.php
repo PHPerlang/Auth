@@ -427,23 +427,20 @@ class AuthController extends Controller
             'register_type' => 'required'
         ]);
 
-        // 检查注册类型是否开启
         if (!$this->checkRegisterType($this->request->input('register_type'))) {
+
             exception(2000);
         }
 
         if ($this->request->input('member_email') || $this->request->input('member_phone')) {
 
-            // 获取缓存键值
+
             $key = $this->getCacheKey();
 
-            // 检查注册验证码发送频率
             $this->checkCodeFrequency('register_timer', $key);
 
-            // 生成随机验证码
             $code = $this->generateCode();
 
-            // 缓存注册验证码
             $this->cacheCode('register_code', $key, $code);
 
             switch ($this->request->input('register_type')) {
