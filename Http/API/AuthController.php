@@ -142,14 +142,22 @@ class AuthController extends Controller
      * 缓存验证码
      *
      * @param string $tag
-     * @param string $timer
      * @param string $key
      * @param integer $code
      */
-    protected function cacheCode($tag, $timer, $key, $code)
+    protected function cacheCode($tag, $key, $code)
     {
         Cache::tags($this->cache_tag[$tag])->put($key, $code, 10);
+    }
 
+    /**
+     * 设置验证码周期检查
+     *
+     * @param string $timer
+     * @param string $key
+     */
+    protected function setCodeFrequency($timer, $key)
+    {
         $last = Cache::tags($this->cache_tag[$timer])->get($key);
 
         if (!$last) {
@@ -173,6 +181,7 @@ class AuthController extends Controller
     {
         Cache::tags($this->cache_tag[$tag])->forget($key);
     }
+
 
     /**
      * 检查验证码发送频率
@@ -334,8 +343,10 @@ class AuthController extends Controller
         $url = "http://123.103.15.165:6000/smscode?encrypt=1&customer_no=$customer_no&reqstr=$token";
 
         $ch = curl_init();
+
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         $response = curl_exec($ch);
 
@@ -433,7 +444,7 @@ class AuthController extends Controller
             $code = $this->generateCode();
 
             // 缓存注册验证码
-            $this->cacheCode('register_code', 'register_timer', $key, $code);
+            $this->cacheCode('register_code', $key, $code);
 
             switch ($this->request->input('register_type')) {
 
@@ -449,6 +460,8 @@ class AuthController extends Controller
 
                     $this->sendEmailCode($code, 'register');
 
+                    $this->setCodeFrequency('register_timer', $key);
+
                     break;
 
                 case 'mobile';
@@ -462,10 +475,14 @@ class AuthController extends Controller
                         exception(3003);
                     }
 
-                    $this->sendSmsCode($code, 'register');
+                    if ($this->sendSmsCode($code, 'register')) {
+
+                        $this->setCodeFrequency('register_timer', $key);
+                    }
 
                     break;
             }
+
 
             return status(200);
         }
@@ -758,10 +775,13 @@ class AuthController extends Controller
                 $this->checkCodeFrequency('reset_password_timer', $key);
 
                 // 缓存验证码
-                $this->cacheCode('reset_password_code', 'reset_password_timer', $key, $code);
+                $this->cacheCode('reset_password_code', $key, $code);
 
                 // 通过邮件发送重置链接
                 $this->sendPasswordResetLinkEmail($key, $code);
+
+                // 设置验证码发送频率检查
+                $this->setCodeFrequency('reset_password_timer', $key);
 
                 break;
 
@@ -778,10 +798,13 @@ class AuthController extends Controller
                 $this->checkCodeFrequency('reset_password_timer', $key);
 
                 // 缓存验证码
-                $this->cacheCode('reset_password_code', 'reset_password_timer', $key, $code);
+                $this->cacheCode('reset_password_code', $key, $code);
 
                 // 通过手机短信发送验证码
                 $this->sendSmsCode($code, 'reset');
+
+                // 设置验证码发送频率检查
+                $this->setCodeFrequency('reset_password_timer', $key);
 
                 break;
         }
@@ -935,9 +958,11 @@ class AuthController extends Controller
 
         $code = $this->generateCode();
 
-        $this->cacheCode('change_email_code', 'change_email_timer', $email, $code);
+        $this->cacheCode('change_email_code', $email, $code);
 
         $this->sendChangeEmailLinkEmail(Guest::instance()->member_id, $email, $code);
+
+        $this->setCodeFrequency('change_email_timer', $email);
 
         return status(200);
     }
