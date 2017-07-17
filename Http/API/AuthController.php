@@ -334,20 +334,22 @@ class AuthController extends Controller
         $url = "http://123.103.15.165:6000/smscode?encrypt=1&customer_no=$customer_no&reqstr=$token";
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
+        
+	curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
-
-        $response = curl_exec($ch);
-        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        if ($status != 200) {
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+       
+	$response = curl_exec($ch);
+	$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        
+	if ($status != 200) {
 
             exception(1003);
         }
 
         curl_close($ch);
-
-        try {
+        
+	try {
             $p = xml_parser_create();
             xml_parse_into_struct($p, $response, $vals, $index);
             xml_parser_free($p);
@@ -423,7 +425,7 @@ class AuthController extends Controller
             $key = $this->getCacheKey();
 
             // 检查注册验证码发送频率
-            $this->checkCodeFrequency('register_timer', $key);
+            // $this->checkCodeFrequency('register_timer', $key);
 
             // 生成随机验证码
             $code = $this->generateCode();
