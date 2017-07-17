@@ -340,9 +340,8 @@ class AuthController extends Controller
         $response = curl_exec($ch);
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        if ($status == 200) {
-            //$data = json_decode($response);
-        } else {
+        if ($status != 200) {
+
             exception(1003);
         }
 
