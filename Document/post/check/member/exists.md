@@ -13,6 +13,7 @@
 ## 3. 请求参数
 
 参数|解释|类型|是否必须|示例数据
+:---|:---|:---|:---|:---
 check_type | 检查类型 | string |是| `mobile` <br> `email` <br> `username`
 member_phone | 用户手机 | number | 否 | `188****8888`
 member_email|用户邮箱|string|否|`hi@gindowin.com`
