@@ -1020,7 +1020,7 @@ class AuthController extends Controller
     /**
      * 获取当前登录用户信息
      *
-     * @return mixed
+     * @return Status
      */
     public function getGuest()
     {
@@ -1029,6 +1029,41 @@ class AuthController extends Controller
         unset($guest->member_password);
 
         return status(200, $guest);
+    }
+
+    /**
+     * 检查用户是否存在
+     *
+     * @return Status
+     */
+    public function checkMemberExists()
+    {
+        validate($this->request->input(), ['check_type' => 'required']);
+
+        $check_type = $this->request->input('check_type');
+
+        switch ($check_type) {
+            case 'mobile':
+                validate($this->request->input(), ['member_phone' => 'required']);
+                if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
+                    return status(200);
+                }
+                break;
+            case 'email':
+                validate($this->request->input(), ['member_email' => 'required']);
+                if (Member::where('member_email', $this->request->input('member_email'))->first()) {
+                    return status(200);
+                }
+                break;
+            case 'username':
+                validate($this->request->input(), ['member_account' => 'required']);
+                if (Member::where('member_account', $this->request->input('member_account'))->first()) {
+                    return status(200);
+                }
+                break;
+        }
+
+        return status(1001);
     }
 
 }

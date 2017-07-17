@@ -130,6 +130,12 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     // 获取当前登录用户信息
     Route::get('/guest', 'AuthController@getGuest');
 
+    // 查询用户是否存在
+    Route::post('/check/member/exists', 'AuthController@checkMemberExists')->codes([
+        200 => '查询用户存在',
+        1000 => '数据格式错误',
+        1001 => '查询用户不存在'
+    ])->open();
 
     /*
     |--------------------------------------------------------------------------
