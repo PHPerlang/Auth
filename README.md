@@ -24,6 +24,7 @@ $ gindowin install Auth
 * [校验图形验证码 /api/auth/chek/captcha](Document/post/auth/check/captcha.md)
 * [校验手机验证码或邮箱验证码 /api/auth/chek/captcha](Document/post/auth/check/code.md)
 * [获取登录用户资料 /api/auth/guest](Document/get/auth/guest.md)
+* [查询用户是否存在 /api/auth/check/member/exists](Document/post/check/member/exists.md)
 
 ## 3. 接口规范
 
