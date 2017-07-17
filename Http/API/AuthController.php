@@ -338,6 +338,7 @@ class AuthController extends Controller
         curl_setopt($ch, CURLOPT_HEADER, 0);
 
         $response = curl_exec($ch);
+
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if ($status != 200) {
@@ -353,11 +354,14 @@ class AuthController extends Controller
             xml_parser_free($p);
 
             foreach ($vals as $val) {
+
                 if (is_array($val) && $val['type'] == 'complete' && $val['tag'] == 'STATUS' && $val['value'] == 0) {
+
                     return true;
                 }
             }
         } catch (\Exception $error) {
+
             exception(1003);
         }
     }
@@ -435,6 +439,10 @@ class AuthController extends Controller
 
                 case 'email';
 
+                    if (!$this->request->input('member_email')) {
+                        exception(1002);
+                    }
+
                     if (Member::where('member_email', $this->request->input('member_email'))->first()) {
                         exception(3002);
                     }
@@ -444,6 +452,11 @@ class AuthController extends Controller
                     break;
 
                 case 'mobile';
+
+                    if (!$this->request->input('member_phone')) {
+
+                        exception(1001);
+                    }
 
                     if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
                         exception(3003);
@@ -457,7 +470,7 @@ class AuthController extends Controller
             return status(200);
         }
 
-        return status(1001);
+
     }
 
     /**

@@ -23,7 +23,8 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     Route::post('/register/code', 'AuthController@postRegisterCode')->codes([
         200 => '验证码发送成功',
         1000 => '邮箱格式不正确',
-        1001 => '邮箱或手机不能为空',
+        1001 => '手机不能为空',
+        1002 => '邮箱不能为空',
         1003 => '短信服务配置错误',
         2000 => '该注册类型通道已关闭',
         2001 => '注册码已超出最大发送次数，请明天再试',
