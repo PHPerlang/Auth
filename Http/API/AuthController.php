@@ -319,7 +319,14 @@ class AuthController extends Controller
         $email_code->save();
     }
 
-    public function sendSmsCodeByUnioncast($code, $type)
+    /**
+     * 发送马拉松项目验证码
+     *
+     * @param $code
+     *
+     * @return bool
+     */
+    public function sendSmsCodeByUnioncast($code)
     {
         $mobile = $this->request->input('member_phone');
         $serial_no = mt_rand(1000000000, 9999999999) . mt_rand(1000000000, 9999999999);
@@ -331,7 +338,6 @@ class AuthController extends Controller
         $block_size = @mcrypt_get_block_size('tripledes', 'ecb');
         $padding_char = $block_size - (strlen($param) % $block_size);
         $param .= str_repeat(chr($padding_char), $padding_char);
-
 
         $token = base64_encode(@mcrypt_encrypt(
             $cipher = MCRYPT_3DES,
@@ -350,16 +356,10 @@ class AuthController extends Controller
 
         $response = curl_exec($ch);
 
-        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        if ($status != 200) {
-
-            exception(1003);
-        }
-
         curl_close($ch);
 
         try {
+
             $p = xml_parser_create();
             xml_parse_into_struct($p, $response, $vals, $index);
             xml_parser_free($p);
@@ -371,10 +371,14 @@ class AuthController extends Controller
                     return true;
                 }
             }
-        } catch (\Exception $error) {
 
-            exception(1003);
+        } catch (\Exception $error) {
+            // nothing
         }
+
+        exception(1003, [
+            'reason' => $response
+        ]);
     }
 
     /**
@@ -401,7 +405,6 @@ class AuthController extends Controller
 //
 //            exception(1003, $send_sms_result);
 //        }
-
 
         $email_code = new SmsCode();
         $email_code->code = $code;
@@ -432,59 +435,60 @@ class AuthController extends Controller
             exception(2000);
         }
 
-        if ($this->request->input('member_email') || $this->request->input('member_phone')) {
+        switch ($this->request->input('register_type')) {
 
+            case 'email';
 
-            $key = $this->getCacheKey();
+                if (!$this->request->input('member_email')) {
+                    exception(1002);
+                }
 
-            $this->checkCodeFrequency('register_timer', $key);
+                if (Member::where('member_email', $this->request->input('member_email'))->first()) {
+                    exception(3002);
+                }
 
-            $code = $this->generateCode();
+                $key = $this->request->input('member_email', null);
 
-            $this->cacheCode('register_code', $key, $code);
+                $this->checkCodeFrequency('register_timer', $key);
 
-            switch ($this->request->input('register_type')) {
+                $code = $this->generateCode();
 
-                case 'email';
+                $this->cacheCode('register_code', $key, $code);
 
-                    if (!$this->request->input('member_email')) {
-                        exception(1002);
-                    }
+                $this->sendEmailCode($code, 'register');
 
-                    if (Member::where('member_email', $this->request->input('member_email'))->first()) {
-                        exception(3002);
-                    }
+                $this->setCodeFrequency('register_timer', $key);
 
-                    $this->sendEmailCode($code, 'register');
+                break;
+
+            case 'mobile';
+
+                if (!$this->request->input('member_phone')) {
+
+                    exception(1001);
+                }
+
+                if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
+                    exception(3003);
+                }
+
+                $key = $this->request->input('member_phone', null);
+
+                $this->checkCodeFrequency('register_timer', $key);
+
+                $code = $this->generateCode();
+
+                $this->cacheCode('register_code', $key, $code);
+
+                if ($this->sendSmsCode($code, 'register')) {
 
                     $this->setCodeFrequency('register_timer', $key);
+                }
 
-                    break;
-
-                case 'mobile';
-
-                    if (!$this->request->input('member_phone')) {
-
-                        exception(1001);
-                    }
-
-                    if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
-                        exception(3003);
-                    }
-
-                    if ($this->sendSmsCode($code, 'register')) {
-
-                        $this->setCodeFrequency('register_timer', $key);
-                    }
-
-                    break;
-            }
-
-
-            return status(200);
+                break;
         }
 
-
+        return status(200);
     }
 
     /**
@@ -566,53 +570,53 @@ class AuthController extends Controller
 
             case 'email':
 
-                // 检查邮箱是否注册
                 if (Member::where('member_email', $this->request->input('member_email'))->first()) {
                     exception(3002);
                 }
 
-                // 检查验证码
                 if (config('auth::config.register_email_auth')) {
-                    $this->checkCacheCode('register_code', $this->request->input('member_email'), $this->request->input('register_code'));
+
+                    $this->checkCacheCode(
+                        'register_code',
+                        $this->request->input('member_email'),
+                        $this->request->input('register_code')
+                    );
                 }
 
-                // 保存用户邮箱
                 $member->member_email = $this->request->input('member_email');
 
                 break;
 
             case 'mobile':
 
-                // 检查该手机是否注册
                 if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
                     exception(3003);
                 }
 
-                // 检查验证码
                 if (config('auth::config.register_mobile_auth')) {
-                    $this->checkCacheCode('register_code', $this->request->input('member_phone'), $this->request->input('register_code'));
+
+                    $this->checkCacheCode(
+                        'register_code',
+                        $this->request->input('member_phone'),
+                        $this->request->input('register_code')
+                    );
                 }
 
-                // 保存电话号码
                 $member->member_phone = $this->request->input('member_phone');
-
 
                 break;
 
             case 'username':
 
-                // 检查该用户名是否已经注册
                 if (Member::where('member_account', $this->request->input('member_account'))->first()) {
                     exception(3004);
                 }
 
-                // 用户名注册要求必须填密码
                 if (!$this->request->input('member_password')) {
 
                     exception(3005);
                 }
 
-                // 保存用户名
                 $member->member_account = $this->request->input('member_account');
 
                 break;
@@ -696,7 +700,6 @@ class AuthController extends Controller
 
         $register_type = $this->request->input('register_type');
 
-        // 检查注册类型是否开启
         if (!$this->checkRegisterType($register_type)) {
             exception(2000);
         }
@@ -705,7 +708,6 @@ class AuthController extends Controller
 
         $key = null;
 
-        // 判断注册类型
         switch ($register_type) {
 
             case 'email':
@@ -719,10 +721,8 @@ class AuthController extends Controller
                 break;
         }
 
-        // 检查验证码
         $this->checkCacheCode('register_code', $key, $this->request->input('register_code'));
 
-        // 保存新密码
         $member->member_password = $this->request->input('member_password');
 
         $member->save();
@@ -748,13 +748,11 @@ class AuthController extends Controller
 
         $find_password_type = $this->request->input('find_password_type');
 
-        // 检查找回密码方式是否开启
         if (!$this->checkFindPasswordType($find_password_type)) {
 
             exception(2000);
         }
 
-        // 生成验证码
         $code = $this->generateCode();
 
         switch ($find_password_type) {
@@ -763,21 +761,16 @@ class AuthController extends Controller
 
                 $key = $this->request->input('member_email');
 
-                // 检查该邮箱用户是否存在
                 if (!Member::where('member_email', $key)->first()) {
                     exception(2010);
                 }
 
-                // 检查验证码发送频率
                 $this->checkCodeFrequency('reset_password_timer', $key);
 
-                // 缓存验证码
                 $this->cacheCode('reset_password_code', $key, $code);
 
-                // 通过邮件发送重置链接
                 $this->sendPasswordResetLinkEmail($key, $code);
 
-                // 设置验证码发送频率检查
                 $this->setCodeFrequency('reset_password_timer', $key);
 
                 break;
@@ -786,21 +779,16 @@ class AuthController extends Controller
 
                 $key = $this->request->input('member_phone');
 
-                // 检查该手机用户是否存在
                 if (!Member::where('member_phone', $key)->first()) {
                     exception(2010);
                 }
 
-                // 检查验证码发送频率
                 $this->checkCodeFrequency('reset_password_timer', $key);
 
-                // 缓存验证码
                 $this->cacheCode('reset_password_code', $key, $code);
 
-                // 通过手机短信发送验证码
                 $this->sendSmsCode($code, 'reset');
 
-                // 设置验证码发送频率检查
                 $this->setCodeFrequency('reset_password_timer', $key);
 
                 break;
@@ -843,7 +831,6 @@ class AuthController extends Controller
 
         $find_password_type = $this->request->input('find_password_type');
 
-        // 检查找回密码方式是否开启
         if (!$this->checkFindPasswordType($find_password_type)) {
 
             exception(2000);
@@ -855,23 +842,18 @@ class AuthController extends Controller
 
             case 'email':
 
-                // 如果是邮箱链接则需要解密验证码
                 $code = Crypt::decryptString($this->request->input('reset_code'));
 
-                // 检查验证码
                 $this->checkCacheCode('reset_password_code', $this->request->input('member_email'), $code);
 
-                // 获取该邮箱用户
                 $member = Member::where('member_email', $this->request->input('member_email'))->first();
 
                 break;
 
             case 'mobile':
 
-                // 检查验证码
                 $this->checkCacheCode('reset_password_code', $this->request->input('member_phone'), $this->request->input('reset_code'));
 
-                // 获取该邮箱用户
                 $member = Member::where('member_phone', $this->request->input('member_phone'))->first();
 
                 break;
@@ -907,16 +889,12 @@ class AuthController extends Controller
         $new_password = $this->request->input('new_password');
         $origin_password = $this->request->input('origin_password');
 
-        // 检查原密码是否正确
         if ($member->encryptMemberPassword($origin_password) != $member->member_password) {
-
             exception(1001);
         }
 
 
-        // 新密码不能与原密码相同
         if ($new_password == $origin_password || $member->encryptMemberPassword($new_password) == $member->member_password) {
-
             exception(1002);
         }
 
@@ -941,13 +919,11 @@ class AuthController extends Controller
 
         $email = $this->request->input('member_email');
 
-        // 新邮箱不能与原邮箱相同
         if ($email == Guest::instance()->member_email) {
 
             exception(1001);
         }
 
-        // 检查新邮箱是否已经存在
         if (Member::where('member_email', $email)->first()) {
 
             exception(1002);
