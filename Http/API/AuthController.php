@@ -5,8 +5,6 @@ namespace Modules\Auth\Http\API;
 use Gindowin\Status;
 use Gindowin\Request;
 use Gindowin\Services\SMS;
-use function GuzzleHttp\Psr7\str;
-use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Guest;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Services\Code;
@@ -14,11 +12,9 @@ use Illuminate\Routing\Controller;
 use Modules\Auth\Services\Captcha;
 use Illuminate\Support\Facades\Mail;
 use Modules\Auth\Models\AccessToken;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Modules\Auth\Emails\RegisterCode;
 use Modules\Auth\Emails\ChangeEmailLink;
-use Illuminate\Support\Facades\Validator;
 use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Emails\ResetPasswordLink;
 use Modules\Auth\Events\MemberRegisterEvent;
@@ -372,18 +368,24 @@ class AuthController extends Controller
                     exception(3002);
                 }
 
+                $member->email_status = 'unverified';
+
                 if (config('auth::config.register_email_auth', false)) {
 
                     if (!Code::checkCacheCode(
-                            $this->cache_register_tag,
-                            $this->request->input('member_email'),
-                            $this->request->input('register_code'))
+                        $this->cache_register_tag,
+                        $this->request->input('member_email'),
+                        $this->request->input('register_code'))
                     ) {
                         exception(1300);
                     }
+
+                    $member->email_status = 'verified';
                 }
 
                 $member->member_email = $this->request->input('member_email');
+
+                $member->mobile_status = $this->request->input('member_mobile') ? 'unverified' : 'none';
 
                 break;
 
@@ -393,18 +395,24 @@ class AuthController extends Controller
                     exception(3003);
                 }
 
+                $member->mobile_status = 'unverified';
+
                 if (config('auth::config.register_mobile_auth', true)) {
 
                     if (!Code::checkCacheCode(
-                            $this->cache_register_tag,
-                            $this->request->input('member_mobile'),
-                            $this->request->input('register_code'))
+                        $this->cache_register_tag,
+                        $this->request->input('member_mobile'),
+                        $this->request->input('register_code'))
                     ) {
                         exception(1300);
                     }
+
+                    $member->mobile_status = 'verified';
                 }
 
                 $member->member_mobile = $this->request->input('member_mobile');
+
+                $member->email_status = $this->request->input('member_email') ? 'unverified' : 'none';
 
                 break;
 
@@ -418,6 +426,9 @@ class AuthController extends Controller
 
                     exception(3005);
                 }
+
+                $member->email_status = $this->request->input('member_email') ? 'unverified' : 'none';
+                $member->mobile_status = $this->request->input('member_mobile') ? 'unverified' : 'none';
 
                 $member->member_account = $this->request->input('member_account');
 
@@ -467,6 +478,7 @@ class AuthController extends Controller
             case 'email':
                 validate($this->request->input(), ['member_email' => 'required']);
                 $member = Member::where('member_email', $this->request->input('member_email'))->first();
+
                 break;
             case 'mobile':
                 validate($this->request->input(), ['member_mobile' => 'required']);
@@ -476,6 +488,24 @@ class AuthController extends Controller
                 validate($this->request->input(), ['member_account' => 'required']);
                 $member = Member::where('member_account', $this->request->input('member_account'))->first();
                 break;
+        }
+
+        if ($member) {
+            if (config('auth::config.login_email_auth', false)) {
+
+                if ($member->email_status != 'unverified') {
+                    exception('2010');
+                }
+
+            }
+
+            if (config('auth::config.login_mobile_auth', true)) {
+
+                if ($member->mobile_status != 'unverified') {
+                    exception('2020');
+                }
+
+            }
         }
 
         if (!$member || $member->member_password != $member->encryptMemberPassword($this->request->input('member_password'))) {
@@ -524,9 +554,9 @@ class AuthController extends Controller
         }
 
         if (!Code::checkCacheCode(
-                $this->cache_register_tag,
-                $key,
-                $this->request->input('register_code'))
+            $this->cache_register_tag,
+            $key,
+            $this->request->input('register_code'))
         ) {
             exception(1300);
         }
@@ -655,9 +685,9 @@ class AuthController extends Controller
                 $code = Crypt::decryptString($this->request->input('reset_code'));
 
                 if (!Code::checkCacheCode(
-                        $this->cache_reset_password_tag,
-                        $this->request->input('member_email'),
-                        $code)
+                    $this->cache_reset_password_tag,
+                    $this->request->input('member_email'),
+                    $code)
                 ) {
 
                     exception(1300);
@@ -670,9 +700,9 @@ class AuthController extends Controller
             case 'mobile':
 
                 if (!Code::checkCacheCode(
-                        $this->cache_reset_password_tag,
-                        $this->request->input('member_mobile'),
-                        $this->request->input('reset_code'))
+                    $this->cache_reset_password_tag,
+                    $this->request->input('member_mobile'),
+                    $this->request->input('reset_code'))
                 ) {
                     exception(1300);
 
