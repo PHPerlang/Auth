@@ -383,6 +383,8 @@ class AuthController extends Controller
                     $member->email_status = 'verified';
                 }
 
+                $member->register_type = 'email';
+
                 $member->member_email = $this->request->input('member_email');
 
                 $member->mobile_status = $this->request->input('member_mobile') ? 'unverified' : 'none';
@@ -410,6 +412,8 @@ class AuthController extends Controller
                     $member->mobile_status = 'verified';
                 }
 
+                $member->register_type = 'mobile';
+
                 $member->member_mobile = $this->request->input('member_mobile');
 
                 $member->email_status = $this->request->input('member_email') ? 'unverified' : 'none';
@@ -427,9 +431,9 @@ class AuthController extends Controller
                     exception(3005);
                 }
 
+                $member->register_type = 'username';
                 $member->email_status = $this->request->input('member_email') ? 'unverified' : 'none';
                 $member->mobile_status = $this->request->input('member_mobile') ? 'unverified' : 'none';
-
                 $member->member_account = $this->request->input('member_account');
 
                 break;

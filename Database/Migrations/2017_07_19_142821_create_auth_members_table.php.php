@@ -10,6 +10,8 @@ class CreateAuthMembersTable extends Migration
     {
         Schema::create('auth_members', function (Blueprint $table) {
             $table->bigIncrements('member_id')->comment('系统用户 ID');
+            $table->bigInteger('role_id')->nullable()->comment('用户角色 ID');
+            $table->boolean('multi_roles')->default(false)->comment('用户是否拥有多个角色');
             $table->string('member_account')->nullable()->comment('系统用户用户名');
             $table->string('member_email')->unique()->nullable()->comment('系统用户邮箱');
             $table->string('member_mobile')->nullable()->comment('系统用户手机号码');
@@ -20,8 +22,6 @@ class CreateAuthMembersTable extends Migration
             $table->string('register_type')->comment('注册类型');
             $table->enum('email_status', ['none', 'unverified', 'verified'])->comment('邮箱状态');
             $table->enum('mobile_status', ['none', 'unverified', 'verified'])->comment('手机状态');
-            $table->bigInteger('role_id')->comment('用户角色 ID');
-            $table->boolean('multi_roles')->comment('用户是否拥有多个角色');
             $table->timestamp('created_at')->nullable()->comment('系统用户创建时间');
             $table->timestamp('updated_at')->nullable()->comment('系统用户最近更新时间');
         });
