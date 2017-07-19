@@ -5,7 +5,7 @@ namespace Modules\Auth\Console;
 use Modules\Auth\Models\Permission;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use Jindowin\Commands\ModuleDeployCommand as JindowinModuleDeployCommand;
+use Gindowin\Commands\ModuleDeployCommand as JindowinModuleDeployCommand;
 
 class ModuleDeployCommand extends JindowinModuleDeployCommand
 {

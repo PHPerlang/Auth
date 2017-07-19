@@ -2,7 +2,7 @@
 
 namespace Modules\Auth\Foundation;
 
-use Jindowin\Foundation\Route as JindowinRoute;
+use Gindowin\Foundation\Route as JindowinRoute;
 
 class Route extends JindowinRoute
 {

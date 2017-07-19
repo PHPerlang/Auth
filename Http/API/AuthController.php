@@ -2,8 +2,8 @@
 
 namespace Modules\Auth\Http\API;
 
-use Jindowin\Status;
-use Jindowin\Request;
+use Gindowin\Status;
+use Gindowin\Request;
 use Modules\Auth\Models\Guest;
 use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;

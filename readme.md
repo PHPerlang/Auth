@@ -1,4 +1,4 @@
-# Jindowin 认证登录
+# Gindowin 认证登录
 
 [TOC]
 

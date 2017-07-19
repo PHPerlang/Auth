@@ -2,7 +2,7 @@
 
 namespace Modules\Auth\Models;
 
-use Jindowin\Model;
+use Gindowin\Model;
 
 class Constant extends Model
 {

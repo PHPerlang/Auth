@@ -4,7 +4,7 @@ namespace Modules\Auth\Providers;
 
 use Modules\Auth\Foundation\Router;
 use Modules\Auth\Foundation\UrlGenerator;
-use Jindowin\Providers\RoutingServiceProvider as JindowinRoutingServiceProvider;
+use Gindowin\Providers\RoutingServiceProvider as JindowinRoutingServiceProvider;
 
 class RoutingServiceProvider extends JindowinRoutingServiceProvider
 {

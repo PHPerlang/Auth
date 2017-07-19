@@ -2,7 +2,7 @@
 
 namespace Modules\Auth\Http\API;
 
-use Jindowin\Request;
+use Gindowin\Request;
 use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Models\Member;
 use Illuminate\Routing\Controller;

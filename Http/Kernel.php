@@ -3,8 +3,8 @@
 namespace Modules\Auth\Http;
 
 use \Modules\Auth\Foundation\Router;
-use Jindowin\Foundation\Application;
-use Jindowin\Http\Kernel as JindowinHttpKernel;
+use Gindowin\Foundation\Application;
+use Gindowin\Http\Kernel as JindowinHttpKernel;
 
 class Kernel extends JindowinHttpKernel
 {
