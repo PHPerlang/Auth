@@ -13,7 +13,7 @@ class Permission extends Model
      *
      * @var string
      */
-    protected $table = 'permissions';
+    protected $table = 'auth_permissions';
 
 
     /**

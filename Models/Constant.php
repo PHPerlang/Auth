@@ -12,7 +12,7 @@ class Constant extends Model
      *
      * @var string
      */
-    protected $table = 'constants';
+    protected $table = 'auth_constants';
 
 
     /**

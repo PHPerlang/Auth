@@ -12,7 +12,7 @@ class Member extends Model
      *
      * @var string
      */
-    protected $table = 'members';
+    protected $table = 'auth_members';
 
 
     /**

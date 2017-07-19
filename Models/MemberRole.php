@@ -12,7 +12,7 @@ class MemberRole extends Model
      *
      * @var string
      */
-    protected $table = 'member_roles';
+    protected $table = 'auth_member_roles';
 
     /**
      * Indicates if the model should be timestamped.

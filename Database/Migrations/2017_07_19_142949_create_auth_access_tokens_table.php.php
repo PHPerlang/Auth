@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAccessTokensTable extends Migration
+class CreateAuthAccessTokensTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateAccessTokensTable extends Migration
      */
     public function up()
     {
-        Schema::create('access_tokens', function (Blueprint $table) {
+        Schema::create('auth_access_tokens', function (Blueprint $table) {
             $table->bigInteger('member_id');                    // 系统用户 ID
             $table->string('access_token');                     // 系统用户 Token
             $table->string('client_group');                     // 客户端分组，实现多点登录
@@ -22,7 +22,6 @@ class CreateAccessTokensTable extends Migration
             $table->timestamp('created_at')->nullable();        // Token 创建时间
             $table->timestamp('updated_at')->nullable();        // Token 创建时间
             $table->timestamp('expired_at')->nullable();          // Token 失效时间
-
             $table->primary(['member_id', 'client_group']);
         });
     }
@@ -34,6 +33,6 @@ class CreateAccessTokensTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('access_tokens');
+        Schema::dropIfExists('auth_access_tokens');
     }
 }

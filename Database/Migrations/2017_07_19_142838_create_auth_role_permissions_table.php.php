@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRolePermissionsTable extends Migration
+class CreateAuthRolePermissionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateRolePermissionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('role_permissions', function (Blueprint $table) {
+        Schema::create('auth_role_permissions', function (Blueprint $table) {
             $table->bigInteger('role_id');                              // 角色 ID
             $table->string('permission_id');                            // 权限 ID
             $table->string('limit_params', 512)->nullable();  // 权限限制的字段信息
@@ -35,6 +35,6 @@ class CreateRolePermissionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('role_permissions');
+        Schema::dropIfExists('auth_role_permissions');
     }
 }

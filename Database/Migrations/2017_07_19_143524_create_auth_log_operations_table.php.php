@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMemberOperationsTable extends Migration
+class CreateAuthLogOperationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateMemberOperationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('member_operations', function (Blueprint $table) {
+        Schema::create('auth_log_operations', function (Blueprint $table) {
             $table->bigIncrements('op_id');                 // 日志 ID
             $table->string('op_method');                    // 请求方法
             $table->string('op_url');                       // 请求地址
@@ -37,6 +37,6 @@ class CreateMemberOperationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('member_operations');
+        Schema::dropIfExists('auth_log_operations');
     }
 }

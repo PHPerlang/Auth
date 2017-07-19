@@ -12,7 +12,7 @@ class AccessToken extends Model
      *
      * @var string
      */
-    protected $table = 'access_tokens';
+    protected $table = 'auth_access_tokens';
 
 
     /**

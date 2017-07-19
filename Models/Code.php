@@ -4,7 +4,7 @@ namespace Modules\Auth\Models;
 
 use Gindowin\Model;
 
-class EmailCode extends Model
+class Code extends Model
 {
 
     /**
@@ -12,7 +12,7 @@ class EmailCode extends Model
      *
      * @var string
      */
-    protected $table = 'email_codes';
+    protected $table = 'auth_log_codes';
 
 
     /**
