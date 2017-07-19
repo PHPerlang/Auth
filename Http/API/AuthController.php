@@ -451,19 +451,19 @@ class AuthController extends Controller
             'member_mobile' => 'sometimes|size:11',
             'member_email' => 'sometimes|email|max:255',
             'member_password' => 'required|min:6',
-            'login_type' => 'required',
+            'login_channel' => 'required',
         ]);
 
-        $login_type = $this->request->input('login_type');
+        $login_channel = $this->request->input('login_channel');
 
-        if (!$this->checkLoginType($login_type)) {
+        if (!$this->checkLoginChannel($login_channel)) {
 
             exception(2000);
         }
 
         $member = null;
 
-        switch ($login_type) {
+        switch ($login_channel) {
             case 'email':
                 validate($this->request->input(), ['member_email' => 'required']);
                 $member = Member::where('member_email', $this->request->input('member_email'))->first();
@@ -497,12 +497,12 @@ class AuthController extends Controller
             'member_mobile' => 'sometimes|email|size:255',
             'member_password' => 'required|min:6',
             'register_code' => 'required',
-            'register_type' => 'required',
+            'register_channel' => 'required',
         ]);
 
-        $register_type = $this->request->input('register_type');
+        $register_channel = $this->request->input('register_channel');
 
-        if (!$this->checkRegisterType($register_type)) {
+        if (!$this->checkRegisterChannel($register_channel)) {
             exception(2000);
         }
 
@@ -510,7 +510,7 @@ class AuthController extends Controller
 
         $key = null;
 
-        switch ($register_type) {
+        switch ($register_channel) {
 
             case 'email':
 
