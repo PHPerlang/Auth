@@ -150,7 +150,6 @@ class AuthController extends Controller
      */
     protected function saveMemberToken(Member $member)
     {
-
         $client = $this->request->client;
 
         $accessToken = new AccessToken;
@@ -160,6 +159,7 @@ class AuthController extends Controller
         $accessToken->client_group = $client->group;
         $accessToken->client_id = $client->id;
         $accessToken->client_version = $client->version;
+
         $accessToken->expired_at = timestamp();
 
         $accessToken->autoSave();
@@ -336,23 +336,20 @@ class AuthController extends Controller
     /**
      * 注册用户
      *
-     * 注意：注册的用户的时候不能同时填充 member_mobile, member_email, member_account 字段，以保证登录账号不会重复。
-     * 它们三者同时存在的时候，需要严格进行值检查。
-     *
      * @return Status
      */
     public function postRegister()
     {
-        validate($this->request->input(), [
+        $rule = [
+            'member_account' => 'required|unique:auth_members|unique:home_orgs,org_name',
+            'member_mobile' => 'required|unique:auth_members|size:11',
+            'member_email' => 'required|unique:auth_members|email|max:255',
+            'member_password' => 'required|min:6',
             'register_channel' => 'required',
-            'member_email' => 'sometimes|email|max:255',
-            'member_mobile' => 'sometimes|size:11',
-            'member_password' => 'sometimes|min:6',
-        ]);
+        ];
 
         $register_channel = $this->request->input('register_channel');
 
-        // 检查注册类型是否开启
         if (!$this->checkRegisterChannel($register_channel)) {
 
             exception(2000);
@@ -364,9 +361,11 @@ class AuthController extends Controller
 
             case 'email':
 
-                if (Member::where('member_email', $this->request->input('member_email'))->first()) {
-                    exception(3002);
-                }
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+                $rule['member_account'] = 'sometimes|' . $rule['member_account'];
+                $rule['member_password'] = 'sometimes|' . $rule['member_password'];
+
+                validate($this->request->input(), $rule);
 
                 $member->email_status = 'unverified';
 
@@ -393,9 +392,11 @@ class AuthController extends Controller
 
             case 'mobile':
 
-                if (Member::where('member_mobile', $this->request->input('member_mobile'))->first()) {
-                    exception(3003);
-                }
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
+                $rule['member_account'] = 'sometimes|' . $rule['member_account'];
+                $rule['member_password'] = 'sometimes|' . $rule['member_password'];
+
+                validate($this->request->input(), $rule);
 
                 $member->mobile_status = 'unverified';
 
@@ -422,14 +423,10 @@ class AuthController extends Controller
 
             case 'username':
 
-                if (Member::where('member_account', $this->request->input('member_account'))->first()) {
-                    exception(3004);
-                }
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
 
-                if (!$this->request->input('member_password')) {
-
-                    exception(3005);
-                }
+                validate($this->request->input(), $rule);
 
                 $member->register_type = 'username';
                 $member->email_status = $this->request->input('member_email') ? 'unverified' : 'none';
@@ -462,12 +459,13 @@ class AuthController extends Controller
     public function postLogin()
     {
 
-        validate($this->request->input(), [
-            'member_mobile' => 'sometimes|size:11',
-            'member_email' => 'sometimes|email|max:255',
+        $rule = [
+            'member_mobile' => 'required|size:11',
+            'member_email' => 'required|email|max:255',
+            'member_account' => 'required',
             'member_password' => 'required|min:6',
             'login_channel' => 'required',
-        ]);
+        ];
 
         $login_channel = $this->request->input('login_channel');
 
@@ -480,42 +478,51 @@ class AuthController extends Controller
 
         switch ($login_channel) {
             case 'email':
-                validate($this->request->input(), ['member_email' => 'required']);
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+                $rule['member_account'] = 'sometimes|' . $rule['member_account'];
+                validate($this->request->input(), $rule);
                 $member = Member::where('member_email', $this->request->input('member_email'))->first();
-
                 break;
             case 'mobile':
-                validate($this->request->input(), ['member_mobile' => 'required']);
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
+                $rule['member_account'] = 'sometimes|' . $rule['member_account'];
+                validate($this->request->input(), $rule);
                 $member = Member::where('member_mobile', $this->request->input('member_mobile'))->first();
                 break;
             case 'username':
-                validate($this->request->input(), ['member_account' => 'required']);
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
+                validate($this->request->input(), $rule);
                 $member = Member::where('member_account', $this->request->input('member_account'))->first();
                 break;
         }
 
-        if ($member) {
-            if (config('auth::config.login_email_auth', false)) {
-
-                if ($member->email_status != 'unverified') {
-                    exception('2010');
-                }
-
-            }
-
-            if (config('auth::config.login_mobile_auth', true)) {
-
-                if ($member->mobile_status != 'unverified') {
-                    exception('2020');
-                }
-
-            }
-        }
-
-        if (!$member || $member->member_password != $member->encryptMemberPassword($this->request->input('member_password'))) {
+        if (!$member) {
 
             exception('1001');
         }
+
+        if (config('auth::config.login_email_auth', false)) {
+
+            if ($member->email_status != 'unverified') {
+                exception('2010');
+            }
+
+        }
+
+        if (config('auth::config.login_mobile_auth', true)) {
+
+            if ($member->mobile_status != 'unverified') {
+                exception('2020');
+            }
+
+        }
+
+        if ($member->member_password != $member->encryptMemberPassword($this->request->input('member_password'))) {
+
+            exception('1001');
+        }
+
 
         return status(200, $this->saveMemberToken($member));
     }
@@ -525,43 +532,42 @@ class AuthController extends Controller
      */
     public function postNewPassword()
     {
-
-        validate($this->request->input(), [
-            'member_email' => 'sometimes|email|max:255',
-            'member_mobile' => 'sometimes|email|size:255',
+        $rule = [
+            'member_email' => 'required|email|max:255',
+            'member_mobile' => 'required|size:255',
             'member_password' => 'required|min:6',
-            'register_code' => 'required',
             'register_channel' => 'required',
-        ]);
+            'register_code' => 'required',
+        ];
+
+        $key = null;
+
+        $member = Guest::instance();
+
+        $code = $this->request->input('register_code');
 
         $register_channel = $this->request->input('register_channel');
 
         if (!$this->checkRegisterChannel($register_channel)) {
+
             exception(2000);
         }
 
-        $member = Guest::instance();
-
-        $key = null;
-
         switch ($register_channel) {
-
             case 'email':
-
                 $key = $this->request->input('member_email');
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
                 break;
-
             case 'mobile':
-
-                $this->request->input('member_mobile');
+                $key = $this->request->input('member_mobile');
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
                 break;
         }
 
-        if (!Code::checkCacheCode(
-            $this->cache_register_tag,
-            $key,
-            $this->request->input('register_code'))
-        ) {
+        validate($this->request->input(), $rule);
+
+        if (!Code::checkCacheCode($this->cache_register_tag, $key, $code)) {
+
             exception(1300);
         }
 
@@ -582,11 +588,11 @@ class AuthController extends Controller
      */
     public function postResetPasswordCode()
     {
-        validate($this->request->input(), [
-            'member_email' => 'sometimes|email|max:255',
-            'member_mobile' => 'sometimes|size:11',
+        $rule = [
+            'member_email' => 'required|email|max:255',
+            'member_mobile' => 'required|size:11',
             'find_password_channel' => 'required',
-        ]);
+        ];
 
         $find_password_channel = $this->request->input('find_password_channel');
 
@@ -598,6 +604,10 @@ class AuthController extends Controller
         switch ($find_password_channel) {
 
             case 'email':
+
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+
+                validate($this->request->input(), $rule);
 
                 $key = $this->request->input('member_email');
 
@@ -618,6 +628,10 @@ class AuthController extends Controller
                 break;
 
             case 'mobile':
+
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
+
+                validate($this->request->input(), $rule);
 
                 $key = $this->request->input('member_mobile');
 
@@ -665,26 +679,28 @@ class AuthController extends Controller
      */
     public function putResetPassword()
     {
-        validate($this->request->input(), [
+        $rule = [
             'member_email' => 'sometimes|email|max:255',
             'member_mobile' => 'sometimes|size:11',
             'find_password_channel' => 'required',
             'reset_code' => 'required',
             'member_password' => 'required',
-        ]);
+        ];
 
-        $find_password_channel = $this->request->input('find_password_channel');
+        $member = null;
 
-        if (!$this->checkFindPasswordChannel($find_password_channel)) {
+        if (!$this->checkFindPasswordChannel($this->request->input('find_password_channel'))) {
 
             exception(2000);
         }
 
-        $member = null;
-
-        switch ($find_password_channel) {
+        switch ($this->request->input('find_password_channel')) {
 
             case 'email':
+
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+
+                validate($this->request->input(), $rule);
 
                 $code = Crypt::decryptString($this->request->input('reset_code'));
 
@@ -702,6 +718,10 @@ class AuthController extends Controller
                 break;
 
             case 'mobile':
+
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
+
+                validate($this->request->input(), $rule);
 
                 if (!Code::checkCacheCode(
                     $this->cache_reset_password_tag,
@@ -750,7 +770,6 @@ class AuthController extends Controller
         if ($member->encryptMemberPassword($origin_password) != $member->member_password) {
             exception(1001);
         }
-
 
         if ($new_password == $origin_password || $member->encryptMemberPassword($new_password) == $member->member_password) {
             exception(1002);
@@ -809,7 +828,6 @@ class AuthController extends Controller
      */
     public function getChangeEmail($encrypt)
     {
-
         $params = json_decode(Crypt::decryptString($encrypt));
 
         $code = $params->code;
