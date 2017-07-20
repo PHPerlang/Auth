@@ -30,29 +30,27 @@ class Code
     /**
      * 缓存验证码
      *
-     * @param string $tag
      * @param string $key
      * @param integer $code
-     * @param integer time
+     * @param integer $time
      */
-    public static function cacheCode($tag, $key, $code, $time = 10)
+    public static function cacheCode($key, $code, $time = 10)
     {
-        Cache::tags($tag)->put($key, $code, $time);
+        Cache::tags('auth::code')->put($key, $code, $time);
     }
 
     /**
      * 检查缓存的验证码
      *
-     * @param string $tag
      * @param string $key
      * @param string $input
      *
      * @return bool
      */
-    public static function checkCacheCode($tag, $key, $input)
+    public static function checkCacheCode($key, $input)
     {
 
-        $required = Cache::tags($tag)->get($key, uniqid());
+        $required = Cache::tags('auth::code')->get($key, uniqid());
 
         if ($input != $required) {
 
@@ -66,22 +64,33 @@ class Code
     }
 
     /**
+     * 检查距离下次发送还剩多少时间，单位(s)
+     *
+     * @param $key
+     *
+     * @return int
+     */
+    public function checkLeftTime($key)
+    {
+        return 2;
+    }
+
+    /**
      * 设置验证码周期检查
      *
-     * @param string $timer
      * @param string $key
      */
-    public static function setCodeFrequency($timer, $key)
+    public static function setCodeFrequency($key)
     {
-        $last = Cache::tags($timer)->get($key);
+        $last = Cache::tags('auth::timer')->get($key);
 
         if (!$last) {
 
-            Cache::tags($timer)->put($key, [0, time()], self::getTheDayLeftMinutes());
+            Cache::tags('auth::timer')->put($key, [0, time()], self::getTheDayLeftMinutes());
 
         } else {
 
-            Cache::tags($timer)->put($key, [$last[0]++, time()], self::getTheDayLeftMinutes());
+            Cache::tags('auth::timer')->put($key, [$last[0]++, time()], self::getTheDayLeftMinutes());
         }
     }
 
@@ -89,26 +98,24 @@ class Code
     /**
      * 清除验证码缓存
      *
-     * @param string $tag
      * @param string $key
      */
-    public static function forgetCode($tag, $key)
+    public static function forgetCode($key)
     {
-        Cache::tags($tag)->forget($key);
+        Cache::tags('auth::code')->forget($key);
     }
 
 
     /**
      * 检查验证码发送频率
      *
-     * @param string $timer
      * @param string $key
      *
      * @return false;
      */
-    public static function checkCodeFrequency($timer, $key)
+    public static function checkCodeFrequency($key)
     {
-        $last = Cache::tags($timer)->get($key);
+        $last = Cache::tags('auth::timer')->get($key);
 
         if ($last) {
 
@@ -127,7 +134,7 @@ class Code
     /**
      * 记录验证码到数据库
      */
-    public static function log($code)
+    protected static function log()
     {
 //        $email_code = new EmailCode;
 //        $email_code->code = $code;
