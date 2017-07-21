@@ -13,10 +13,11 @@ use Modules\Auth\Services\Captcha;
 use Illuminate\Support\Facades\Mail;
 use Modules\Auth\Models\AccessToken;
 use Illuminate\Support\Facades\Crypt;
-use Modules\Auth\Emails\RegisterCode;
 use Modules\Auth\Emails\ChangeEmailLink;
+use Modules\Auth\Events\SendSMSCodeEvent;
 use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Emails\ResetPasswordLink;
+use Modules\Auth\Events\SendEmailCodeEvent;
 use Modules\Auth\Events\MemberRegisterEvent;
 
 
@@ -125,16 +126,6 @@ class AuthController extends Controller
         return $accessToken;
     }
 
-    /**
-     * 发送邮箱验证码
-     *
-     * @param integer $code
-     */
-    protected function sendEmailCode($code)
-    {
-        Mail::to($this->request->input('member_email'))->queue(new RegisterCode(($code)));
-    }
-
 
     /**
      * 发送邮箱重置密码链接, 链接里面加密了验证码
@@ -195,25 +186,7 @@ class AuthController extends Controller
 
                 validate($collect->all(), $rule);
 
-                if (!$collect->get('member_email')) {
-                    exception(1002);
-                }
-
-                if (Member::where('member_email', $collect->get('member_email'))->first()) {
-                    exception(3002);
-                }
-
-                $key = $collect->get('member_email', null);
-
-                $code = Code::generateCode();
-
-                Code::checkCodeFrequency($key);
-
-                Code::cacheCode($key, $code);
-
-                $this->sendEmailCode($code);
-
-                Code::setCodeFrequency($key);
+                event(new SendEmailCodeEvent($collect->get('member_email'), $collect));
 
                 break;
 
@@ -223,33 +196,7 @@ class AuthController extends Controller
 
                 validate($collect->all(), $rule);
 
-                if (!$collect->get('member_mobile')) {
-
-                    exception(1001);
-                }
-
-                if (Member::where('member_mobile', $collect->get('member_mobile'))->first()) {
-                    exception(3003);
-                }
-
-                $key = $collect->get('member_mobile', null);
-
-                $code = Code::generateCode();
-
-                Code::checkCodeFrequency($key);
-
-                $result = SMS::text(['code' => $code])->to($collect->get('member_mobile'))->send();
-
-                if ($result === true) {
-
-                    Code::cacheCode($key, $code);
-
-                    Code::setCodeFrequency($key);
-
-                } else {
-
-                    exception(1200, ['detail' => $result]);
-                }
+                event(new SendSMSCodeEvent($collect->get('member_mobile'), $collect));
 
                 break;
         }
@@ -342,10 +289,7 @@ class AuthController extends Controller
 
                 if (config('auth::config.register_email_auth', false)) {
 
-                    if (!Code::checkCacheCode(
-                        $collect->get('member_email'),
-                        $collect->get('register_code'))
-                    ) {
+                    if (!Code::checkCacheCode($collect->get('member_email'), $collect->get('register_code'))) {
                         exception(1300);
                     }
 
@@ -372,10 +316,7 @@ class AuthController extends Controller
 
                 if (config('auth::config.register_mobile_auth', true)) {
 
-                    if (!Code::checkCacheCode(
-                        $collect->get('member_mobile'),
-                        $collect->get('register_code'))
-                    ) {
+                    if (!Code::checkCacheCode($collect->get('member_mobile'), $collect->get('register_code'))) {
                         exception(1300);
                     }
 

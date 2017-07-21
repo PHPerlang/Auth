@@ -4,6 +4,7 @@ namespace Modules\Auth\Bootstrap;
 
 use Illuminate\Console\Scheduling\Schedule;
 
+
 class Kernel
 {
 
@@ -29,6 +30,14 @@ class Kernel
         ],
         \Modules\Storage\Events\UploadFilterEvent::class => [
             \Modules\Auth\Events\Handlers\AvatarUploadFilterHandler::class,
+        ],
+        \Modules\Auth\Events\SendSMSCodeEvent::class => [
+            \Modules\Auth\Events\Handlers\SendRegisterSMSCode::class,
+            \Modules\Auth\Events\Handlers\SendForgotPasswordSMSCode::class,
+        ],
+        \Modules\Auth\Events\SendEmailCodeEvent::class => [
+            \Modules\Auth\Events\Handlers\SendRegisterEmailCode::class,
+            \Modules\Auth\Events\Handlers\SendForgotPasswordEmailCode::class,
         ],
     ];
 
