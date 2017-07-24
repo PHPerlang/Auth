@@ -23,7 +23,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     Route::post('/code', 'AuthController@postCode')->codes([
         200 => '验证码发送成功',
         1000 => '数据格式不正确',
-        1100 => '通道不支持',
+        1300 => '通道不支持',
     ])->open();
 
 
@@ -33,7 +33,6 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         1000 => '数据校验失败',
         1300 => '验证码不正确',
         2000 => '该注册类型通道已关闭',
-        3000 => '图形验证码不正确',
     ])->open();
 
     // 为新用户设置密码
@@ -49,9 +48,9 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         200 => '登录成功',
         1000 => '数据校验失败',
         1100 => '账号或密码不正确',
+        1600 => '邮箱未验证，不能登录',
+        1700 => '手机未验证，不能登录',
         2000 => '该登录类型通道已关闭',
-        2010 => '邮箱未验证，不能登录',
-        2020 => '手机未验证，不能登录',
     ])->open();
 
     // 发送密码重置验证码

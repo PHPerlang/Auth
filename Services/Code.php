@@ -37,6 +37,7 @@ class Code
     public static function cacheCode($key, $code, $time = 10)
     {
         Cache::tags('auth::code')->put($key, $code, $time);
+
     }
 
     /**
@@ -134,16 +135,30 @@ class Code
     }
 
     /**
-     * 记录验证码到数据库
+     * 记录验证码日志
+     *
+     * @param array $log
+     *              $log['type']        验证码类型 email/mobile
+     *              $log['key']         验证码接收对象
+     *              $log['code']        验证码内容
+     *              $log['tag']         验证码标签
+     *              $log['status']      验证码状态
+     *              $log['description'] 验证码状态描述
      */
-    protected static function log()
+    public static function log(array $log)
     {
-//        $email_code = new EmailCode;
-//        $email_code->code = $code;
-//        $email_code->email = $this->request->input('member_email');
-//        $email_code->type = $type;
-//        $email_code->expired_at = timestamp(10 * 60);
-//        $email_code->save();
+        $log = collect($log);
+
+        $code = new \Modules\Auth\Models\Code();
+
+        $code->code_type = $log->get('type');
+        $code->code_key = $log->get('key');
+        $code->code_content = $log->get('code');
+        $code->code_status = $log->get('status');
+        $code->status_description = $log->get('description');
+        $code->code_tag = $log->get('tag');
+        $code->expired_at = timestamp(10 * 60);
+        $code->save();
     }
 
 }

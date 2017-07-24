@@ -15,7 +15,7 @@ class SendResetPasswordEmailCode
     public function handle(SendEmailCodeEvent $event)
     {
 
-        if ($event->handler_token == 'auth.forgot.password') {
+        if ($event->handler_token == 'auth.reset.password') {
 
             $key = $event->email;
 

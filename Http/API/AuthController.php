@@ -391,7 +391,7 @@ class AuthController extends Controller
         if ($login_channel == 'email' && config('auth::config.login_email_auth', false)) {
 
             if ($member->email_status != 'unverified') {
-                exception(2010);
+                exception(1300);
             }
 
         }
@@ -399,7 +399,7 @@ class AuthController extends Controller
         if ($login_channel == 'mobile' && config('auth::config.login_mobile_auth', true)) {
 
             if ($member->mobile_status != 'unverified') {
-                exception(2020);
+                exception(1500);
             }
 
         }
