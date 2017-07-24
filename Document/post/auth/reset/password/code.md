@@ -16,7 +16,7 @@
 :---:|:---|:---:|:---:|:---
 参数名 | 参数解释 | string | 是 | 示例数据
 member_email | 用户邮箱 | string | 当 `find_password_type=email` 时必须 | `im@koyeo.io`
-member_phone | 用户手机 | string | 当 `find_password_type=mobile` 时必须 |`188****8888`
+member_mobile | 用户手机 | string | 当 `find_password_type=mobile` 时必须 |`188****8888`
 find_passwrod_type | 找回密码方式 | string | 是 | `email` 或 `mobile`
 
 
