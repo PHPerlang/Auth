@@ -784,11 +784,11 @@ class AuthController extends Controller
      */
     public function checkMemberExists()
     {
-        validate($this->request->input(), ['check_type' => 'required']);
+        validate($this->request->input(), ['check_channel' => 'required']);
 
-        $check_type = $this->request->input('check_type');
+        $check_channel = $this->request->input('check_channel');
 
-        switch ($check_type) {
+        switch ($check_channel) {
             case 'mobile':
                 validate($this->request->input(), ['member_mobile' => 'required']);
                 if (Member::where('member_mobile', $this->request->input('member_mobile'))->first()) {
