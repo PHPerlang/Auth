@@ -18,7 +18,7 @@ member_email | 用户邮箱 | string | `login_type=email`时必须 | `im@koyeo.i
 member_phone | 用户手机 | number | `login_type=mobile`时必须 | `188****8888`
 member_account | 用户名 | string | `login_type=username`时必须 | `koyeo`
 member_password | 用户密码，不低于 6 位 | string | 是 | x123456
-login_channel | 标识登录类型 | string | 是 | `email`/`mobile`/`username`
+login_channel | 标识登录类型 | string | 是 | `email` <br> `mobile` <br> `username`
 
 ## 3. 响应状态
 
