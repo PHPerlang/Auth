@@ -4,7 +4,7 @@ namespace Modules\Auth\Events\Handlers;
 
 use Modules\Storage\Events\UploadDoneEvent;
 
-class AvatarUploadDoneHandler
+class AvatarUploadDone
 {
     public function handle(UploadDoneEvent $event)
     {

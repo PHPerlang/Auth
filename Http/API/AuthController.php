@@ -4,7 +4,6 @@ namespace Modules\Auth\Http\API;
 
 use Gindowin\Status;
 use Gindowin\Request;
-use Gindowin\Services\SMS;
 use Modules\Auth\Models\Guest;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Services\Code;
@@ -16,7 +15,6 @@ use Illuminate\Support\Facades\Crypt;
 use Modules\Auth\Emails\ChangeEmailLink;
 use Modules\Auth\Events\SendSMSCodeEvent;
 use Modules\Auth\Events\MemberUpdateEvent;
-use Modules\Auth\Emails\ResetPasswordLink;
 use Modules\Auth\Events\SendEmailCodeEvent;
 use Modules\Auth\Events\MemberRegisterEvent;
 
@@ -123,42 +121,9 @@ class AuthController extends Controller
 
         $accessToken->autoSave();
 
-        return $accessToken;
+        return array_merge($accessToken->toArray(), $member->toArray());
     }
 
-
-    /**
-     * 发送邮箱重置密码链接, 链接里面加密了验证码
-     *
-     * @param string $email
-     * @param integer $code
-     */
-    protected function sendPasswordResetLinkEmail($email, $code)
-    {
-        $link = url('/api/auth/reset/password/' . Crypt::encryptString($email) . '/' . Crypt::encryptString($code));
-
-        Mail::to($email)->queue(new ResetPasswordLink(($link)));
-    }
-
-    /**
-     * 发送更换邮箱链接
-     *
-     * @param $member_id
-     * @param $email
-     * @param $code
-     */
-    protected function sendChangeEmailLinkEmail($member_id, $email, $code)
-    {
-        $encrypt = Crypt::encryptString(json_encode([
-            'member_id' => $member_id,
-            'email' => $email,
-            'code' => $code
-        ]));
-
-        $link = url('/api/auth/change/email/' . $encrypt);
-
-        Mail::to($email)->queue(new ChangeEmailLink(($link)));
-    }
 
     /**
      * 发送注册验证码接口
@@ -253,7 +218,7 @@ class AuthController extends Controller
     public function postRegister()
     {
         $rule = [
-            'member_account' => 'required|unique:auth_members|unique:home_orgs,org_name',
+            'member_account' => 'required|unique:auth_members',
             'member_mobile' => 'required|unique:auth_members|size:11',
             'member_email' => 'required|unique:auth_members|email|max:255',
             'member_password' => 'required|min:6',
@@ -266,16 +231,15 @@ class AuthController extends Controller
             'member_account',
         ]));
 
-        $register_channel = $collect->get('register_channel');
+        $email_status = 'unverified';
+        $mobile_status = 'unverified';
 
-        if (!$this->checkRegisterChannel($register_channel)) {
+        if (!$this->checkRegisterChannel($collect->get('register_channel'))) {
 
             exception(2000);
         }
 
-        $member = new Member;
-
-        switch ($register_channel) {
+        switch ($collect->get('register_channel')) {
 
             case 'email':
 
@@ -283,9 +247,6 @@ class AuthController extends Controller
                 $rule['member_account'] = 'sometimes|' . $rule['member_account'];
                 $rule['member_password'] = 'sometimes|' . $rule['member_password'];
 
-                validate($collect->all(), $rule);
-
-                $member->email_status = 'unverified';
 
                 if (config('auth::config.register_email_auth', false)) {
 
@@ -293,14 +254,8 @@ class AuthController extends Controller
                         exception(1300);
                     }
 
-                    $member->email_status = 'verified';
+                    $email_status = 'verified';
                 }
-
-                $member->register_type = 'email';
-
-                $member->member_email = $collect->get('member_email');
-
-                $member->mobile_status = $collect->has('member_mobile') ? 'unverified' : 'none';
 
                 break;
 
@@ -310,24 +265,14 @@ class AuthController extends Controller
                 $rule['member_account'] = 'sometimes|' . $rule['member_account'];
                 $rule['member_password'] = 'sometimes|' . $rule['member_password'];
 
-                validate($collect->all(), $rule);
-
-                $member->mobile_status = 'unverified';
-
                 if (config('auth::config.register_mobile_auth', true)) {
 
                     if (!Code::checkCacheCode($collect->get('member_mobile'), $collect->get('register_code'))) {
                         exception(1300);
                     }
 
-                    $member->mobile_status = 'verified';
+                    $mobile_status = 'verified';
                 }
-
-                $member->register_type = 'mobile';
-
-                $member->member_mobile = $collect->get('member_mobile');
-
-                $member->email_status = $collect->get('member_email') ? 'unverified' : 'none';
 
                 break;
 
@@ -338,26 +283,32 @@ class AuthController extends Controller
 
                 validate($collect->all(), $rule);
 
-                $member->register_type = 'username';
-                $member->email_status = $collect->get('member_email') ? 'unverified' : 'none';
-                $member->mobile_status = $collect->get('member_mobile') ? 'unverified' : 'none';
-                $member->member_account = $collect->get('member_account');
-
                 break;
         }
 
+        validate($collect->all(), $rule);
+
+        $member = new Member;
+        $member->register_channel = $collect->get('register_channel');
+        $member->member_email = $collect->get('member_email');
+        $member->member_mobile = $collect->get('member_mobile');
+        $member->member_account = $collect->get('member_account');
         $member->member_password = $collect->get('member_password', uniqid());
         $member->member_avatar = $collect->get('member_avatar');
         $member->member_nickname = $collect->get('member_nickname');
         $member->member_status = 'normal';
+        $member->mobile_status = $collect->has('member_mobile') ? $mobile_status : 'none';
+        $member->email_status = $collect->get('member_email') ? $email_status : 'none';
 
         $member->save();
 
-        event(new MemberRegisterEvent($member, $collect->all()));
+        event(new MemberRegisterEvent($member, $collect));
 
         $accessToken = $this->saveMemberToken($member);
 
-        return status(200, $accessToken);
+        unset($member->member_password);
+
+        return status(200, array_merge($accessToken->toArray(), $member->toArray()));
     }
 
 
@@ -415,28 +366,28 @@ class AuthController extends Controller
 
         if (!$member) {
 
-            exception('1001');
+            exception(1100);
         }
 
-        if (config('auth::config.login_email_auth', false)) {
+        if ($login_channel == 'email' && config('auth::config.login_email_auth', false)) {
 
             if ($member->email_status != 'unverified') {
-                exception('2010');
+                exception(2010);
             }
 
         }
 
-        if (config('auth::config.login_mobile_auth', true)) {
+        if ($login_channel == 'mobile' && config('auth::config.login_mobile_auth', true)) {
 
             if ($member->mobile_status != 'unverified') {
-                exception('2020');
+                exception(2020);
             }
 
         }
 
         if ($member->member_password != $member->encryptMemberPassword($collect->get('member_password'))) {
 
-            exception('1001');
+            exception(1100);
         }
 
 
@@ -536,21 +487,6 @@ class AuthController extends Controller
 
                 validate($collect->all(), $rule);
 
-                $key = $collect->get('member_email');
-
-                if (!Member::where('member_email', $key)->first()) {
-                    exception(2010);
-                }
-
-                Code::checkCodeFrequency($key);
-
-                $code = Code::generateCode();
-
-                Code::cacheCode($key, $code);
-
-                $this->sendPasswordResetLinkEmail($key, $code);
-
-                Code::setCodeFrequency($key);
 
                 break;
 
@@ -566,15 +502,6 @@ class AuthController extends Controller
                     exception(2010);
                 }
 
-                Code::checkCodeFrequency($key);
-
-                $code = Code::generateCode();
-
-                Code::cacheCode($key, $code);
-
-                SMS::text(['code' => $code])->to($collect->get('member_mobile'))->send();
-
-                Code::setCodeFrequency($key);
 
                 break;
         }

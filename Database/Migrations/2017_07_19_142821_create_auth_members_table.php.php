@@ -19,7 +19,7 @@ class CreateAuthMembersTable extends Migration
             $table->string('member_avatar')->nullable()->comment('系统用户头像');
             $table->string('member_nickname')->nullable()->comment('系统用户昵称');
             $table->string('member_status')->default('normal')->comment('系统用户状态');
-            $table->string('register_type')->comment('注册类型');
+            $table->string('register_channel')->comment('注册通道');
             $table->enum('email_status', ['none', 'unverified', 'verified'])->comment('邮箱状态');
             $table->enum('mobile_status', ['none', 'unverified', 'verified'])->comment('手机状态');
             $table->timestamp('created_at')->nullable()->comment('系统用户创建时间');

@@ -26,18 +26,18 @@ class Kernel
     */
     public $listen = [
         \Modules\Storage\Events\UploadDoneEvent::class => [
-            \Modules\Auth\Events\Handlers\AvatarUploadDoneHandler::class,
+            \Modules\Auth\Events\Handlers\AvatarUploadDone::class,
         ],
         \Modules\Storage\Events\UploadFilterEvent::class => [
-            \Modules\Auth\Events\Handlers\AvatarUploadFilterHandler::class,
+            \Modules\Auth\Events\Handlers\AvatarUploadFilter::class,
         ],
         \Modules\Auth\Events\SendSMSCodeEvent::class => [
             \Modules\Auth\Events\Handlers\SendRegisterSMSCode::class,
-            \Modules\Auth\Events\Handlers\SendForgotPasswordSMSCode::class,
+            \Modules\Auth\Events\Handlers\SendResetPasswordSMSCode::class,
         ],
         \Modules\Auth\Events\SendEmailCodeEvent::class => [
             \Modules\Auth\Events\Handlers\SendRegisterEmailCode::class,
-            \Modules\Auth\Events\Handlers\SendForgotPasswordEmailCode::class,
+            \Modules\Auth\Events\Handlers\SendResetPasswordEmailCode::class,
         ],
     ];
 
