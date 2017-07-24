@@ -11,7 +11,7 @@ $ gindowin install Auth
 
 ## 2. 接口列表
 
-* [用户注册发送验证验证码 /api/auth/register/code](Document/post/auth/register/code.md)
+* [用户注册发送验证验证码 /api/auth/code](Document/post/auth/code.md)
 * [用户注册 /api/auth/register](Document/post/auth/register.md)
 * [编辑登录用户资料 /api/member](Document/put/auth/member.md)
 * [设置新用户密码 /api/member/password](Document/put/auth/member/password.md)
