@@ -4,6 +4,7 @@ namespace Modules\Auth\Http\API;
 
 use Gindowin\Status;
 use Gindowin\Request;
+use Illuminate\Http\Response;
 use Modules\Auth\Models\Guest;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Services\Code;
@@ -135,6 +136,7 @@ class AuthController extends Controller
         $rule = [
             'member_email' => 'required|email|max:255',
             'member_mobile' => 'required|size:11',
+            'handler_token' => 'required',
             'send_channel' => 'required'
         ];
 
@@ -151,7 +153,14 @@ class AuthController extends Controller
 
                 validate($collect->all(), $rule);
 
-                event(new SendEmailCodeEvent($collect->get('member_email'), $collect));
+                $results = event(new SendEmailCodeEvent($collect->get('member_email'), $collect));
+
+                foreach ($results as $result) {
+
+                    if ($result instanceof Response) {
+                        return $result;
+                    }
+                }
 
                 break;
 
@@ -161,9 +170,19 @@ class AuthController extends Controller
 
                 validate($collect->all(), $rule);
 
-                event(new SendSMSCodeEvent($collect->get('member_mobile'), $collect));
+                $results = event(new SendSMSCodeEvent($collect->get('member_mobile'), $collect));
+
+                foreach ($results as $result) {
+
+                    if ($result instanceof Response) {
+                        return $result;
+                    }
+                }
 
                 break;
+
+            default:
+                exception(1100);
         }
 
         return status(200);
@@ -178,12 +197,12 @@ class AuthController extends Controller
     {
         $rule = [
             'auth_code' => 'required',
-            'auth_type' => 'required',
+            'auth_channel' => 'required',
         ];
 
         $key = null;
 
-        switch ($this->request->input('auth_type')) {
+        switch ($this->request->input('auth_channel')) {
             case 'mobile':
 
                 $key = $this->request->input('member_mobile');

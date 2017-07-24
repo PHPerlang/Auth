@@ -124,11 +124,13 @@ class Code
                 return false;
             }
 
-            if (time() - $last[1] <= 60) {
+            if (time() - $last[1] <= config('auth::config.send_code_frequency', 60)) {
 
                 return false;
             }
         }
+
+        return true;
     }
 
     /**

@@ -15,16 +15,27 @@ class SendRegisterSMSCode
 
         if ($event->handler_token == 'auth.register') {
 
+            codes([
+                1200 => '短信服务商错误',
+                1400 => '该手机号已注册',
+                2010 => '验证码已超出最大发送次数，请明天再试',
+                2020 => '发送太频繁，请 60 秒后再试',
+                3010 => '图形验证码不正确',
+            ]);
+
             if (Member::where('member_mobile', $event->mobile)->first()) {
 
-                exception(3003);
+                exception(1400);
             }
 
-            $key = $$event->mobile;
+            $key = $event->mobile;
 
             $code = Code::generateCode();
 
-            Code::checkCodeFrequency($key);
+            if (!Code::checkCodeFrequency($key)) {
+
+                exception(2020);
+            }
 
             $result = SMS::text(['code' => $code])->to($event->mobile)->send();
 
@@ -38,6 +49,8 @@ class SendRegisterSMSCode
 
                 exception(1200, ['detail' => $result]);
             }
+
+            return status(200);
         }
 
     }
