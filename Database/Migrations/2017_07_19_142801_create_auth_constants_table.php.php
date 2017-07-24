@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateConstantsTable extends Migration
+class CreateAuthConstantsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateConstantsTable extends Migration
      */
     public function up()
     {
-        Schema::create('constants', function (Blueprint $table) {
+        Schema::create('auth_constants', function (Blueprint $table) {
             $table->string('const_key');                 // 常量 key
             $table->string('const_value');               // 常量 value
             $table->timestamp('created_at')->nullable(); // 常量创建时间
@@ -28,6 +28,6 @@ class CreateConstantsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('constants');
+        Schema::dropIfExists('auth_constants');
     }
 }

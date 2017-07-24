@@ -3,7 +3,7 @@
 namespace Modules\Auth\Http\Middleware;
 
 use Closure;
-use Jindowin\Request;
+use Gindowin\Request;
 use Modules\Auth\Models\Guest;
 use Modules\Auth\Foundation\Route;
 

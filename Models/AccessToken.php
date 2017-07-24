@@ -2,7 +2,7 @@
 
 namespace Modules\Auth\Models;
 
-use Jindowin\Model;
+use Gindowin\Model;
 
 class AccessToken extends Model
 {
@@ -12,7 +12,7 @@ class AccessToken extends Model
      *
      * @var string
      */
-    protected $table = 'access_tokens';
+    protected $table = 'auth_access_tokens';
 
 
     /**

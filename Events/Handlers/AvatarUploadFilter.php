@@ -5,7 +5,7 @@ namespace Modules\Auth\Events\Handlers;
 use Modules\Storage\Filter;
 use Modules\Storage\Events\UploadFilterEvent;
 
-class AvatarUploadFilterHandler
+class AvatarUploadFilter
 {
     /**
      * 处理事件

@@ -2,9 +2,9 @@
 
 namespace Modules\Auth\Models;
 
-use Jindowin\Model;
+use Gindowin\Model;
 
-class MemberOperation extends Model
+class Code extends Model
 {
 
     /**
@@ -12,7 +12,7 @@ class MemberOperation extends Model
      *
      * @var string
      */
-    protected $table = 'member_operations';
+    protected $table = 'auth_log_codes';
 
 
     /**
@@ -20,7 +20,7 @@ class MemberOperation extends Model
      *
      * @var bool
      */
-    public $primaryKey = 'op_id';
+    public $primaryKey = 'id';
 
 
     /**

@@ -53,6 +53,12 @@ class ResolveClientMiddleware
             $request->client->id = $this->client_id;
             $request->client->version = $this->client_version;
             $request->client->group = $this->getClientGroup($this->client_id);
+
+        } else {
+            $request->client = new \StdClass();
+            $request->client->id = 'web';
+            $request->client->version = '1.0.0';
+            $request->client->group = $this->getClientGroup($request->client->id);
         }
 
         return $next($request);

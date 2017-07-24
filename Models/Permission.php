@@ -2,7 +2,7 @@
 
 namespace Modules\Auth\Models;
 
-use Jindowin\Model;
+use Gindowin\Model;
 use Mockery\Exception;
 
 class Permission extends Model
@@ -13,7 +13,7 @@ class Permission extends Model
      *
      * @var string
      */
-    protected $table = 'permissions';
+    protected $table = 'auth_permissions';
 
 
     /**

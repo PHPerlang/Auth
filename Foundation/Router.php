@@ -2,7 +2,7 @@
 
 namespace Modules\Auth\Foundation;
 
-use Jindowin\Foundation\Router as JindowinRouter;
+use Gindowin\Foundation\Router as JindowinRouter;
 
 class Router extends JindowinRouter
 {

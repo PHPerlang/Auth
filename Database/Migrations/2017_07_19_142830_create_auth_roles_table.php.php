@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRolesTable extends Migration
+class CreateAuthRolesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateRolesTable extends Migration
      */
     public function up()
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('auth_roles', function (Blueprint $table) {
             $table->bigIncrements('role_id');                       // 角色 ID
             $table->string('module_id')->nullable();                // 预注册角色模块 ID
             $table->bigInteger('creator_id')->nullable();           // 创建角色的系统用户 ID
@@ -37,6 +37,6 @@ class CreateRolesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('auth_roles');
     }
 }

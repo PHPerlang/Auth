@@ -2,50 +2,31 @@
 
 namespace Modules\Auth\Http\API;
 
-use Jindowin\Status;
-use Jindowin\Request;
+use Gindowin\Status;
+use Gindowin\Request;
 use Modules\Auth\Models\Guest;
-use Yunpian\Sdk\YunpianClient;
 use Modules\Auth\Models\Member;
-use Modules\Auth\Models\SmsCode;
-use Modules\Auth\Models\EmailCode;
+use Modules\Auth\Services\Code;
 use Illuminate\Routing\Controller;
 use Modules\Auth\Services\Captcha;
 use Illuminate\Support\Facades\Mail;
 use Modules\Auth\Models\AccessToken;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
-use Modules\Auth\Emails\RegisterCode;
 use Modules\Auth\Emails\ChangeEmailLink;
-use Illuminate\Support\Facades\Validator;
+use Modules\Auth\Events\SendSMSCodeEvent;
 use Modules\Auth\Events\MemberUpdateEvent;
-use Modules\Auth\Emails\ResetPasswordLink;
+use Modules\Auth\Events\SendEmailCodeEvent;
 use Modules\Auth\Events\MemberRegisterEvent;
 
 
 class AuthController extends Controller
 {
-
     /**
      * 客户端请求
      *
      * @var Request
      */
     public $request;
-
-    /**
-     * 定义当前控制器用到的缓存标签
-     *
-     * @var array
-     */
-    protected $cache_tag = [
-        'register_code' => ['auth.register', 'code'],
-        'register_timer' => ['auth.register', 'timer'],
-        'reset_password_code' => ['auth.reset', 'code'],
-        'reset_password_timer' => ['auth.reset', 'timer'],
-        'change_email_code' => ['auth.change.email', 'code'],
-        'change_email_timer' => ['auth.change.email', 'timer'],
-    ];
 
     /**
      * 构造函数
@@ -58,144 +39,63 @@ class AuthController extends Controller
     }
 
     /**
-     *  检查注册类型
+     *  检查注册通道
      *
-     * @param string $input
-     *
-     * @return bool
-     */
-    protected function checkRegisterType($input)
-    {
-        return in_array($input, config('auth::config.register_types'));
-    }
-
-    /**
-     *  检查登录类型
-     *
-     * @param string $input
+     * @param string $channel
      *
      * @return bool
      */
-    protected function checkLoginType($input)
+    protected function checkRegisterChannel($channel)
     {
-        return in_array($input, config('auth::config.login_types'));
+        return in_array($channel, config('auth::config.register_channels'));
     }
 
     /**
-     *  检查找回密码方式
+     *  检查登录通道
      *
-     * @param string $input
+     * @param string $channel
      *
      * @return bool
      */
-    protected function checkFindPasswordType($input)
+    protected function checkLoginChannel($channel)
     {
-        return in_array($input, config('auth::config.find_password_types'));
+        return in_array($channel, config('auth::config.login_channels'));
     }
 
     /**
-     * 获取缓存的 KEY 值
+     *  检查找回密码通道
      *
-     * @return mixed
-     */
-    protected function getCacheKey()
-    {
-        return $this->request->input('register_type') == 'email' ? $this->request->input('member_email', null) : $this->request->input('member_phone', null);
-    }
-
-    /**
-     * 检查缓存的验证码
-     *
-     * @param string $tag
-     * @param string $key
-     * @param string $input
-     * @param bool $exception
+     * @param string $channel
      *
      * @return bool
      */
-    protected function checkCacheCode($tag, $key, $input, $exception = true)
+    protected function checkFindPasswordChannel($channel)
     {
-
-        $required = Cache::tags($this->cache_tag[$tag])->get($key, uniqid());
-
-        if ($input != $required) {
-
-            if (config('app.env') == 'production' || $input != '888888') {
-
-                if ($exception) {
-
-                    exception(1300);
-
-                } else {
-
-                    return false;
-                }
-
-            }
-        }
-
-        return true;
-    }
-
-
-    /**
-     * 缓存验证码
-     *
-     * @param string $tag
-     * @param string $timer
-     * @param string $key
-     * @param integer $code
-     */
-    protected function cacheCode($tag, $timer, $key, $code)
-    {
-        Cache::tags($this->cache_tag[$tag])->put($key, $code, 10);
-
-        $last = Cache::tags($this->cache_tag[$timer])->get($key);
-
-        if (!$last) {
-
-            Cache::tags($this->cache_tag[$timer])->put($key, [0, time()], $this->getTheDayLeftMinutes());
-
-        } else {
-
-            Cache::tags($this->cache_tag[$timer])->put($key, [$last[0]++, time()], $this->getTheDayLeftMinutes());
-        }
-    }
-
-
-    /**
-     * 清除验证码缓存
-     *
-     * @param string $tag
-     * @param string $key
-     */
-    protected function forgetCode($tag, $key)
-    {
-        Cache::tags($this->cache_tag[$tag])->forget($key);
+        return in_array($channel, config('auth::config.find_password_channels'));
     }
 
     /**
-     * 检查验证码发送频率
+     * 检查手机登录是否要求已验证手机号
      *
-     * @param string $timer
-     * @param string $key
+     * @param Member $member
+     *
+     * @return bool
      */
-    protected function checkCodeFrequency($timer, $key)
+    protected function checkLoginMobileAuth(Member $member)
     {
-        $last = Cache::tags($this->cache_tag[$timer])->get($key);
+        return config('auth::config.login_mobile_auth', true);
+    }
 
-        if ($last) {
-
-            if ($last[0] > config('auth::config.send_code_max_times') - 1) {
-
-                exception(2001);
-            }
-
-            if (time() - $last[1] <= 60) {
-
-                exception(2002);
-            }
-        }
+    /**
+     * 检查手机登录是否要求已验证手机号
+     *
+     * @param Member $member
+     *
+     * @return bool
+     */
+    protected function checkLoginEmailAuth(Member $member)
+    {
+        return config('auth::config.login_email_auth', false);
     }
 
     /**
@@ -207,7 +107,6 @@ class AuthController extends Controller
      */
     protected function saveMemberToken(Member $member)
     {
-
         $client = $this->request->client;
 
         $accessToken = new AccessToken;
@@ -217,191 +116,57 @@ class AuthController extends Controller
         $accessToken->client_group = $client->group;
         $accessToken->client_id = $client->id;
         $accessToken->client_version = $client->version;
+
         $accessToken->expired_at = timestamp();
 
         $accessToken->autoSave();
 
-        return $accessToken;
-    }
-
-    /**
-     * 生成验证码
-     *
-     * @return string
-     */
-    protected function generateCode()
-    {
-        return mt_rand(100000, 999999);
-    }
-
-    /**
-     * 获取离第二天前剩余的分钟数
-     *
-     * @return integer
-     */
-    protected function getTheDayLeftMinutes()
-    {
-        return (strtotime(date("Y-m-d", strtotime("+1 day")) . ' 00:00:00') - time()) / 60;
-    }
-
-    /**
-     * 发送邮箱验证码
-     *
-     * @param integer $code
-     * @param string $type
-     */
-    protected function sendEmailCode($code, $type)
-    {
-        Mail::to($this->request->input('member_email'))->queue(new RegisterCode(($code)));
-
-        $email_code = new EmailCode;
-        $email_code->code = $code;
-        $email_code->email = $this->request->input('member_email');
-        $email_code->type = $type;
-        $email_code->expired_at = timestamp(10 * 60);
-        $email_code->save();
+        return array_merge($accessToken->toArray(), $member->toArray());
     }
 
 
     /**
-     * 发送邮箱重置密码链接, 链接里面加密了验证码
-     *
-     * @param string $email
-     * @param integer $code
-     */
-    protected function sendPasswordResetLinkEmail($email, $code)
-    {
-
-        $link = url('/api/auth/reset/password/' . Crypt::encryptString($email) . '/' . Crypt::encryptString($code));
-
-        Mail::to($email)->queue(new ResetPasswordLink(($link)));
-
-        $email_code = new EmailCode;
-        $email_code->code = $code;
-        $email_code->email = $this->request->input('member_email');
-        $email_code->type = 'reset';
-        $email_code->expired_at = timestamp(10 * 60);
-        $email_code->save();
-    }
-
-    /**
-     * 发送更换邮箱链接
-     *
-     * @param $email
-     * @param $code
-     */
-    protected function sendChangeEmailLinkEmail($member_id, $email, $code)
-    {
-        $encrypt = Crypt::encryptString(json_encode([
-            'member_id' => $member_id,
-            'email' => $email,
-            'code' => $code
-        ]));
-
-        $link = url('/api/auth/change/email/' . $encrypt);
-
-        Mail::to($email)->queue(new ChangeEmailLink(($link)));
-
-        $email_code = new EmailCode;
-        $email_code->code = $code;
-        $email_code->email = $this->request->input('member_email');
-        $email_code->type = 'change.email';
-        $email_code->expired_at = timestamp(10 * 60);
-        $email_code->save();
-    }
-
-
-    /**
-     * 发送短信验证码
-     *
-     * @param integer $code
-     * @param string $type
-     */
-    protected function sendSmsCode($code, $type)
-    {
-        $yunpian = YunpianClient::create(config('auth::config.yunpian_apikey'));
-
-        $param = [
-            YunpianClient::MOBILE => $this->request->input('member_phone'),
-            YunpianClient::TEXT => str_replace('#code#', $code, config('auth::config.yunpian_code_template')),
-        ];
-
-        $send_sms_result = $yunpian->sms()->single_send($param);
-
-        if ($send_sms_result->code() !== 0) {
-
-            exception(1003, $send_sms_result);
-        }
-
-        $email_code = new SmsCode();
-        $email_code->code = $code;
-        $email_code->phone = $this->request->input('member_phone');
-        $email_code->type = $type;
-        $email_code->expired_at = timestamp(10 * 60);
-        $email_code->save();
-    }
-
-
-    /**
-     * 发送邮箱注册码接口
+     * 发送注册验证码接口
      *
      * @return Status
      */
-    public function postRegisterCode()
+    public function postCode()
     {
+        $rule = [
+            'member_email' => 'required|email|max:255',
+            'member_mobile' => 'required|size:11',
+            'send_channel' => 'required'
+        ];
 
-        validate($this->request->input(), [
-            'member_email' => 'sometimes|email|max:255',
-            'member_phone' => 'sometimes|size:11',
-            'register_type' => 'required'
-        ]);
+        $collect = collect($this->request->inputFilter([
+            'member_mobile',
+            'member_email',
+        ]));
 
-        // 检查注册类型是否开启
-        if (!$this->checkRegisterType($this->request->input('register_type'))) {
-            exception(2000);
+        switch ($collect->get('send_channel')) {
+
+            case 'email';
+
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+
+                validate($collect->all(), $rule);
+
+                event(new SendEmailCodeEvent($collect->get('member_email'), $collect));
+
+                break;
+
+            case 'mobile';
+
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
+
+                validate($collect->all(), $rule);
+
+                event(new SendSMSCodeEvent($collect->get('member_mobile'), $collect));
+
+                break;
         }
 
-        if ($this->request->input('member_email') || $this->request->input('member_phone')) {
-
-            // 获取缓存键值
-            $key = $this->getCacheKey();
-
-            // 检查注册验证码发送频率
-            $this->checkCodeFrequency('register_timer', $key);
-
-            // 生成随机验证码
-            $code = $this->generateCode();
-
-            // 缓存注册验证码
-            $this->cacheCode('register_code', 'register_timer', $key, $code);
-
-            switch ($this->request->input('register_type')) {
-
-                case 'email';
-
-                    if (Member::where('member_email', $this->request->input('member_email'))->first()) {
-                        exception(3002);
-                    }
-
-                    $this->sendEmailCode($code, 'register');
-
-                    break;
-
-                case 'mobile';
-
-                    if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
-                        exception(3003);
-                    }
-
-                    $this->sendSmsCode($code, 'register');
-
-                    break;
-            }
-
-            return status(200);
-        }
-
-        return status(1001);
+        return status(200);
     }
 
     /**
@@ -412,9 +177,8 @@ class AuthController extends Controller
     public function postCheckCode()
     {
         $rule = [
-            'code' => 'required',
+            'auth_code' => 'required',
             'auth_type' => 'required',
-            'auth_scene' => 'required',
         ];
 
         $key = null;
@@ -422,9 +186,9 @@ class AuthController extends Controller
         switch ($this->request->input('auth_type')) {
             case 'mobile':
 
-                $key = $this->request->input('member_phone');
+                $key = $this->request->input('member_mobile');
 
-                $rule = array_merge($rule, ['member_phone' => 'required|size:11']);
+                $rule = array_merge($rule, ['member_mobile' => 'required|size:11']);
 
                 break;
             case 'email':
@@ -438,7 +202,10 @@ class AuthController extends Controller
 
         validate($this->request->input(), $rule);
 
-        $this->checkCacheCode($this->request->input('auth_scene'), $key, $this->request->input('code'));
+        if (!Code::checkCacheCode($key, $this->request->input('auth_code'))) {
+
+            exception(1300);
+        }
 
         return status(200);
     }
@@ -446,107 +213,102 @@ class AuthController extends Controller
     /**
      * 注册用户
      *
-     * 注意：注册的用户的时候不能同时填充 member_phone, member_email, member_account 字段，以保证登录账号不会重复。
-     * 它们三者同时存在的时候，需要严格进行值检查。
-     *
      * @return Status
      */
-    public function postRegister(Captcha $captcha)
+    public function postRegister()
     {
-        validate($this->request->input(), [
-            'register_type' => 'required',
-            'member_email' => 'sometimes|email|max:255',
-            'member_phone' => 'sometimes|size:11',
-            'member_password' => 'sometimes|min:6',
-        ]);
+        $rule = [
+            'member_account' => 'required|unique:auth_members',
+            'member_mobile' => 'required|unique:auth_members|size:11',
+            'member_email' => 'required|unique:auth_members|email|max:255',
+            'member_password' => 'required|min:6',
+            'register_channel' => 'required',
+        ];
 
-        $register_type = $this->request->input('register_type');
+        $collect = collect($this->request->inputFilter([
+            'member_mobile',
+            'member_email',
+            'member_account',
+        ]));
 
-        // 检查注册类型是否开启
-        if (!$this->checkRegisterType($register_type)) {
+        $email_status = 'unverified';
+        $mobile_status = 'unverified';
+
+        if (!$this->checkRegisterChannel($collect->get('register_channel'))) {
 
             exception(2000);
         }
 
-        // 检查是否需要图形验证码
-        // if (config('auth::config.captcha_frequency') == 'always') {
-        //
-        //     if (!$captcha->check($this->request->input('captcha', ''))) {
-        //
-        //         exception(3001);
-        //     }
-        // }
-
-        $member = new Member;
-
-        switch ($register_type) {
+        switch ($collect->get('register_channel')) {
 
             case 'email':
 
-                // 检查邮箱是否注册
-                if (Member::where('member_email', $this->request->input('member_email'))->first()) {
-                    exception(3002);
-                }
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+                $rule['member_account'] = 'sometimes|' . $rule['member_account'];
+                $rule['member_password'] = 'sometimes|' . $rule['member_password'];
 
-                // 检查验证码
-                if (config('auth::config.register_email_auth')) {
-                    $this->checkCacheCode('register_code', $this->request->input('member_email'), $this->request->input('register_code'));
-                }
 
-                // 保存用户邮箱
-                $member->member_email = $this->request->input('member_email');
+                if (config('auth::config.register_email_auth', false)) {
+
+                    if (!Code::checkCacheCode($collect->get('member_email'), $collect->get('register_code'))) {
+                        exception(1300);
+                    }
+
+                    $email_status = 'verified';
+                }
 
                 break;
 
             case 'mobile':
 
-                // 检查该手机是否注册
-                if (Member::where('member_phone', $this->request->input('member_phone'))->first()) {
-                    exception(3003);
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
+                $rule['member_account'] = 'sometimes|' . $rule['member_account'];
+                $rule['member_password'] = 'sometimes|' . $rule['member_password'];
+
+                if (config('auth::config.register_mobile_auth', true)) {
+
+                    if (!Code::checkCacheCode($collect->get('member_mobile'), $collect->get('register_code'))) {
+                        exception(1300);
+                    }
+
+                    $mobile_status = 'verified';
                 }
-
-                // 检查验证码
-                if (config('auth::config.register_mobile_auth')) {
-                    $this->checkCacheCode('register_code', $this->request->input('member_phone'), $this->request->input('register_code'));
-                }
-
-                // 保存电话号码
-                $member->member_phone = $this->request->input('member_phone');
-
 
                 break;
 
             case 'username':
 
-                // 检查该用户名是否已经注册
-                if (Member::where('member_account', $this->request->input('member_account'))->first()) {
-                    exception(3004);
-                }
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
 
-                // 用户名注册要求必须填密码
-                if (!$this->request->input('member_password')) {
-
-                    exception(3005);
-                }
-
-                // 保存用户名
-                $member->member_account = $this->request->input('member_account');
+                validate($collect->all(), $rule);
 
                 break;
         }
 
-        $member->member_password = $this->request->input('member_password', uniqid());
-        $member->member_avatar = $this->request->input('member_avatar');
-        $member->member_nickname = $this->request->input('member_nickname');
+        validate($collect->all(), $rule);
+
+        $member = new Member;
+        $member->register_channel = $collect->get('register_channel');
+        $member->member_email = $collect->get('member_email');
+        $member->member_mobile = $collect->get('member_mobile');
+        $member->member_account = $collect->get('member_account');
+        $member->member_password = $collect->get('member_password', uniqid());
+        $member->member_avatar = $collect->get('member_avatar');
+        $member->member_nickname = $collect->get('member_nickname');
         $member->member_status = 'normal';
+        $member->mobile_status = $collect->has('member_mobile') ? $mobile_status : 'none';
+        $member->email_status = $collect->get('member_email') ? $email_status : 'none';
 
         $member->save();
 
-        event(new MemberRegisterEvent($member, $this->request->input()));
+        event(new MemberRegisterEvent($member, $collect));
 
         $accessToken = $this->saveMemberToken($member);
 
-        return status(200, $accessToken);
+        unset($member->member_password);
+
+        return status(200, array_merge($accessToken->toArray(), $member->toArray()));
     }
 
 
@@ -558,41 +320,76 @@ class AuthController extends Controller
     public function postLogin()
     {
 
-        validate($this->request->input(), [
-            'member_phone' => 'sometimes|size:11',
-            'member_email' => 'sometimes|email|max:255',
+        $rule = [
+            'member_mobile' => 'required|size:11',
+            'member_email' => 'required|email|max:255',
+            'member_account' => 'required',
             'member_password' => 'required|min:6',
-            'login_type' => 'required',
-        ]);
+            'login_channel' => 'required',
+        ];
 
-        $login_type = $this->request->input('login_type');
+        $collect = collect($this->request->inputFilter([
+            'member_mobile',
+            'member_email',
+            'member_account'
+        ]));
 
-        if (!$this->checkLoginType($login_type)) {
+        $login_channel = $collect->get('login_channel');
+
+        if (!$this->checkLoginChannel($login_channel)) {
 
             exception(2000);
         }
 
         $member = null;
 
-        switch ($login_type) {
+        switch ($login_channel) {
             case 'email':
-                validate($this->request->input(), ['member_email' => 'required']);
-                $member = Member::where('member_email', $this->request->input('member_email'))->first();
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+                $rule['member_account'] = 'sometimes|' . $rule['member_account'];
+                validate($collect->all(), $rule);
+                $member = Member::where('member_email', $collect->get('member_email'))->first();
                 break;
             case 'mobile':
-                validate($this->request->input(), ['member_phone' => 'required']);
-                $member = Member::where('member_phone', $this->request->input('member_phone'))->first();
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
+                $rule['member_account'] = 'sometimes|' . $rule['member_account'];
+                validate($collect->all(), $rule);
+                $member = Member::where('member_mobile', $collect->get('member_mobile'))->first();
                 break;
             case 'username':
-                validate($this->request->input(), ['member_account' => 'required']);
-                $member = Member::where('member_account', $this->request->input('member_account'))->first();
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
+                validate($collect->all(), $rule);
+                $member = Member::where('member_account', $collect->get('member_account'))->first();
                 break;
         }
 
-        if (!$member || $member->member_password != $member->encryptMemberPassword($this->request->input('member_password'))) {
+        if (!$member) {
 
-            exception('1001');
+            exception(1100);
         }
+
+        if ($login_channel == 'email' && config('auth::config.login_email_auth', false)) {
+
+            if ($member->email_status != 'unverified') {
+                exception(2010);
+            }
+
+        }
+
+        if ($login_channel == 'mobile' && config('auth::config.login_mobile_auth', true)) {
+
+            if ($member->mobile_status != 'unverified') {
+                exception(2020);
+            }
+
+        }
+
+        if ($member->member_password != $member->encryptMemberPassword($collect->get('member_password'))) {
+
+            exception(1100);
+        }
+
 
         return status(200, $this->saveMemberToken($member));
     }
@@ -602,49 +399,55 @@ class AuthController extends Controller
      */
     public function postNewPassword()
     {
-
-        validate($this->request->input(), [
-            'member_email' => 'sometimes|email|max:255',
-            'member_phone' => 'sometimes|email|size:255',
+        $rule = [
+            'member_email' => 'required|email|max:255',
+            'member_mobile' => 'required|size:255',
             'member_password' => 'required|min:6',
+            'register_channel' => 'required',
             'register_code' => 'required',
-            'register_type' => 'required',
-        ]);
+        ];
 
-        $register_type = $this->request->input('register_type');
-
-        // 检查注册类型是否开启
-        if (!$this->checkRegisterType($register_type)) {
-            exception(2000);
-        }
-
-        $member = Guest::instance();
+        $collect = collect($this->request->inputFilter([
+            'member_mobile',
+            'member_email',
+        ]));
 
         $key = null;
 
-        // 判断注册类型
-        switch ($register_type) {
+        $member = Guest::instance();
 
+        $code = $collect->get('register_code');
+
+        $register_channel = $collect->get('register_channel');
+
+        if (!$this->checkRegisterChannel($register_channel)) {
+
+            exception(2000);
+        }
+
+        switch ($register_channel) {
             case 'email':
-
-                $key = $this->request->input('member_email');
+                $key = $collect->get('member_email');
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
                 break;
-
             case 'mobile':
-
-                $this->request->input('member_phone');
+                $key = $collect->get('member_mobile');
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
                 break;
         }
 
-        // 检查验证码
-        $this->checkCacheCode('register_code', $key, $this->request->input('register_code'));
+        validate($collect->all(), $rule);
 
-        // 保存新密码
-        $member->member_password = $this->request->input('member_password');
+        if (!Code::checkCacheCode($key, $code)) {
+
+            exception(1300);
+        }
+
+        $member->member_password = $collect->get('member_password');
 
         $member->save();
 
-        $this->forgetCode('register_code', $key);
+        Code::forgetCode($key);
 
         return status(200);
     }
@@ -657,62 +460,48 @@ class AuthController extends Controller
      */
     public function postResetPasswordCode()
     {
-        validate($this->request->input(), [
-            'member_email' => 'sometimes|email|max:255',
-            'member_phone' => 'sometimes|size:11',
-            'find_password_type' => 'required',
-        ]);
+        $rule = [
+            'member_email' => 'required|email|max:255',
+            'member_mobile' => 'required|size:11',
+            'find_password_channel' => 'required',
+        ];
 
-        $find_password_type = $this->request->input('find_password_type');
+        $collect = collect($this->request->inputFilter([
+            'member_mobile',
+            'member_email',
+        ]));
 
-        // 检查找回密码方式是否开启
-        if (!$this->checkFindPasswordType($find_password_type)) {
+
+        $find_password_channel = $collect->get('find_password_channel');
+
+        if (!$this->checkFindPasswordChannel($find_password_channel)) {
 
             exception(2000);
         }
 
-        // 生成验证码
-        $code = $this->generateCode();
-
-        switch ($find_password_type) {
+        switch ($find_password_channel) {
 
             case 'email':
 
-                $key = $this->request->input('member_email');
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
 
-                // 检查该邮箱用户是否存在
-                if (!Member::where('member_email', $key)->first()) {
-                    exception(2010);
-                }
+                validate($collect->all(), $rule);
 
-                // 检查验证码发送频率
-                $this->checkCodeFrequency('reset_password_timer', $key);
-
-                // 缓存验证码
-                $this->cacheCode('reset_password_code', 'reset_password_timer', $key, $code);
-
-                // 通过邮件发送重置链接
-                $this->sendPasswordResetLinkEmail($key, $code);
 
                 break;
 
             case 'mobile':
 
-                $key = $this->request->input('member_phone');
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
 
-                // 检查该手机用户是否存在
-                if (!Member::where('member_phone', $key)->first()) {
+                validate($collect->all(), $rule);
+
+                $key = $collect->get('member_mobile');
+
+                if (!Member::where('member_mobile', $key)->first()) {
                     exception(2010);
                 }
 
-                // 检查验证码发送频率
-                $this->checkCodeFrequency('reset_password_timer', $key);
-
-                // 缓存验证码
-                $this->cacheCode('reset_password_code', 'reset_password_timer', $key, $code);
-
-                // 通过手机短信发送验证码
-                $this->sendSmsCode($code, 'reset');
 
                 break;
         }
@@ -744,46 +533,56 @@ class AuthController extends Controller
      */
     public function putResetPassword()
     {
-        validate($this->request->input(), [
-            'member_email' => 'sometimes|email|max:255',
-            'member_phone' => 'sometimes|size:11',
-            'find_password_type' => 'required',
-            'reset_code' => 'required',
+        $rule = [
+            'member_email' => 'required|email|max:255',
+            'member_mobile' => 'required|size:11',
             'member_password' => 'required',
-        ]);
+            'find_password_channel' => 'required',
+            'reset_code' => 'required',
+        ];
 
-        $find_password_type = $this->request->input('find_password_type');
+        $collect = collect($this->request->inputFilter([
+            'member_mobile',
+            'member_email',
+        ]));
 
-        // 检查找回密码方式是否开启
-        if (!$this->checkFindPasswordType($find_password_type)) {
+        $member = null;
+
+        if (!$this->checkFindPasswordChannel($collect->get('find_password_channel'))) {
 
             exception(2000);
         }
 
-        $member = null;
-
-        switch ($find_password_type) {
+        switch ($collect->get('find_password_channel')) {
 
             case 'email':
 
-                // 如果是邮箱链接则需要解密验证码
-                $code = Crypt::decryptString($this->request->input('reset_code'));
+                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
 
-                // 检查验证码
-                $this->checkCacheCode('reset_password_code', $this->request->input('member_email'), $code);
+                validate($collect->all(), $rule);
 
-                // 获取该邮箱用户
-                $member = Member::where('member_email', $this->request->input('member_email'))->first();
+                $code = Crypt::decryptString($collect->get('reset_code'));
+
+                if (!Code::checkCacheCode($collect->get('member_email'), $code)) {
+
+                    exception(1300);
+                }
+
+                $member = Member::where('member_email', $collect->get('member_email'))->first();
 
                 break;
 
             case 'mobile':
 
-                // 检查验证码
-                $this->checkCacheCode('reset_password_code', $this->request->input('member_phone'), $this->request->input('reset_code'));
+                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
 
-                // 获取该邮箱用户
-                $member = Member::where('member_phone', $this->request->input('member_phone'))->first();
+                validate($collect->all(), $rule);
+
+                if (!Code::checkCacheCode($collect->get('member_mobile'), $collect->get('reset_code'))) {
+                    exception(1300);
+                }
+
+                $member = Member::where('member_mobile', $collect->get('member_mobile'))->first();
 
                 break;
         }
@@ -793,7 +592,7 @@ class AuthController extends Controller
             exception('1001');
         }
 
-        $member->member_password = $this->request->input('member_password');
+        $member->member_password = $collect->get('member_password');
 
         $member->save();
 
@@ -804,11 +603,10 @@ class AuthController extends Controller
     /**
      * 更改密码
      *
-     * @return View
+     * @return Status
      */
     public function putPassword()
     {
-
         validate($this->request->input(), [
             'origin_password' => 'required|min:6',
             'new_password' => 'required|min:6',
@@ -818,16 +616,11 @@ class AuthController extends Controller
         $new_password = $this->request->input('new_password');
         $origin_password = $this->request->input('origin_password');
 
-        // 检查原密码是否正确
         if ($member->encryptMemberPassword($origin_password) != $member->member_password) {
-
             exception(1001);
         }
 
-
-        // 新密码不能与原密码相同
         if ($new_password == $origin_password || $member->encryptMemberPassword($new_password) == $member->member_password) {
-
             exception(1002);
         }
 
@@ -852,23 +645,25 @@ class AuthController extends Controller
 
         $email = $this->request->input('member_email');
 
-        // 新邮箱不能与原邮箱相同
         if ($email == Guest::instance()->member_email) {
 
             exception(1001);
         }
 
-        // 检查新邮箱是否已经存在
         if (Member::where('member_email', $email)->first()) {
 
             exception(1002);
         }
 
-        $code = $this->generateCode();
+        Code::checkCodeFrequency($email);
 
-        $this->cacheCode('change_email_code', 'change_email_timer', $email, $code);
+        $code = Code::generateCode();
+
+        Code::cacheCode($email, $code);
 
         $this->sendChangeEmailLinkEmail(Guest::instance()->member_id, $email, $code);
+
+        Code::setCodeFrequency($email);
 
         return status(200);
     }
@@ -882,7 +677,6 @@ class AuthController extends Controller
      */
     public function getChangeEmail($encrypt)
     {
-
         $params = json_decode(Crypt::decryptString($encrypt));
 
         $code = $params->code;
@@ -891,7 +685,7 @@ class AuthController extends Controller
 
         $status = 'failed';
 
-        if ($this->checkCacheCode('change_email_code', $email, $code, false)) {
+        if (Code::checkCacheCode($email, $code)) {
 
             $status = 'success';
 
@@ -947,6 +741,56 @@ class AuthController extends Controller
         }
 
         return status(200);
+    }
+
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return Status
+     */
+    public function getGuest()
+    {
+        $guest = Guest::instance();
+
+        unset($guest->member_password);
+
+        return status(200, $guest);
+    }
+
+    /**
+     * 检查用户是否存在
+     *
+     * @return Status
+     */
+    public function checkMemberExists()
+    {
+        validate($this->request->input(), ['check_type' => 'required']);
+
+        $check_type = $this->request->input('check_type');
+
+        switch ($check_type) {
+            case 'mobile':
+                validate($this->request->input(), ['member_mobile' => 'required']);
+                if (Member::where('member_mobile', $this->request->input('member_mobile'))->first()) {
+                    return status(200);
+                }
+                break;
+            case 'email':
+                validate($this->request->input(), ['member_email' => 'required']);
+                if (Member::where('member_email', $this->request->input('member_email'))->first()) {
+                    return status(200);
+                }
+                break;
+            case 'username':
+                validate($this->request->input(), ['member_account' => 'required']);
+                if (Member::where('member_account', $this->request->input('member_account'))->first()) {
+                    return status(200);
+                }
+                break;
+        }
+
+        return status(1001);
     }
 
 }

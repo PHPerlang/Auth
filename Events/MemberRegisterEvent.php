@@ -2,6 +2,7 @@
 
 namespace Modules\Auth\Events;
 
+use Illuminate\Support\Collection;
 use Illuminate\Queue\SerializesModels;
 
 class MemberRegisterEvent
@@ -18,7 +19,7 @@ class MemberRegisterEvent
      * @param $member
      * @param $input
      */
-    public function __construct($member, $input)
+    public function __construct($member,Collection $input)
     {
         $this->member = $member;
         $this->input = $input;

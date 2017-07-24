@@ -15,7 +15,7 @@ namespace Modules\Auth\Services;
  */
 
 use Exception;
-use Jindowin\Request;
+use Gindowin\Request;
 use Illuminate\Support\Str;
 use Illuminate\Config\Repository;
 use Illuminate\Support\Facades\Cache;

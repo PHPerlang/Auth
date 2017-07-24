@@ -19,19 +19,15 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
      |
      */
 
-    // 用户注册发送验证码，支持手机验证码，邮箱验证码
+    // 发送验证码，支持手机验证码，邮箱验证码
     Route::post('/register/code', 'AuthController@postRegisterCode')->codes([
         200 => '验证码发送成功',
         1000 => '邮箱格式不正确',
-        1001 => '邮箱或手机不能为空',
-        1003 => '短信服务配置错误',
-        2000 => '该注册类型通道已关闭',
-        2001 => '注册码已超出最大发送次数，请明天再试',
-        2002 => '发送太频繁，请 60 秒后再试',
-        3001 => '图形验证码不正确',
-        3002 => '该邮箱已注册',
-        3003 => '该手机号已注册',
-        3004 => '短信网络配置错误',
+        1200 => '短信服务商错误',
+        2010 => '注册码已超出最大发送次数，请明天再试',
+        2020 => '发送太频繁，请 60 秒后再试',
+        3010 => '图形验证码不正确',
+        3020 => '短信网络配置错误',
     ])->open();
 
 
@@ -41,18 +37,13 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         1000 => '数据校验失败',
         1300 => '验证码不正确',
         2000 => '该注册类型通道已关闭',
-        3001 => '图形验证码不正确',
-        3002 => '该邮箱已注册',
-        3003 => '该手机号已注册',
-        3004 => '该用户名已注册',
-        3005 => '密码不能为空',
-
+        3000 => '图形验证码不正确',
     ])->open();
 
     // 为新用户设置密码
     Route::post('/member/password', 'AuthController@postNewPassword')->codes([
         200 => '用户密码修改成功',
-        1001 => '该用户不存在',
+        1100 => '该用户不存在',
         1300 => '验证码不正确',
 
     ]);
@@ -61,17 +52,19 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     Route::post('/login', 'AuthController@postLogin')->codes([
         200 => '登录成功',
         1000 => '数据校验失败',
-        1001 => '账号或密码不正确',
+        1100 => '账号或密码不正确',
         2000 => '该登录类型通道已关闭',
+        2010 => '邮箱未验证，不能登录',
+        2020 => '手机未验证，不能登录',
     ])->open();
 
     // 发送密码重置验证码
     Route::post('/reset/password/code', 'AuthController@postResetPasswordCode')->codes([
         200 => '密码重置验证码发送成功',
         2000 => '该找回密码通道已关闭',
-        2001 => '注册码已超出最大发送次数，请明天再试',
-        2002 => '发送太频繁，请 60 秒后再试',
-        2010 => '该用户不存在',
+        2010 => '注册码已超出最大发送次数，请明天再试',
+        2020 => '发送太频繁，请 60 秒后再试',
+        2030 => '该用户不存在',
     ])->open();
 
     // 重置密码邮件链接跳转
@@ -124,6 +117,16 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     Route::post('/check/captcha', 'AuthController@postCheckCaptchaCode')->codes([
         '200' => '验证成功',
         '1001' => '图形验证码不正确',
+    ])->open();
+
+    // 获取当前登录用户信息
+    Route::get('/guest', 'AuthController@getGuest');
+
+    // 查询用户是否存在
+    Route::post('/check/member/exists', 'AuthController@checkMemberExists')->codes([
+        200 => '查询用户存在',
+        1000 => '数据格式错误',
+        1001 => '查询用户不存在'
     ])->open();
 
     /*

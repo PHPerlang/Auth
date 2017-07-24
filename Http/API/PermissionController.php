@@ -2,7 +2,7 @@
 
 namespace Modules\Auth\Http\API;
 
-use Jindowin\Request;
+use Gindowin\Request;
 use Illuminate\Routing\Controller;
 
 

@@ -48,7 +48,7 @@ class CaptchaServiceProvider extends ServiceProvider
                 $app['Illuminate\Filesystem\Filesystem'],
                 $app['Illuminate\Config\Repository'],
                 $app['Intervention\Image\ImageManager'],
-                $app['Jindowin\Request'],
+                $app['Gindowin\Request'],
                 $app['Illuminate\Hashing\BcryptHasher'],
                 $app['Illuminate\Support\Str']
             );

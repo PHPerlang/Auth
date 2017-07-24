@@ -2,7 +2,7 @@
 
 namespace Modules\Auth\Models;
 
-use Jindowin\Model;
+use Gindowin\Model;
 
 class Member extends Model
 {
@@ -12,7 +12,7 @@ class Member extends Model
      *
      * @var string
      */
-    protected $table = 'members';
+    protected $table = 'auth_members';
 
 
     /**

@@ -2,7 +2,7 @@
 
 namespace Modules\Auth\Models;
 
-use Jindowin\Model;
+use Gindowin\Model;
 
 class RolePermission extends Model
 {
@@ -12,7 +12,7 @@ class RolePermission extends Model
      *
      * @var string
      */
-    protected $table = 'role_permissions';
+    protected $table = 'auth_role_permissions';
 
     /**
      * Indicates if the model has primary key.

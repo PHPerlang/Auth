@@ -2,7 +2,7 @@
 
 namespace Modules\Auth\Http\API;
 
-use Jindowin\Request;
+use Gindowin\Request;
 use Modules\Auth\Models\Role;
 use Modules\Auth\Models\Guest;
 use Illuminate\Validation\Rule;
