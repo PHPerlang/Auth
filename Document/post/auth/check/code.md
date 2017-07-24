@@ -16,9 +16,8 @@
 :----|:---|:---|:---|:---
 member_phone | 用户手机 | number | 当 `auth_type=mobile` 时必须 | `188****8888`
 member_email | 用户邮箱 | string | 当 `auth_type=email` 时必须` | `hello@gindowin.com`
-auth_type | 验证类型 | string | 是 | `mobile` 、`email`
-auth_scene | 校验场景 | string | 是 | `register_code` <br> `reset_password_code` <br> `change_email_code`
-code | 手机验证码或邮箱验证码 | number | 是 | 123423
+auth_channel | 验证类型 | string | 是 | `mobile` 、`email`
+auth_code | 手机验证码或邮箱验证码 | number | 是 | 123423
 
 ## 4. 响应状态
 
@@ -26,7 +25,7 @@ code | 手机验证码或邮箱验证码 | number | 是 | 123423
 :---:|:---
 200 | 获取成功
 1000 | 数据格式错误
-1300|验证码不正确
+1300| 验证码不正确
 
 ## 5. 响应数据
 
@@ -46,8 +45,7 @@ code | 手机验证码或邮箱验证码 | number | 是 | 123423
 
 ```json
 {
-	"auth_type": "mobile",
-	"auth_scene": "register_code",
+	"auth_channel": "mobile",
 	"member_phone": 188****8888,
 	"code": 122123
 }
