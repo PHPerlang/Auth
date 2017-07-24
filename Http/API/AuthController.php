@@ -308,7 +308,7 @@ class AuthController extends Controller
 
         unset($member->member_password);
 
-        return status(200, array_merge($accessToken->toArray(), $member->toArray()));
+        return status(200, $accessToken);
     }
 
 
