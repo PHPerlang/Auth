@@ -14,10 +14,10 @@
 
 参数|解释|类型|是否必须|示例数据
 :---|:---|:---|:---|:---
-check_type | 检查类型 | string |是| `mobile` <br> `email` <br> `username`
 member_mobile | 用户手机 | number | 否 | `188****8888`
 member_email|用户邮箱|string|否|`hi@gindowin.com`
 member_account|用户名|string|否|`koyeo`
+check_channel | 检查类型 | string |是| `mobile` <br> `email` <br> `username`
 
 ## 4. 响应状态
 
