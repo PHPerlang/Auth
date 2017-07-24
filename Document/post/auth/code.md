@@ -45,8 +45,7 @@ send_channel | 标识注册类型 | string | 是 | `email` / `mobile`
 {
   "member_email" : "188****8888",
   "handler_token": "auth.register",
-  "send_channel" : "email",
-  "captcha" : "",
+  "send_channel" : "mobile"
 }
 ```
 
