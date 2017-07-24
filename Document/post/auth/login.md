@@ -18,16 +18,17 @@ member_email | 用户邮箱 | string | `login_type=email`时必须 | `im@koyeo.i
 member_phone | 用户手机 | number | `login_type=mobile`时必须 | `188****8888`
 member_account | 用户名 | string | `login_type=username`时必须 | `koyeo`
 member_password | 用户密码，不低于 6 位 | string | 是 | x123456
-captcha | 图形验证码 | string | 否 |  x7fj
-login_type | 标识登录类型 | string | 是 | `email`/`mobile`/`username`
+login_channel | 标识登录类型 | string | 是 | `email` <br> `mobile` <br> `username`
 
 ## 3. 响应状态
 
 状态码 | 说明
 :---:|:---
 200 | 操作成功
-1000 | 表单数据校验失败，包括邮箱校验，密码校验
-1001 | 账号或密码不正确
+1000 | 数据格式错误
+1100 | 账号或密码不正确
+1300 | 邮箱未验证，不能登录
+1500 | 手机未验证，不能登录
 2000 | 该登录类型通道已关闭
 
 ## 4. 响应数据
@@ -59,7 +60,7 @@ login_type | 标识登录类型 | string | 是 | `email`/`mobile`/`username`
 {
    "member_phone" : "188****8888",
    "member_password" : "123456",
-   "login_type" : "mobile"
+   "login_channel" : "mobile"
 }
 ```
 

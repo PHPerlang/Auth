@@ -4,7 +4,7 @@
 
 ## 1. API 描述：
 
-用户填入邮件里收到的邮箱验证码，和用户邮箱及密码，完成用户注册。
+通过用户名、邮箱或手机号完成用户注册。
 
 ## 2. 调用方法
 
@@ -14,12 +14,11 @@
 
 参数 | 解释 | 类型 | 是否必须 | 示例数据
 :---:|:---|:---:|:---:|:---
-member_email | 用户邮箱 | string | `当 register_type=email` 必须 | im@koyeo.io
-member_phone | 用户手机 | string | `当 register_type=mobile` 必须 | `188****8888`
+member_email | 用户邮箱 | string | `当 register_channel=email` 必须 | im@koyeo.io
+member_phone | 用户手机 | string | `当 register_channel=mobile` 必须 | `188****8888`
 member_password | 用户密码 | string | 否 | Hello7
-register_type | 标识注册类型 | string | 是 | `email`、`mobile`
-register_code | 邮箱里接收的验证码 | string | 是 | 089463
-captcha | 图形验证码 | stirng | 否 | 024n
+register_channel | 标识注册类型 | string | 是 | `email`、`mobile`
+register_code | 邮箱里接收的验证码 | string | 是 | 0893
 
 用户密码要求6~32 位，且必须是数字字母的组合，如果不传用户密码，系统将为该用户分配随机密码。
 
@@ -31,11 +30,6 @@ captcha | 图形验证码 | stirng | 否 | 024n
 1000 | 数据格式错误
 1300 | 验证码不正确
 2000 | 该注册类型通道已关闭
-3001 | 图形验证码不正确
-3002 | 该邮箱已注册
-3003 | 该手机号已注册
-3004 | 该用户名已注册
-3005 | 密码不能为空
 
 ## 5. 响应数据
 
@@ -66,8 +60,8 @@ captcha | 图形验证码 | stirng | 否 | 024n
 {
   "member_phone" : "188****8888",
   "member_password" : "Hello7",
-  "register_type" : "mobile",
-  "register_code" : "809990"
+  "register_channel" : "mobile",
+  "register_code" : "8099"
 }
 ```
 
