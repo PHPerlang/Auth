@@ -13,7 +13,7 @@ class CreateAuthLogCodesTable extends Migration
      */
     public function up()
     {
-        Schema::create('auth_log_sms_codes', function (Blueprint $table) {
+        Schema::create('auth_log_codes', function (Blueprint $table) {
             $table->increments('id')->comment('验证码 ID');
             $table->string('code_type')->comment('验证码类型');
             $table->string('code_to')->comment('接收对象');
@@ -32,6 +32,6 @@ class CreateAuthLogCodesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('auth_log_sms_codes');
+        Schema::dropIfExists('auth_log_codes');
     }
 }

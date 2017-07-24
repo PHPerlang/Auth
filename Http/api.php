@@ -20,7 +20,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
      */
 
     // 发送验证码，支持手机验证码，邮箱验证码
-    Route::post('/register/code', 'AuthController@postRegisterCode')->codes([
+    Route::post('/code', 'AuthController@postCode')->codes([
         200 => '验证码发送成功',
         1000 => '邮箱格式不正确',
         1200 => '短信服务商错误',
