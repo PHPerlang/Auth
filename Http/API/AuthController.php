@@ -477,56 +477,56 @@ class AuthController extends Controller
      *
      * @return Status
      */
-    public function postResetPasswordCode()
-    {
-        $rule = [
-            'member_email' => 'required|email|max:255',
-            'member_mobile' => 'required|size:11',
-            'find_password_channel' => 'required',
-        ];
-
-        $collect = collect($this->request->inputFilter([
-            'member_mobile',
-            'member_email',
-        ]));
-
-
-        $find_password_channel = $collect->get('find_password_channel');
-
-        if (!$this->checkFindPasswordChannel($find_password_channel)) {
-
-            exception(2000);
-        }
-
-        switch ($find_password_channel) {
-
-            case 'email':
-
-                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
-
-                validate($collect->all(), $rule);
-
-
-                break;
-
-            case 'mobile':
-
-                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
-
-                validate($collect->all(), $rule);
-
-                $key = $collect->get('member_mobile');
-
-                if (!Member::where('member_mobile', $key)->first()) {
-                    exception(2010);
-                }
-
-
-                break;
-        }
-
-        return status(200);
-    }
+//    public function postResetPasswordCode()
+//    {
+//        $rule = [
+//            'member_email' => 'required|email|max:255',
+//            'member_mobile' => 'required|size:11',
+//            'find_password_channel' => 'required',
+//        ];
+//
+//        $collect = collect($this->request->inputFilter([
+//            'member_mobile',
+//            'member_email',
+//        ]));
+//
+//
+//        $find_password_channel = $collect->get('find_password_channel');
+//
+//        if (!$this->checkFindPasswordChannel($find_password_channel)) {
+//
+//            exception(2000);
+//        }
+//
+//        switch ($find_password_channel) {
+//
+//            case 'email':
+//
+//                $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
+//
+//                validate($collect->all(), $rule);
+//
+//
+//                break;
+//
+//            case 'mobile':
+//
+//                $rule['member_email'] = 'sometimes|' . $rule['member_email'];
+//
+//                validate($collect->all(), $rule);
+//
+//                $key = $collect->get('member_mobile');
+//
+//                if (!Member::where('member_mobile', $key)->first()) {
+//                    exception(2010);
+//                }
+//
+//
+//                break;
+//        }
+//
+//        return status(200);
+//    }
 
     /**
      * 重置密码链接跳转

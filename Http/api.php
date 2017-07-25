@@ -54,13 +54,13 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     ])->open();
 
     // 发送密码重置验证码
-    Route::post('/reset/password/code', 'AuthController@postResetPasswordCode')->codes([
-        200 => '密码重置验证码发送成功',
-        2000 => '该找回密码通道已关闭',
-        2010 => '注册码已超出最大发送次数，请明天再试',
-        2020 => '发送太频繁，请 60 秒后再试',
-        2030 => '该用户不存在',
-    ])->open();
+//    Route::post('/reset/password/code', 'AuthController@postResetPasswordCode')->codes([
+//        200 => '密码重置验证码发送成功',
+//        2000 => '该找回密码通道已关闭',
+//        2010 => '注册码已超出最大发送次数，请明天再试',
+//        2020 => '发送太频繁，请 60 秒后再试',
+//        2030 => '该用户不存在',
+//    ])->open();
 
     // 重置密码邮件链接跳转
     Route::get('/reset/password/{encrypt_email}/{encrypt_code}', 'AuthController@getResetPasswordLinkRedirect')->open();
