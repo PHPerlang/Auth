@@ -185,7 +185,7 @@ class AuthController extends Controller
                 exception(1100);
         }
 
-        return status(200);
+        return status(1400);
     }
 
     /**
