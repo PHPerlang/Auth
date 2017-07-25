@@ -221,7 +221,7 @@ class AuthController extends Controller
 
         validate($this->request->input(), $rule);
 
-        if (!Code::checkCacheCode($key, $this->request->input('auth_code'))) {
+        if (!Code::testCacheCode($key, $this->request->input('auth_code'))) {
 
             exception(1300);
         }
