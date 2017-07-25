@@ -41,16 +41,15 @@ class Code
     }
 
     /**
-     * 检查缓存的验证码
+     * 测试缓存的验证码
      *
      * @param string $key
      * @param string $input
      *
      * @return bool
      */
-    public static function checkCacheCode($key, $input)
+    public static function testCacheCode($key, $input)
     {
-
         $required = Cache::tags('auth::code')->get($key, uniqid());
 
         if ($input != $required) {
@@ -60,6 +59,26 @@ class Code
                 return false;
             }
         }
+
+        return true;
+    }
+
+    /**
+     * 检查缓存的验证码，通过则删除缓存
+     *
+     * @param string $key
+     * @param string $input
+     *
+     * @return bool
+     */
+    public static function checkCacheCode($key, $input)
+    {
+
+        if (!self::testCacheCode($key, $input)) {
+            return false;
+        }
+
+        self::forgetCode($key);
 
         return true;
     }
