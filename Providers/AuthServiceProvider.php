@@ -137,7 +137,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         try {
 
-            $access_token = AccessToken::where('access_token', app('request')->getAccessToken())->first();
+            $access_token = AccessToken::where('access_token', app('request')->header('X-Access-Token'))->first();
 
             if ($access_token) {
 
