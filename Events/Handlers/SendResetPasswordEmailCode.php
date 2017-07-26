@@ -17,13 +17,19 @@ class SendResetPasswordEmailCode
 
         if ($event->handler_token == 'auth.reset.password') {
 
+            codes([
+                2010 => '发送太频繁，请 60 秒后再试',
+                2020 => '验证码已超出最大发送次数，请明天再试',
+                3010 => '用户不存在',
+            ]);
+
             $key = $event->email;
 
             if (!Member::where('member_email', $key)->first()) {
                 exception(3010);
             }
 
-            if(!Code::checkCodeFrequency($key)){
+            if (!Code::checkCodeFrequency($key)) {
 
                 exception(2010);
             }

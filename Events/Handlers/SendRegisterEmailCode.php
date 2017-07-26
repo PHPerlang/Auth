@@ -16,6 +16,12 @@ class SendRegisterEmailCode
 
         if ($event->handler_token == 'auth.register') {
 
+            codes([
+                2010 => '发送太频繁，请 60 秒后再试',
+                2020 => '验证码已超出最大发送次数，请明天再试',
+                3010 => '用户已注册',
+            ]);
+
             if (Member::where('member_email', $event->email)->first()) {
 
                 exception(3010);
