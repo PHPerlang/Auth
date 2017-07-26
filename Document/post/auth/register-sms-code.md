@@ -14,7 +14,7 @@
 
 参数 | 解释 | 类型 | 是否必须 | 示例数据
 :---:|:---|:---:|:---:|:---
-member_email| 用户邮箱 | string |  是 | im@koyeo.io
+member_mobile| 手机号码 | number | 是 | 188****8888
 send_channel | 验证码发送通道 | string | 是 | `email`
 handler_token | 处理器秘钥 | string | 是 | `auth.register`
 
