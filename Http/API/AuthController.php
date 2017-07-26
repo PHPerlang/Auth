@@ -156,6 +156,7 @@ class AuthController extends Controller
                 foreach ($results as $result) {
 
                     if ($result instanceof Response) {
+
                         return $result;
                     }
                 }
@@ -178,9 +179,6 @@ class AuthController extends Controller
                 }
 
                 break;
-
-            default:
-                exception(1100);
         }
 
         return status(1400);

@@ -29,6 +29,14 @@ class SendResetPasswordEmailCode
 
             Code::cacheCode($key, $code);
 
+            Code::log([
+                'type' => 'email',
+                'key' => $event->email,
+                'code' => $code,
+                'tag' => 'auth.reset.password',
+                'status' => 'failed',
+            ]);
+
             $link = url('/api/auth/reset/password/' . Crypt::encryptString($event->email) . '/' . Crypt::encryptString($code));
 
             Mail::to($event->email)->queue(new ResetPasswordLink(($link)));
