@@ -1,4 +1,4 @@
-# 用户注册发送短信验证码
+# 用户注册发送邮箱验证码
 
 [TOC]
 
@@ -14,24 +14,22 @@
 
 参数 | 解释 | 类型 | 是否必须 | 示例数据
 :---:|:---|:---:|:---:|:---
-member_mobile| 手机号码 | number | 当`register_type=mobile`时必须 | 188****8888
-send_channel | 标识注册类型 | string | 是 | `mobile`
-handler_token | 处理器秘钥 | string | 是 | `auth.reset.password`
+member_email| 用户邮箱 | string | 是 | im@koyeo.io
+send_channel | 验证码发送通道 | string | 是 | `email`
+handler_token | 处理器秘钥 | string | 是 | `auth.register`
 
 
 ## 4. 响应状态
 
 状态码 | 说明
 :---:|:---
-200|  操作成功
-1000| 数据格式不正确
-1100 | 通道不支持
-1500 | 短信服务商错误
-2020 | 注册码已超出最大发送次数，请明天再试
+200 |  验证码发送成功
+1000 | 数据格式不正确
+1100 | 该通道不支持
+1300 | 通道不支持
 2010 | 发送太频繁，请 60 秒后再试
-
-
-
+2020 | 注册码已超出最大发送次数，请明天再试
+3010  | 该邮箱已注册
 
 ## 5. 响应数据
 
@@ -53,7 +51,7 @@ handler_token | 处理器秘钥 | string | 是 | `auth.reset.password`
 {
   "member_email" : "188****8888",
   "send_channel" : "mobile",
-  "handler_token" : "auth.reset.password",
+  "handler_token":"auth.register"
 }
 ```
 
