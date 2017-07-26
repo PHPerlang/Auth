@@ -29,6 +29,14 @@ class SendRegisterEmailCode
 
             Code::cacheCode($key, $code);
 
+            Code::log([
+                'type' => 'email',
+                'key' => $event->email,
+                'code' => $code,
+                'tag' => 'auth.register',
+                'status' => 'failed',
+            ]);
+
             Mail::to($event->email)->queue(new RegisterCode(($code)));
 
             Code::setCodeFrequency($key);
