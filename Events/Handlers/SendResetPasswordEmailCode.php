@@ -20,10 +20,13 @@ class SendResetPasswordEmailCode
             $key = $event->email;
 
             if (!Member::where('member_email', $key)->first()) {
-                exception(2010);
+                exception(3010);
             }
 
-            Code::checkCodeFrequency($key);
+            if(!Code::checkCodeFrequency($key)){
+
+                exception(2010);
+            }
 
             $code = Code::generateCode();
 
@@ -34,7 +37,7 @@ class SendResetPasswordEmailCode
                 'key' => $event->email,
                 'code' => $code,
                 'tag' => 'auth.reset.password',
-                'status' => 'failed',
+                'status' => 'sent',
             ]);
 
             $link = url('/api/auth/reset/password/' . Crypt::encryptString($event->email) . '/' . Crypt::encryptString($code));
@@ -43,6 +46,7 @@ class SendResetPasswordEmailCode
 
             Code::setCodeFrequency($key);
 
+            return status(200);
         }
 
     }

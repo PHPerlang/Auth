@@ -18,14 +18,17 @@ class SendRegisterEmailCode
 
             if (Member::where('member_email', $event->email)->first()) {
 
-                exception(3002);
+                exception(3010);
             }
 
             $key = $event->email;
 
             $code = Code::generateCode();
 
-            Code::checkCodeFrequency($key);
+            if(!Code::checkCodeFrequency($key)){
+
+                exception(2010);
+            }
 
             Code::cacheCode($key, $code);
 
@@ -34,7 +37,7 @@ class SendRegisterEmailCode
                 'key' => $event->email,
                 'code' => $code,
                 'tag' => 'auth.register',
-                'status' => 'failed',
+                'status' => 'sent',
             ]);
 
             Mail::to($event->email)->queue(new RegisterCode(($code)));
