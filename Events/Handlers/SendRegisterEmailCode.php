@@ -33,6 +33,7 @@ class SendRegisterEmailCode
 
             Code::setCodeFrequency($key);
 
+            return status(200);
         }
 
     }
