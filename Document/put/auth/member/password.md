@@ -18,7 +18,7 @@ member_id | 用户 ID | int | 是 | 2
 member_email | 用户邮箱 | string | 是 | im@koyeo.io
 member_password | 用户密码 | string | 是 | 123456
 register_code| 邮箱验证码 | string | 是 | 154523
-register_type | 标识注册类型 | string | 是 | `email`
+register_channel | 标识注册类型 | string | 是 | `email` | `mobile`
 
 ## 4. 响应状态
 
@@ -28,6 +28,7 @@ register_type | 标识注册类型 | string | 是 | `email`
 1000 | 数据校验错误
 1001 | 用户不存在
 1300 | 邮箱验证码不正确
+2000 | 注册通道不支持
 
 ## 5. 响应数据
 
