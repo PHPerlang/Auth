@@ -244,6 +244,7 @@ class AuthController extends Controller
             'member_mobile',
             'member_email',
             'member_account',
+            'member_password',
         ]));
 
         $email_status = 'unverified';
@@ -265,8 +266,17 @@ class AuthController extends Controller
 
                 if (config('auth::config.register_email_auth', false)) {
 
-                    if (!Code::checkCacheCode($collect->get('member_email'), $collect->get('register_code'))) {
-                        exception(1300);
+                    if ($collect->has('member_password')) {
+
+                        if (!Code::checkCacheCode($collect->get('member_email'), $collect->get('register_code'))) {
+                            exception(1300);
+                        }
+
+                    } else {
+
+                        if (!Code::testCacheCode($collect->get('member_email'), $collect->get('register_code'))) {
+                            exception(1300);
+                        }
                     }
 
                     $email_status = 'verified';
@@ -282,8 +292,17 @@ class AuthController extends Controller
 
                 if (config('auth::config.register_mobile_auth', true)) {
 
-                    if (!Code::checkCacheCode($collect->get('member_mobile'), $collect->get('register_code'))) {
-                        exception(1300);
+                    if ($collect->has('member_password')) {
+
+                        if (!Code::checkCacheCode($collect->get('member_mobile'), $collect->get('register_code'))) {
+                            exception(1300);
+                        }
+                        
+                    } else {
+
+                        if (!Code::testCacheCode($collect->get('member_mobile'), $collect->get('register_code'))) {
+                            exception(1300);
+                        }
                     }
 
                     $mobile_status = 'verified';
