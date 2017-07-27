@@ -41,7 +41,7 @@ class MemberController extends Controller
 
         $member->save();
 
-        event(new MemberUpdateEvent($member, $this->request->input()));
+        event(new MemberUpdateEvent($member, collect($this->request->input())));
 
         return status(200);
 
