@@ -297,7 +297,7 @@ class AuthController extends Controller
                         if (!Code::checkCacheCode($collect->get('member_mobile'), $collect->get('register_code'))) {
                             exception(1300);
                         }
-                        
+
                     } else {
 
                         if (!Code::testCacheCode($collect->get('member_mobile'), $collect->get('register_code'))) {

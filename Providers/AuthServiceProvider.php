@@ -82,9 +82,11 @@ class AuthServiceProvider extends ServiceProvider
                     $file => config_path('auth/' . $config),
                 ], 'config');
 
-                $this->mergeConfigFrom(
-                    $file, 'auth::' . str_replace('.php', '', str_replace('/', '.', $config))
-                );
+                $path = str_replace('.php', '', str_replace('/', '.', $config));
+
+                $config = $this->app['config']->get("auth.$path", []);
+
+                $this->app['config']->set("auth::$path", array_merge(require $file, $config));
 
             }
         }
