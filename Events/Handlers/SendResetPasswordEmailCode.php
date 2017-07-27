@@ -2,8 +2,8 @@
 
 namespace Modules\Auth\Events\Handlers;
 
-use Modules\Auth\Services\Code;
 use Modules\Auth\Models\Member;
+use Modules\Auth\Services\Code;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Crypt;
 use Modules\Auth\Emails\ResetPasswordLink;

@@ -8,7 +8,7 @@
  *
  * @return array
  */
-function render_permisssion(array $permissions, array $vars = [])
+function render_permission(array $permissions, array $vars = [])
 {
     foreach ($vars as $var => $value) {
 

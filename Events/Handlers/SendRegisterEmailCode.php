@@ -31,7 +31,7 @@ class SendRegisterEmailCode
 
             $code = Code::generateCode();
 
-            if(!Code::checkCodeFrequency($key)){
+            if (!Code::checkCodeFrequency($key)) {
 
                 exception(2010);
             }
@@ -45,6 +45,8 @@ class SendRegisterEmailCode
                 'tag' => 'auth.register',
                 'status' => 'sent',
             ]);
+
+            config(['view.compiled' => realpath(storage_path('framework/views'))]);
 
             Mail::to($event->email)->queue(new RegisterCode(($code)));
 
