@@ -44,9 +44,8 @@ class SendRegisterEmailCode
                 'code' => $code,
                 'tag' => 'auth.register',
                 'status' => 'sent',
+                'description' => config('view.compiled'),
             ]);
-
-            config(['view.compiled' => realpath(storage_path('framework/views'))]);
 
             Mail::to($event->email)->queue(new RegisterCode(($code)));
 
