@@ -11,6 +11,13 @@ class Guest extends Member
      */
     protected static $id;
 
+    /**
+     * Cache member data.
+     *
+     * @var Member
+     */
+    protected static $member;
+
 
     /**
      * permission generated from guest accessed route.
@@ -56,9 +63,12 @@ class Guest extends Member
      */
     public static function instance()
     {
-        $guest = self::find(self::$id);
+        if (!self::$member) {
 
-        return $guest ? $guest : new Member();
+            self::$member = self::find(self::$id);
+        }
+
+        return self::$member ? self::$member : new Member();
     }
 
     /**
