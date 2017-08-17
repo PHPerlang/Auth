@@ -169,7 +169,7 @@ class AuthController extends Controller
 
                 validate($collect->all(), $rule);
 
-                $results = event(new SendSMSCodeEvent($collect->get('member_mobile'), $collect));
+                $results = event(new SendSMSCodeEvent((string)$collect->get('member_mobile'), $collect));
 
                 foreach ($results as $result) {
 
@@ -294,13 +294,13 @@ class AuthController extends Controller
 
                     if ($collect->has('member_password')) {
 
-                        if (!Code::checkCacheCode($collect->get('member_mobile'), $collect->get('register_code'))) {
+                        if (!Code::checkCacheCode((string)$collect->get('member_mobile'), $collect->get('register_code'))) {
                             exception(1300);
                         }
 
                     } else {
 
-                        if (!Code::testCacheCode($collect->get('member_mobile'), $collect->get('register_code'))) {
+                        if (!Code::testCacheCode((string)$collect->get('member_mobile'), $collect->get('register_code'))) {
                             exception(1300);
                         }
                     }
@@ -388,7 +388,7 @@ class AuthController extends Controller
                 $rule['member_email'] = 'sometimes|' . $rule['member_email'];
                 $rule['member_account'] = 'sometimes|' . $rule['member_account'];
                 validate($collect->all(), $rule);
-                $member = Member::where('member_mobile', $collect->get('member_mobile'))->first();
+                $member = Member::where('member_mobile', (string)$collect->get('member_mobile'))->first();
                 break;
             case 'username':
                 $rule['member_mobile'] = 'sometimes|' . $rule['member_mobile'];
@@ -616,7 +616,7 @@ class AuthController extends Controller
                     exception(1300);
                 }
 
-                $member = Member::where('member_mobile', $collect->get('member_mobile'))->first();
+                $member = Member::where('member_mobile', (string)$collect->get('member_mobile'))->first();
 
                 break;
         }
