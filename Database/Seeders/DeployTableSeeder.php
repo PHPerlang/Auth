@@ -45,6 +45,7 @@ class DeployTableSeeder extends Seeder
         $member->member_avatar = null;
         $member->member_nickname = '古月';
         $member->member_status = 'normal';
+        $member->register_channel = 'deploy';
         $member->save();
 
         // 为超级用户绑定创建者 ID
