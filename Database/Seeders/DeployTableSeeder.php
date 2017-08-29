@@ -28,15 +28,15 @@ class DeployTableSeeder extends Seeder
         $root->save();
 
         // 绑定超级用户的权限
-        $permissions = render_permisssion(config('auth::roles.root'));
-        foreach ($permissions as $permission) {
-
-            $rootPermission = new RolePermission;
-            $rootPermission->role_id = $root->role_id;
-            $rootPermission->permission_id = $permission;
-            $rootPermission->created_at = timestamp();
-            $rootPermission->save();
-        }
+//        $permissions = render_permisssion(config('auth::roles.root'));
+//        foreach ($permissions as $permission) {
+//
+//            $rootPermission = new RolePermission;
+//            $rootPermission->role_id = $root->role_id;
+//            $rootPermission->permission_id = $permission;
+//            $rootPermission->created_at = timestamp();
+//            $rootPermission->save();
+//        }
 
         // 注册超级用户
         $member = new Member;
