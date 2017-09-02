@@ -40,16 +40,15 @@ class PermissionGuardMiddleware
 
         $this->route = $this->request->route();
 
-        if (!$this->route->open) {
 
-            $this->checkAccessToken();
-            $this->checkGuestIsExist();
+        $this->checkAccessToken();
+        $this->checkGuestIsExist();
 
-            if (env('PERMISSION_SYSTEM') == 'on' && !$this->authGuestPermission()) {
+        if (env('PERMISSION_SYSTEM') == 'on' && !$this->authGuestPermission()) {
 
-                exception(403);
-            }
+            exception(403);
         }
+
 
         $response = $next($this->request);
 
@@ -61,7 +60,7 @@ class PermissionGuardMiddleware
      */
     protected function checkAccessToken()
     {
-        if (!$this->request->header('X-Access-Token')) {
+        if (!$this->route->open && !$this->request->header('X-Access-Token')) {
 
             exception(910, null);
         }
@@ -72,7 +71,7 @@ class PermissionGuardMiddleware
      */
     protected function checkGuestIsExist()
     {
-        if (!Guest::id()) {
+        if (!$this->route->open && !Guest::id()) {
 
             exception(920, null);
         }
