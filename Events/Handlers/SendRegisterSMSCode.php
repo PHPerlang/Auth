@@ -45,7 +45,11 @@ class SendRegisterSMSCode
                 exception(2010);
             }
 
-            $result = SMS::text(['code' => $code])->to($event->mobile)->send();
+            $result = true;
+
+            if (env('APP_ENV') == 'production') {
+                $result = SMS::template(config('sms.yunpian.template'), ['code' => $code])->to($event->mobile)->send();
+            }
 
             if ($result === true) {
 

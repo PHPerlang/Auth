@@ -22,7 +22,7 @@ class SendResetPasswordSMSCode
 
             $code = Code::generateCode();
 
-            if(!Code::checkCodeFrequency($event->mobile)){
+            if (!Code::checkCodeFrequency($event->mobile)) {
 
                 Code::log([
                     'type' => 'mobile',
@@ -36,8 +36,11 @@ class SendResetPasswordSMSCode
                 exception(2010);
             }
 
+            $result = true;
 
-            $result = SMS::text(['code' => $code])->to($event->mobile)->send();
+            if (env('APP_ENV') == 'production') {
+                $result = SMS::template(config('sms.yunpian.template'), ['code' => $code])->to($event->mobile)->send();
+            }
 
             if ($result !== true) {
 
