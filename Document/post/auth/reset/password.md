@@ -16,8 +16,8 @@
 :---:|:---|:---:|:---:|:---
 参数名 | 参数解释 | string | 是 | 示例数据
 member_email | 用户邮箱 | string | 是 | im@koyeo.io
-member_passwrod | 用户新密码 | string | 是 | 123456
-find_passwrod_channel | 找回密码方式 | string | 是 | email
+member_password | 用户新密码 | string | 是 | 123456
+find_password_channel | 找回密码方式 | string | 是 | email
 reset_code | 重置密码验证码 | string | 是 | 294495
 
 
@@ -49,7 +49,7 @@ reset_code | 重置密码验证码 | string | 是 | 294495
 ```josn
 {
   "member_phone" : "im@koyeo.io",
-  "find_passwrod_type":"mobile",
+  "find_password_type":"mobile",
   "reset_code" : "用户重置密码验证码",
   "member_password" : "123456"
 }
