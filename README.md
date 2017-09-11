@@ -11,7 +11,7 @@ $ gindowin install Auth
 
 ## 2. 接口列表
 
-* [发送验证码 /api/auth/code](Document/post/auth/code.md)
+* ~~[发送验证码 /api/auth/code](Document/post/auth/code.md)~~
 * [校验验证码 /api/auth/chek/captcha](Document/post/auth/check/code.md)
 * [获取图形验证码 /api/auth/captcha](Document/get/auth/captcha.md)
 * [校验图形验证码 /api/auth/chek/captcha](Document/post/auth/check/captcha.md)
