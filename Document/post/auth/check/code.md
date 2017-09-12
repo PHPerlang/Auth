@@ -46,7 +46,7 @@ auth_code | 手机验证码或邮箱验证码 | number | 是 | 123423
 ```json
 {
 	"auth_channel": "mobile",
-	"member_phone": 188****8888,
+	"member_mobile": 188****8888,
 	"code": 122123
 }
 ```
