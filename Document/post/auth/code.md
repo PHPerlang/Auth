@@ -46,7 +46,7 @@ send_channel | 标识注册类型 | string | 是 | `email` / `mobile`
 
 ```josn
 {
-  "member_email" : "188****8888",
+  "member_mobile" : "188****8888",
   "handler_token": "auth.register",
   "send_channel" : "mobile"
 }

@@ -15,7 +15,7 @@
 参数 | 解释 | 类型 | 是否必须 | 示例数据
 :---:|:---|:---:|:---:|:---
 member_email | 用户邮箱 | string | `当 register_channel=email` 必须 | im@koyeo.io
-member_phone | 用户手机 | string | `当 register_channel=mobile` 必须 | `188****8888`
+member_mobile | 用户手机 | string | `当 register_channel=mobile` 必须 | `188****8888`
 member_password | 用户密码 | string | 否 | Hello7
 register_channel | 标识注册类型 | string | 是 | `email`、`mobile`
 register_code | 邮箱里接收的验证码 | string | 是 | 0893
@@ -58,7 +58,7 @@ register_code | 邮箱里接收的验证码 | string | 是 | 0893
 
 ```josn
 {
-  "member_phone" : "188****8888",
+  "member_mobile" : "188****8888",
   "member_password" : "Hello7",
   "register_channel" : "mobile",
   "register_code" : "8099"

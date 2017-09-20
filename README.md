@@ -11,8 +11,8 @@ $ gindowin install Auth
 
 ## 2. 接口列表
 
-* [发送验证码 /api/auth/code](Document/post/auth/code.md)
-* [校验验证码 /api/auth/chek/captcha](Document/post/auth/check/code.md)
+* ~~[发送验证码 /api/auth/code](Document/post/auth/code.md)~~
+* [校验验证码  /api/auth/check/code](Document/post/auth/check/code.md)
 * [获取图形验证码 /api/auth/captcha](Document/get/auth/captcha.md)
 * [校验图形验证码 /api/auth/chek/captcha](Document/post/auth/check/captcha.md)
 * [注册发送短信验证码 /api/auth/code](Document/post/auth/register-sms-code.md)
@@ -21,7 +21,7 @@ $ gindowin install Auth
 * [编辑登录用户资料 /api/member](Document/put/auth/member.md)
 * [设置新用户密码 /api/member/password](Document/put/auth/member/password.md)
 * [用户登录 /api/auth/login](Document/post/auth/login.md)
-* [忘记密码发送验证码 /api/auth/reset/password/code](Document/post/auth/reset/password/code.md)
+* ~~[忘记密码发送验证码 /api/auth/reset/password/code](Document/post/auth/reset/password/code.md)~~
 * [忘记密码发送短信验证码 /api/auth/code](Document/post/auth/reset-password-sms-code.md)
 * [忘记密码发送邮箱链接 /api/auth/code](Document/post/auth/reset-password-email-code.md)
 * [重置密码 /api/auth/reset/password](Document/post/auth/reset/password.md)
@@ -66,7 +66,7 @@ data|数据部分|mixed
 200 | 操作成功 | 所有操作成功的状态统一使用 200 状态码标识
 800 | 数据库错误 | 系统如有某处数据库操作报错，将会触发此状态，生产环境下，将抹掉具体的报错信息
 900 | 请求头 `X-App-Id` 不能为空 | -
-901 | 请求头 `X-App-Id` 格式不正确 | 要求格式 `客户端:版本号(x.x.x)`
+901 | 请求头 `X-App-Id` 格式不正确 | 要求格式 `客户端:版本号(x.x.x)`，示例：`h5:1.0.0`
 902 | 请求头 `X-App-Id` 不正确 | 客户端不正确，目前支持的客户端有 web,pad,ios,android,h5
 910 | 请求头 `X-Access-Token` 不能为空 | -
 920 | 请求头 `X-Access-Token` 无效 | 用户登录过期出现此状态
