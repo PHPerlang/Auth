@@ -6,14 +6,14 @@
     </div>
     <div id="layout-navigation">
         <ul class="nav nav-pills nav-stacked">
-            <li role="presentation" class="active">
-                <a href="/admin/deploy/records">用户列表</a>
+            <li role="presentation" class="{{ $path == 'members' ? 'active' : '' }}">
+                <a href="/admin/auth/members">用户列表</a>
             </li>
-            <li role="presentation" class="">
-                <a href="/admin/deploy/nodes">角色列表</a>
+            <li role="presentation" class="{{ $path == 'roles' ? 'active' : '' }}">
+                <a href="/admin/auth/roles">角色列表</a>
             </li>
-            <li role="presentation" class="">
-                <a href="/admin/deploy/scripts">权限列表</a>
+            <li role="presentation" class="{{ $path == 'permissions' ? 'active' : '' }}">
+                <a href="/admin/auth/permissions">权限列表</a>
             </li>
         </ul>
     </div>

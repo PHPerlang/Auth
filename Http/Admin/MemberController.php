@@ -32,6 +32,14 @@ class MemberController extends Controller
 
         return view('auth::admin.members', [
             'members' => $members,
+            'path' => 'members',
+        ]);
+    }
+
+    public function getMemberEditor()
+    {
+        return view('auth::admin.member-editor', [
+            'path' => 'members',
         ]);
     }
 }

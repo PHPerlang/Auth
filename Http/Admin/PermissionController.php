@@ -3,11 +3,11 @@
 namespace Modules\Auth\Http\Admin;
 
 use Gindowin\Request;
-use Modules\Auth\Models\Role;
 use Illuminate\Routing\Controller;
+use Modules\Auth\Models\Permission;
 
 
-class RoleController extends Controller
+class PermissionController extends Controller
 {
     /**
      * 客户端请求
@@ -26,20 +26,13 @@ class RoleController extends Controller
         $this->request = $request;
     }
 
-    public function getRolesView()
+    public function getPermissionsView()
     {
-        $roles = Role::get();
+        $permissions = Permission::get();
 
-        return view('auth::admin.roles', [
-            'roles' => $roles,
-            'path' => 'roles',
-        ]);
-    }
-
-    public function getRoleEditor()
-    {
-        return view('auth::admin.role-editor', [
-            'path' => 'roles',
+        return view('auth::admin.permissions', [
+            'permissions' => $permissions,
+            'path'=>'permissions',
         ]);
     }
 }
