@@ -2,9 +2,9 @@
 
 namespace Modules\Auth\Foundation;
 
-use Gindowin\Foundation\Route as JindowinRoute;
+use Gindowin\Foundation\Route as GindowinRoute;
 
-class Route extends JindowinRoute
+class Route extends GindowinRoute
 {
     /**
      * Indicates if the route is public to everyone.

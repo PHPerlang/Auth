@@ -329,7 +329,7 @@ class AuthController extends Controller
         $member->member_account = $collect->get('member_account');
         $member->member_password = $collect->get('member_password', uniqid());
         $member->member_avatar = $collect->get('member_avatar');
-        $member->member_nickname = $collect->get('member_nickname');
+        $member->member_name = $collect->get('member_name');
         $member->member_status = 'normal';
         $member->mobile_status = $collect->has('member_mobile') ? $mobile_status : 'none';
         $member->email_status = $collect->get('member_email') ? $email_status : 'none';
@@ -424,6 +424,8 @@ class AuthController extends Controller
             exception(1100);
         }
 
+        $member->last_login = timestamp();
+        $member->save();
 
         return status(200, $this->saveMemberToken($member));
     }

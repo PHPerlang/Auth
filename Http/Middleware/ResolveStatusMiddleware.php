@@ -3,7 +3,7 @@
 namespace Modules\Auth\Http\Middleware;
 
 use Closure;
-use Modules\Auth\Models\Status;
+use Gindowin\Status;
 
 class ResolveStatusMiddleware
 {

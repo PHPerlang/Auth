@@ -4,6 +4,7 @@ namespace Modules\Auth\Http\Admin;
 
 use Gindowin\Request;
 use Illuminate\Routing\Controller;
+use Modules\Auth\Models\Member;
 
 
 class MemberController extends Controller
@@ -27,6 +28,10 @@ class MemberController extends Controller
 
     public function getMembersView()
     {
-        return view('auth::admin.members');
+        $members = Member::get();
+
+        return view('auth::admin.members', [
+            'members' => $members,
+        ]);
     }
 }
