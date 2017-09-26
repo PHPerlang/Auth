@@ -51,6 +51,12 @@ class ModuleMakePermissionsCommand extends Command
      */
     protected $listFileName = 'permissions.list';
 
+    /**
+     * The Module Name.
+     *
+     * @var null
+     */
+    protected $module = null;
 
     /**
      * Register in the deploy folder permissions file fields.
@@ -58,11 +64,10 @@ class ModuleMakePermissionsCommand extends Command
      * @var array
      */
     protected $deployFields = [
-        'module_id' => '',
-        'permission_link' => '',
-        'permission_level' => 10,
-        'permission_relevance' => [],
-        'permission_like' => [],
+        'module' => '',
+        'name' => '',
+        'description' => '',
+        'guard' => [],
     ];
 
     /**
@@ -71,8 +76,8 @@ class ModuleMakePermissionsCommand extends Command
      * @var array
      */
     protected $localeFields = [
-        'permission_name' => '',
-        'permission_desc' => '',
+        'name' => '',
+        'description' => '',
     ];
 
     /**
@@ -103,9 +108,16 @@ class ModuleMakePermissionsCommand extends Command
      */
     public function fire()
     {
+        $this->module = $this->argument('name');
+
         if ($this->getModuleName()) {
 
             $this->makeFiles();
+        } else {
+            foreach (app('modules')->getOrdered() as $name => $module) {
+                $this->module = $name;
+                $this->makeFiles();
+            };
         }
     }
 
@@ -117,7 +129,7 @@ class ModuleMakePermissionsCommand extends Command
      */
     protected function getModuleName()
     {
-        return $this->argument('name');
+        return $this->module;
     }
 
     /**
@@ -205,8 +217,13 @@ class ModuleMakePermissionsCommand extends Command
      */
     protected function checkRoute($route)
     {
-
-        return preg_match('/^api\/.*/', $route->uri) && !$route->open;
+        $namespace = isset($route->getAction()['namespace']) ? $route->getAction()['namespace'] : null;
+        if ($namespace) {
+            return preg_match(preg_quote('/Modules\\' . $this->getModuleName() . '/', '\\'), $namespace)
+                && (preg_match('/^api\/.*/', $route->uri) || preg_match('/^admin\/.*/', $route->uri))
+                && !$route->open;
+        }
+        return false;
     }
 
     /**
@@ -225,7 +242,8 @@ class ModuleMakePermissionsCommand extends Command
 
                 $permission_id = $this->generatePermissionId($route->methods()[0], $route->uri());
                 $content[$permission_id] = $this->deployFields;
-                $content[$permission_id]['module_id'] = $this->getModuleName();
+                $content[$permission_id]['module'] = $this->getModuleName();
+
             }
 
         }

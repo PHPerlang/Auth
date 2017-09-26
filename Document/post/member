@@ -1,0 +1,66 @@
+# 发送验证码
+
+[TOC]
+
+## 1. API 描述：
+
+手动添加用户接口。
+
+## 2. 调用方法
+
+> POST /api/auth/member
+
+## 3. 请求参数
+
+参数 | 解释 | 类型 | 是否必须 | 示例数据
+:---:|:---|:---:|:---:|:---
+member_name| 姓名 | string |是 | 古月
+member_account| 用户名 | string |是 |koyeo
+member_email| 用户邮箱 | string |  是| im@koyeo.io
+member_mobile| 手机号码 | number |是 | 188****8888
+member_password| 用户密码 | string |是 | Abc123456
+member_roles| 用户角色 | array |否 | [1,2,3]
+
+
+## 4. 响应状态
+
+状态码 | 说明
+:---:|:---
+200 | 操作成功
+1000 | 数据校验不正确
+
+## 5. 响应数据
+
+```json
+{
+    "code": 200,
+    "message": "操作成功",
+    "data": null
+}
+```
+
+## 6. 示例
+
+> POST /api/auth/member
+
+**请求数据：**
+
+```josn
+{
+	"member_name":"黑色森林",
+	"member_account":"jason",
+	"member_email":"747114254@qq.com",
+	"member_mobile":"18817392521",
+	"member_password":"Hi12345"
+}
+```
+
+**响应结果：**
+
+```josn
+{
+  "code" : 200,
+  "message" : "操作成功",
+  "data" : null
+}
+```

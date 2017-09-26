@@ -74,6 +74,7 @@
                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
                                 <li><a href="#">登录日志</a></li>
                                 <li><a href="#">加入黑名单</a></li>
+                                <li><a href="#">删除用户</a></li>
                             </ul>
                         </div>
                     </div>

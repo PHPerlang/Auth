@@ -2,99 +2,71 @@
 
 return [
     'post@api/auth/member/password' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+        'name' => '',
+        'description' => '',
+    ],
+    'put@api/auth/password' => [ 
+        'name' => '',
+        'description' => '',
     ],
     'get@api/auth/forgot/password/link' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+        'name' => '',
+        'description' => '',
+    ],
+    'post@api/auth/change/email' => [ 
+        'name' => '',
+        'description' => '',
+    ],
+    'get@api/auth/guest' => [ 
+        'name' => '',
+        'description' => '',
     ],
     'post@api/auth/member' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+        'name' => '',
+        'description' => '',
     ],
     'put@api/auth/member' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+        'name' => '',
+        'description' => '',
     ],
     'get@api/auth/member' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+        'name' => '',
+        'description' => '',
     ],
     'get@api/auth/members' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+        'name' => '',
+        'description' => '',
     ],
     'delete@api/auth/member' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+        'name' => '',
+        'description' => '',
     ],
     'get@api/auth/role' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+        'name' => '',
+        'description' => '',
     ],
-    'post@api/kong/team' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+    'get@admin/auth/utility/routes' => [ 
+        'name' => '',
+        'description' => '',
     ],
-    'put@api/kong/team' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+    'get@admin/auth/members' => [ 
+        'name' => '',
+        'description' => '',
     ],
-    'delete@api/kong/team' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+    'get@admin/auth/member/editor' => [ 
+        'name' => '',
+        'description' => '',
     ],
-    'get@api/kong/team' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+    'get@admin/auth/roles' => [ 
+        'name' => '',
+        'description' => '',
     ],
-    'get@api/kong/team/list' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+    'get@admin/auth/role/editor' => [ 
+        'name' => '',
+        'description' => '',
     ],
-    'post@api/kong/team/invite' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
-    ],
-    'get@api/kong/team/members' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
-    ],
-    'delete@api/kong/team/member' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
-    ],
-    'put@api/kong/team/role' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
-    ],
-    'post@api/kong/scene' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
-    ],
-    'delete@api/kong/scene' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
-    ],
-    'get@api/kong/scene/list' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
-    ],
-    'get@api/kong/scene/setting/scene' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
-    ],
-    'put@api/kong/scene/setting/scene' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
-    ],
-    'get@api/kong/fields' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
-    ],
-    'get@api/kong/field' => [ 
-        'permission_name' => '',
-        'permission_desc' => '',
+    'get@admin/auth/permissions' => [ 
+        'name' => '',
+        'description' => '',
     ],
 ];

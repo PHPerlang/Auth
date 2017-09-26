@@ -3,6 +3,8 @@
 namespace Modules\Auth\Http\API;
 
 use Gindowin\Request;
+use Gindowin\Status;
+use Illuminate\Validation\Rule;
 use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Models\Member;
 use Illuminate\Routing\Controller;
@@ -16,9 +18,26 @@ class MemberController extends Controller
         $this->request = $request;
     }
 
-
+    /**
+     * 添加用户
+     *
+     * @return Status
+     */
     public function postMember()
     {
+        validate($this->request->input(), [
+            'member_name' => 'required',
+            'member_account' => ['required', Rule::unique('auth_members')->ignore($this->request->input('member_account'), 'member_account')],
+            'member_email' => ['required', Rule::unique('auth_members')->ignore($this->request->input('member_email'), 'member_email')],
+            'member_mobile' => ['required', Rule::unique('auth_members')->ignore($this->request->input('member_mobile'), 'member_mobile')],
+            'member_password' => ['required'],
+        ]);
+
+        $member = Member::where('member_id', $this->request->input('member_id'))->firstOrNew($this->request->input());
+        $member->register_channel = 'admin';
+        $member->save();
+
+
         return status(200);
     }
 

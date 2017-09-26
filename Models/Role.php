@@ -31,6 +31,23 @@ class Role extends Model
     public $timestamps = true;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'module',
+        'creator_id',
+        'role_name',
+        'role_desc',
+        'permission_amount',
+        'role_type',
+        'role_status',
+        'started_at',
+        'expired_at',
+    ];
+
+    /**
      * Role own many permissions.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

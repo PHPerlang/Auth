@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAuthRolePermissionsTable extends Migration
+class CreateAuthMemberPermissionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,13 @@ class CreateAuthRolePermissionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('auth_role_permissions', function (Blueprint $table) {
-            $table->bigInteger('role_id')->comment('角色ID');
+        Schema::create('auth_member_permissions', function (Blueprint $table) {
+            $table->bigInteger('member_id')->comment('角色ID');
             $table->string('permission_id')->comment('权限ID');
             $table->mediumText('permission_scope')->nullable()->comment('权限限制范围');
+            $table->tinyInteger('permission_type')->default(0)->nullable()->comment('权限类型，1 为永久权限，2 为临时权限');
+            $table->timestamp('started_at')->nullable()->comment('权限生效时间');
+            $table->timestamp('expired_at')->nullable()->comment('权限失效时间');
             $table->timestamp('created_at')->nullable()->comment('权限注册时间');
         });
     }
@@ -28,6 +31,6 @@ class CreateAuthRolePermissionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('auth_role_permissions');
+        Schema::dropIfExists('auth_member_permissions');
     }
 }

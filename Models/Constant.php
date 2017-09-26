@@ -43,7 +43,7 @@ class Constant extends Model
      * @param $key
      * @param $value
      */
-    public static function set($key, $value)
+    public static function setValue($key, $value)
     {
         $const = new self;
         $const->const_key = $key;
@@ -59,7 +59,7 @@ class Constant extends Model
      *
      * @return mixed
      */
-    public static function get($key, $default = null)
+    public static function getValue($key, $default = null)
     {
         $const = self::find($key);
 
@@ -73,7 +73,7 @@ class Constant extends Model
      *
      * @return mixed
      */
-    public static function remove($key)
+    public static function removeKey($key)
     {
         $const = self::find($key);
 

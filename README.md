@@ -11,6 +11,7 @@ $ gindowin install Auth
 
 ## 2. 接口列表
 
+### 2.1 认证
 * ~~[发送验证码 /api/auth/code](Document/post/auth/code.md)~~
 * [校验验证码  /api/auth/check/code](Document/post/auth/check/code.md)
 * [获取图形验证码 /api/auth/captcha](Document/get/auth/captcha.md)
@@ -29,6 +30,14 @@ $ gindowin install Auth
 * [更换邮箱 /api/auth/change/email](Document/post/auth/change/email.md)
 * [获取登录用户资料 /api/auth/guest](Document/get/auth/guest.md)
 * [查询用户是否存在 /api/auth/check/member/exists](Document/post/check/member/exists.md)
+
+### 2.2 用户
+
+* [添加用户 /api/auth/member](Document/post/member)
+* [编辑用户 /api/auth/member](Document/put/member)
+* [获取用户信息 /api/auth/member](Document/get/member)
+* [用户加入访问黑名单 /api/auth/limit/member](Document/post/limit-member)
+
 
 ## 3. 接口规范
 

@@ -39,10 +39,10 @@ class Member extends Model
         'member_role_id',
         'member_account',
         'member_email',
-        'member_phone',
+        'member_mobile',
         'member_status',
         'member_avatar',
-        'member_nickname',
+        'member_name',
         'member_password',
         'created_at',
         'updated_at',
@@ -70,5 +70,4 @@ class Member extends Model
     {
         $this->attributes['member_password'] = $this->encryptMemberPassword($value);
     }
-
 }

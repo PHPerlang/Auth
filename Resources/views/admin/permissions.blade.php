@@ -45,7 +45,7 @@
         @foreach($permissions as $permission)
             <tr>
                 <td>{{ $permission->permission_id }}</td>
-                <td>{{ $permission->module_id }}</td>
+                <td>{{ $permission->module }}</td>
                 <td>{{ $permission->permission_name }}</td>
                 <td>{{ $permission->permission_level }}</td>
                 <td>

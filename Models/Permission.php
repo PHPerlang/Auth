@@ -58,13 +58,4 @@ class Permission extends Model
         $this->attributes['permission_like'] = json_encode($value);
     }
 
-    /**
-     * Permission belongs to many permissions.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function roles()
-    {
-        return $this->belongsToMany(\Modules\Auth\Models\Role::class, 'role_permissions', 'permission_id', 'role_id');
-    }
 }

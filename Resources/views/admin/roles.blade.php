@@ -53,10 +53,10 @@
             <tr>
                 <td>{{ $role->role_id }}</td>
                 <td>{{ $role->role_name }}</td>
-                <td>{{ $role->module_id }}</td>
+                <td>{{ $role->module ? $role->module : '-' }}</td>
                 <td>{{ $role->permission_amount }}</td>
-                <td>{{ $role->role_type }}</td>
-                <td>{{ $role->role_status }}</td>
+                <td>{{ $role->role_type = 1 ? '永久角色' : '临时角色' }}</td>
+                <td>{{ $role->role_status = 1 ? '激活' : '停用' }}</td>
                 <td>{{ $role->role_desc }}</td>
                 <td>{{ $role->created_at }}</td>
                 <td>

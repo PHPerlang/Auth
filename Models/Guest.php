@@ -2,6 +2,8 @@
 
 namespace Modules\Auth\Models;
 
+use Modules\Home\Models\Post;
+
 class Guest extends Member
 {
     /**
@@ -79,19 +81,59 @@ class Guest extends Member
      *
      * @return bool
      */
-    public static function can()
+    public function can($permission, $scope = [])
     {
-        return true;
+        $permissions = $this->permissions();
+        if (array_key_exists($permission, $permissions)) {
+
+            if (count($scope) == 0) {
+                return true;
+            } else {
+                $own_scope = [];
+                foreach ($permissions as $permission_id => $permission_scope) {
+                    if ($permission_scope != '*') {
+                        $params = json_decode($permission_scope);
+                        foreach ($params as $key => $data) {
+                            if (is_array($data)) {
+                                if (is_array($own_scope[$key])) {
+                                    $own_scope[$key] = $data;
+                                } else {
+                                    array_merge($own_scope[$key], $data);
+                                }
+                            } else {
+                                if (is_array($own_scope[$key])) {
+                                    array_push($own_scope[$key], $data);
+                                } else {
+                                    $own_scope[$key][] = $data;
+                                }
+                            }
+
+                        }
+                    }
+                }
+                foreach ($scope as $key => $value) {
+                    if (!array_key_exists($key, $own_scope)) {
+                        return false;
+                    } else if (!in_array($value, $own_scope[$key])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+        }
+
+        return false;
     }
 
     /**
-     * Get guest role permissions limit params via the route.
+     * Get guest role permissions limit scope via the route.
      *
      * @param array $guest_permissions
      *
      * @return array
      */
-    public static function params(array $guest_permissions = [])
+    public function scope(array $guest_permissions = [])
     {
         $guard_fields = [];
 
@@ -134,7 +176,7 @@ class Guest extends Member
                         unset($guard_fields[$field]);
                         break;
                     case 'guest':
-                        $params[$field][$key] = (string)self::id();
+                        $scope[$field][$key] = (string)self::id();
                         break;
                 }
             }
@@ -151,9 +193,9 @@ class Guest extends Member
      *
      * @return array
      */
-    public static function roles()
+    public function roles()
     {
-        return MemberRole::where('member_id', self::$id)->pluck('role_id');
+        return MemberRole::where('member_id', self::$id)->pluck('role_id')->toArray();
     }
 
     /**
@@ -162,11 +204,30 @@ class Guest extends Member
      *
      * @return array
      */
-    public static function permissions()
+    public function permissions()
     {
-        return RolePermission::where('permission_id', self::$route_permission)
-            ->whereIn('role_id', self::roles())
-            ->get(['permission_id', 'limit_params', 'limit_parse', 'permission_type', 'expired_at']);
+        $permissions = [];
+
+        $role_permissions = RolePermission::whereIn('role_id', self::roles())
+            ->select('permission_id', 'permission_scope')->get()->toArray();
+
+        $member_permissions = MemberPermission::where('member_id', self::$id)
+            ->select('permission_id', 'permission_scope', 'permission_type', 'started_at', 'expired_at')
+            ->get()->toArray();
+
+        foreach ($role_permissions as $role_permission) {
+            $permissions[$role_permission['permission_id']][] = $role_permission['permission_scope'];
+        }
+
+        foreach ($member_permissions as $member_permission) {
+            if ($member_permission->permission_type == 2) {
+                if (strtotime($member_permission['started_at']) - time() > 0 && strtotime($member_permission['expired_at']) - time() < 0) {
+                    $permissions[$member_permission['permission_id']][] = $member_permission['permission_scope'];
+                }
+            }
+        }
+
+        return $permissions;
     }
 
 
@@ -175,7 +236,7 @@ class Guest extends Member
      *
      * @return array
      */
-    public static function allPermissions()
+    public function allPermissions()
     {
         return RolePermission::whereIn('role_id', self::roles())->get();
     }
@@ -187,20 +248,20 @@ class Guest extends Member
      *
      * @return mixed
      */
-    public static function guardPermissionParams($query)
+    public function guardPermissionScope($query)
     {
-        $params = self::params();
+        $scope = self::scope();
 
-        foreach ($params as $field => $values) {
+        foreach ($scope as $field => $values) {
 
-            switch (count($params[$field])) {
+            switch (count($scope[$field])) {
                 case 0:
                     continue;
                 case 1:
-                    $query = $query->where($field, $params[$field][0]);
+                    $query = $query->where($field, $scope[$field][0]);
                     break;
                 default:
-                    $query = $query->whereIn($field, $params[$field]);
+                    $query = $query->whereIn($field, $scope[$field]);
             }
 
         }

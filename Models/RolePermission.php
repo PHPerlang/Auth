@@ -34,8 +34,7 @@ class RolePermission extends Model
      *
      * @var bool
      */
-    public $timestamps = true;
-
+    public $timestamps = false;
 
     /**
      * Set the relevance permissions.
@@ -46,15 +45,14 @@ class RolePermission extends Model
      */
     public function setPermissionIdAttribute($value)
     {
-
         $transit = strpos($value, '?') === false ? $value . '?' : $value;
 
         if (!preg_match('/(.+@.+)(\?)(.*)/', $transit, $matches)) {
 
-            throw new \Exception('Role permission format should be method@uri[?params], but ' . $transit . ' be provided . ');
+            throw new \Exception('Role permission format should be method@uri[?scope], but ' . $transit . ' be provided . ');
         }
 
-        $limit_parse = [];
+        $scope = [];
         $fields = explode('&', $matches[3]);
 
         foreach ($fields as $filed) {
@@ -63,16 +61,15 @@ class RolePermission extends Model
 
             if (count($explode) === 2) {
                 if (strpos($explode[1], ',')) {
-                    $limit_parse[$explode[0]] = explode(',', $explode[1]);
+                    $scope[$explode[0]] = explode(',', $explode[1]);
                 } else {
-                    $limit_parse[$explode[0]] = [$explode[1]];
+                    $scope[$explode[0]] = [$explode[1]];
                 }
             }
         }
-
         $this->attributes['permission_id'] = $matches[1];
-        $this->attributes['limit_params'] = $matches[3] ? $matches[3] : '*';
-        $this->attributes['limit_parse'] = count($limit_parse) > 0 ? json_encode($limit_parse) : null;
+        $this->attributes['permission_scope'] = count($scope) > 0 ? json_encode($scope) : '*';
+        $this->attributes['created_at'] = timestamp();
     }
 
 }

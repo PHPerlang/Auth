@@ -64,9 +64,26 @@ class ModuleDeployCommand extends JindowinModuleDeployCommand
      */
     public function fire()
     {
-        $this->deploy();
+        $module = $this->argument('name');
+
+        if ($module) {
+            $this->deploy($module);
+        } else {
+            foreach (app('modules')->getOrdered() as $name => $module) {
+                $this->deploy($name);
+            };
+        }
     }
 
+    /**
+     * Get the deploy file path.
+     *
+     * @param string $module
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
     protected function getDeployFilePath($module)
     {
         $path = base_path(
@@ -81,9 +98,15 @@ class ModuleDeployCommand extends JindowinModuleDeployCommand
         return $path;
     }
 
-    protected function deploy()
+    /**
+     * Exec deploy action.
+     *
+     * @param string $module
+     *
+     * @throws \Exception
+     */
+    protected function deploy($module)
     {
-        $module = $this->argument('name');
 
         $deployFile = $this->getDeployFilePath($module);
 
@@ -98,7 +121,7 @@ class ModuleDeployCommand extends JindowinModuleDeployCommand
 
             if (isset($deployConfig['permissions'])) {
 
-                 $this->deployPermissions($module, $deployConfig['permissions']);
+                $this->deployPermissions($module, $deployConfig['permissions']);
             }
 
             if (isset($deployConfig['installer']) && is_array($deployConfig['installer'])) {
@@ -109,41 +132,38 @@ class ModuleDeployCommand extends JindowinModuleDeployCommand
 
     }
 
-    protected function deployResources()
-    {
 
-    }
-
+    /**
+     * Deploy module permissions.
+     *
+     * @param string $module
+     *
+     * @param array $permissions
+     */
     protected function deployPermissions($module, array $permissions)
     {
         $collection = collect($permissions);
 
         $registerPermissions = $collection->keys();
 
-        Permission::where('module_id', $module)
+        Permission::where('module', $module)
             ->whereNotIn('permission_id', $registerPermissions)
             ->delete();
 
-        $existPermissions = Permission::where('module_id', $module)
+        $existPermissions = Permission::where('module', $module)
             ->pluck('permission_id');
 
         $collection->each(function ($item, $key) use ($existPermissions) {
 
-
             if (!in_array($key, $existPermissions->toArray())) {
-
-                $item['permission_id'] = $key;
-                Permission::create($item);
+                $permission = [];
+                $permission['permission_id'] = $key;
+                $permission['module'] = isset($item['module']) ? $item['module'] : null;
+                $permission['permission_name'] = isset($item['name']) && trim($item['name']) != '' ? $item['name'] : $key;
+                $permission['permission_desc'] = isset($item['description']) ? $item['description'] : null;
+                Permission::create($permission);
             }
         });
-
-    }
-
-    /**
-     * Deploy the default roles without attached members.
-     */
-    protected function deployRoles()
-    {
 
     }
 
