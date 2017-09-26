@@ -34,20 +34,22 @@
     <table class="table hover">
         <thead>
         <tr>
-            <th>权限 ID</th>
-            <th>所属模块</th>
             <th>权限名</th>
-            <th>权限等级</th>
+            <th>权限描述</th>
+            <th>标识符</th>
+            <th>限制参数</th>
+            <th>所属模块</th>
             <th>操作</th>
         </tr>
         </thead>
         <tbody>
         @foreach($permissions as $permission)
             <tr>
-                <td>{{ $permission->permission_id }}</td>
-                <td>{{ $permission->module }}</td>
                 <td>{{ $permission->permission_name }}</td>
-                <td>{{ $permission->permission_level }}</td>
+                <td>{{ $permission->permission_desc ? $permission->permission_desc : '-' }}</td>
+                <td>{{ $permission->permission_id }}</td>
+                <td>-</td>
+                <td>{{ $permission->module }}</td>
                 <td>
                     <div class="dropdown">
                         <div class="btn-group">
@@ -57,11 +59,8 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                                <li><a href="#">Action</a></li>
-                                <li><a href="#">Another action</a></li>
-                                <li><a href="#">Something else here</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="#">Separated link</a></li>
+                                <li><a href="#">测试</a></li>
+                                <li><a href="#">访问日志</a></li>
                             </ul>
                         </div>
                     </div>

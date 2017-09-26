@@ -62,17 +62,17 @@
                 <td>
                     <div class="dropdown">
                         <div class="btn-group">
-                            <button class="btn btn-default">操作</button>
+
                             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                操作
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                                <li><a href="#">Action</a></li>
-                                <li><a href="#">Another action</a></li>
-                                <li><a href="#">Something else here</a></li>
+                                <li><a href="#">相关用户</a></li>
+                                <li><a href="#">用户通知</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="#">Separated link</a></li>
+                                <li><a href="#">停用</a></li>
                             </ul>
                         </div>
                     </div>

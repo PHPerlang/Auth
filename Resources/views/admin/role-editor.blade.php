@@ -32,7 +32,7 @@
                 <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
             </div>
             <div class="form-group">
-                <label for="exampleInputEmail1">权限时效</label>
+                <label for="exampleInputEmail1">权限类型</label>
                 <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
             </div>
             <div class="row">
@@ -57,9 +57,7 @@
         <div class="hr-line-dashed"></div>
         <div class="container">
             <div class="form-group">
-                <select class="form-control" name="" id="">
-                    <option value=""></option>
-                </select>
+                <textarea name="" id="" cols="30" rows="10" class="form-control"></textarea>
             </div>
         </div>
     </form>

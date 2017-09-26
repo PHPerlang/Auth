@@ -2,8 +2,6 @@
 
 namespace Modules\Auth\Models;
 
-use Modules\Home\Models\Post;
-
 class Guest extends Member
 {
     /**
@@ -85,7 +83,6 @@ class Guest extends Member
     {
         $permissions = $this->permissions();
         if (array_key_exists($permission, $permissions)) {
-
             if (count($scope) == 0) {
                 return true;
             } else {
@@ -109,169 +106,169 @@ class Guest extends Member
 
                             }
                         }
+                    }
                 }
-            }
-            foreach ($scope as $key => $value) {
-                if (!array_key_exists($key, $own_scope)) {
-                    return false;
-                } else if (!in_array($value, $own_scope[$key])) {
-                    return false;
+                foreach ($scope as $key => $value) {
+                    if (!array_key_exists($key, $own_scope)) {
+                        return false;
+                    } else if (!in_array($value, $own_scope[$key])) {
+                        return false;
+                    }
                 }
+                return true;
             }
-            return true;
+
         }
 
+        return false;
     }
 
-return false;
-}
+    /**
+     * Get guest role permissions limit scope via the route.
+     *
+     * @param array $guest_permissions
+     *
+     * @return array
+     */
+    public
+    function scope(array $guest_permissions = [])
+    {
+        $guard_fields = [];
 
-/**
- * Get guest role permissions limit scope via the route.
- *
- * @param array $guest_permissions
- *
- * @return array
- */
-public
-function scope(array $guest_permissions = [])
-{
-    $guard_fields = [];
+        $guest_permissions = $guest_permissions ? $guest_permissions : self::permissions();
 
-    $guest_permissions = $guest_permissions ? $guest_permissions : self::permissions();
+        foreach ($guest_permissions as $guest_permission) {
 
-    foreach ($guest_permissions as $guest_permission) {
+            if (!$guest_permission['limit_parse']) {
 
-        if (!$guest_permission['limit_parse']) {
+                continue;
+            }
 
-            continue;
-        }
+            $fields = json_decode($guest_permission['limit_parse'], true);
 
-        $fields = json_decode($guest_permission['limit_parse'], true);
+            foreach ($fields as $filed => $value) {
 
-        foreach ($fields as $filed => $value) {
+                if (key_exists($filed, $guard_fields)) {
 
-            if (key_exists($filed, $guard_fields)) {
+                    if (is_array($value)) {
 
-                if (is_array($value)) {
+                        $guard_fields[$filed] = array_merge($guard_fields[$filed], $value);
 
-                    $guard_fields[$filed] = array_merge($guard_fields[$filed], $value);
+                    } else {
+
+                        array_push($guard_fields[$filed], $value);
+                    }
 
                 } else {
 
-                    array_push($guard_fields[$filed], $value);
+                    $guard_fields[$filed] = $value;
                 }
-
-            } else {
-
-                $guard_fields[$filed] = $value;
             }
         }
+
+        foreach ($guard_fields as $field => $values) {
+
+            foreach ($values as $key => $value) {
+                switch ($value) {
+                    case '*':
+                        unset($guard_fields[$field]);
+                        break;
+                    case 'guest':
+                        $scope[$field][$key] = (string)self::id();
+                        break;
+                }
+            }
+
+            $guard_fields[$field] = array_unique($guard_fields[$field]);
+        }
+
+
+        return $guard_fields;
     }
 
-    foreach ($guard_fields as $field => $values) {
+    /**
+     * Get the guest roles.
+     *
+     * @return array
+     */
+    public
+    function roles()
+    {
+        return MemberRole::where('member_id', self::$id)->pluck('role_id')->toArray();
+    }
 
-        foreach ($values as $key => $value) {
-            switch ($value) {
-                case '*':
-                    unset($guard_fields[$field]);
+    /**
+     * Get the guest role permissions via route permission.
+     *
+     *
+     * @return array
+     */
+    public
+    function permissions()
+    {
+        $permissions = [];
+
+        $role_permissions = RolePermission::whereIn('role_id', self::roles())
+            ->select('permission_id', 'permission_scope')->get()->toArray();
+
+        $member_permissions = MemberPermission::where('member_id', self::$id)
+            ->select('permission_id', 'permission_scope', 'permission_type', 'started_at', 'expired_at')
+            ->get()->toArray();
+
+        foreach ($role_permissions as $role_permission) {
+            $permissions[$role_permission['permission_id']][] = $role_permission['permission_scope'];
+        }
+
+        foreach ($member_permissions as $member_permission) {
+            if ($member_permission->permission_type == 2) {
+                if (strtotime($member_permission['started_at']) - time() > 0 && strtotime($member_permission['expired_at']) - time() < 0) {
+                    $permissions[$member_permission['permission_id']][] = $member_permission['permission_scope'];
+                }
+            }
+        }
+
+        return $permissions;
+    }
+
+
+    /**
+     * Get guest all role permissions.
+     *
+     * @return array
+     */
+    public
+    function allPermissions()
+    {
+        return RolePermission::whereIn('role_id', self::roles())->get();
+    }
+
+    /**
+     * Add guest resource query limit condition.
+     *
+     * @param $query
+     *
+     * @return mixed
+     */
+    public
+    function guardPermissionScope($query)
+    {
+        $scope = self::scope();
+
+        foreach ($scope as $field => $values) {
+
+            switch (count($scope[$field])) {
+                case 0:
+                    continue;
+                case 1:
+                    $query = $query->where($field, $scope[$field][0]);
                     break;
-                case 'guest':
-                    $scope[$field][$key] = (string)self::id();
-                    break;
+                default:
+                    $query = $query->whereIn($field, $scope[$field]);
             }
+
         }
 
-        $guard_fields[$field] = array_unique($guard_fields[$field]);
+        return $query;
     }
-
-
-    return $guard_fields;
-}
-
-/**
- * Get the guest roles.
- *
- * @return array
- */
-public
-function roles()
-{
-    return MemberRole::where('member_id', self::$id)->pluck('role_id')->toArray();
-}
-
-/**
- * Get the guest role permissions via route permission.
- *
- *
- * @return array
- */
-public
-function permissions()
-{
-    $permissions = [];
-
-    $role_permissions = RolePermission::whereIn('role_id', self::roles())
-        ->select('permission_id', 'permission_scope')->get()->toArray();
-
-    $member_permissions = MemberPermission::where('member_id', self::$id)
-        ->select('permission_id', 'permission_scope', 'permission_type', 'started_at', 'expired_at')
-        ->get()->toArray();
-
-    foreach ($role_permissions as $role_permission) {
-        $permissions[$role_permission['permission_id']][] = $role_permission['permission_scope'];
-    }
-
-    foreach ($member_permissions as $member_permission) {
-        if ($member_permission->permission_type == 2) {
-            if (strtotime($member_permission['started_at']) - time() > 0 && strtotime($member_permission['expired_at']) - time() < 0) {
-                $permissions[$member_permission['permission_id']][] = $member_permission['permission_scope'];
-            }
-        }
-    }
-
-    return $permissions;
-}
-
-
-/**
- * Get guest all role permissions.
- *
- * @return array
- */
-public
-function allPermissions()
-{
-    return RolePermission::whereIn('role_id', self::roles())->get();
-}
-
-/**
- * Add guest resource query limit condition.
- *
- * @param $query
- *
- * @return mixed
- */
-public
-function guardPermissionScope($query)
-{
-    $scope = self::scope();
-
-    foreach ($scope as $field => $values) {
-
-        switch (count($scope[$field])) {
-            case 0:
-                continue;
-            case 1:
-                $query = $query->where($field, $scope[$field][0]);
-                break;
-            default:
-                $query = $query->whereIn($field, $scope[$field]);
-        }
-
-    }
-
-    return $query;
-}
 
 }
