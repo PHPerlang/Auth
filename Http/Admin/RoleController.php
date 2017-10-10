@@ -28,7 +28,7 @@ class RoleController extends Controller
 
     public function getRolesView()
     {
-        $roles = Role::get();
+        $roles = (new Role)->getFixedRoles();
 
         return view('auth::admin.roles', [
             'roles' => $roles,

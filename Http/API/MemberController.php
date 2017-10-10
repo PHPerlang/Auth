@@ -8,6 +8,7 @@ use Illuminate\Validation\Rule;
 use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Models\Member;
 use Illuminate\Routing\Controller;
+use Modules\Auth\Models\MemberRole;
 
 class MemberController extends Controller
 {
@@ -27,18 +28,32 @@ class MemberController extends Controller
     {
         validate($this->request->input(), [
             'member_name' => 'required',
-            'member_account' => ['required', Rule::unique('auth_members')->ignore($this->request->input('member_account'), 'member_account')],
+            //'member_account' => ['required', Rule::unique('auth_members')->ignore($this->request->input('member_account'), 'member_account')],
             'member_email' => ['required', Rule::unique('auth_members')->ignore($this->request->input('member_email'), 'member_email')],
             'member_mobile' => ['required', Rule::unique('auth_members')->ignore($this->request->input('member_mobile'), 'member_mobile')],
             'member_password' => ['required'],
         ]);
 
-        $member = Member::where('member_id', $this->request->input('member_id'))->firstOrNew($this->request->input());
+        $member = Member::where('member_id', $this->request->input('member_id'))->firstOrNew([]);
+        $member->member_name = $this->request->input('member_name');
+        $member->member_email = $this->request->input('member_email');
+        $member->member_mobile = $this->request->input('member_mobile');
+        $member->member_password = $this->request->input('member_password');
         $member->register_channel = 'admin';
         $member->save();
 
+        if ($roles = $this->request->input('member_roles')) {
+            foreach ($roles as $role_id) {
+                MemberRole::create([
+                    'member_id' => $member->member_id,
+                    'role_id' => $role_id,
+                ]);
+            }
+        }
 
-        return status(200);
+        unset($member->member_password);
+
+        return status(200, $member);
     }
 
     /**

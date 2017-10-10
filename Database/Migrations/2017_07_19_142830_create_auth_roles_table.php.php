@@ -20,7 +20,7 @@ class CreateAuthRolesTable extends Migration
             $table->string('role_name')->nullable()->comment('角色名称');
             $table->text('role_desc')->nullable()->comment('角色描述');
             $table->integer('permission_amount')->default(0)->nullable()->comment('角色权限数量');
-            $table->tinyInteger('role_type')->default(1)->comment('角色类型,1 为永久角色、2 为临时角色、3 动态角色');
+            $table->tinyInteger('role_type')->default(1)->comment('角色类型,1 为永久角色、2 为临时角色、3 动态永久角色、4 动态临时角色');
             $table->tinyInteger('role_status')->default(1)->comment('角色状态, 1 为激活状态、2 为停用状态');
             $table->timestamp('started_at')->nullable()->comment('角色生效时间');
             $table->timestamp('expired_at')->nullable()->comment('角色失效时间');

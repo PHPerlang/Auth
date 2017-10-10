@@ -31,23 +31,6 @@ class Role extends Model
     public $timestamps = true;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'module',
-        'creator_id',
-        'role_name',
-        'role_desc',
-        'permission_amount',
-        'role_type',
-        'role_status',
-        'started_at',
-        'expired_at',
-    ];
-
-    /**
      * Role own many permissions.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -56,5 +39,17 @@ class Role extends Model
     {
         return $this->belongsToMany(\Modules\Auth\Models\Permission::class)
             ->using(\Modules\Auth\Models\RolePermissions::class);
+    }
+
+    /**
+     * Get fixed roles where role_type in 1 or 2.
+     *
+     * @return mixed
+     */
+    public function getFixedRoles()
+    {
+        return $this->where('role_type', 1)->orWhere(function ($query) {
+            $query->where('role_type', 2)->where('expired_at', '>', timestamp());
+        })->get();
     }
 }
