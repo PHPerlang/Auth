@@ -31,7 +31,7 @@
 @section('style')
 @stop
 @section('script')
-    <script src="{{ asset('/modules/template/vue/vue.min.js') }}"></script>
+    <script src="{{ asset('/modules/admin/vue/vue.min.js') }}"></script>
     <script>
 
         var member = {
