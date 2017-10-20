@@ -22,7 +22,7 @@ class DeployTableSeeder extends Seeder
         // 注册超级角色
         $root = new Role;
         $root->role_name = config('auth::roles.root.name');
-        $root->module_id = 'Auth';
+        $root->module = 'Auth';
         $root->role_desc = config('auth::roles.root.desc');
         $root->permission_amount = count(config('auth::roles.root'));
         $root->save();
@@ -43,7 +43,7 @@ class DeployTableSeeder extends Seeder
         $member->member_email = 'im@koyeo.io';
         $member->member_password = '123456';
         $member->member_avatar = null;
-        $member->member_nickname = '古月';
+        $member->member_name = '古月';
         $member->member_status = 'normal';
         $member->register_channel = 'deploy';
         $member->save();
@@ -56,13 +56,11 @@ class DeployTableSeeder extends Seeder
         $memberRole = new MemberRole;
         $memberRole->member_id = $member->member_id;
         $memberRole->role_id = $root->role_id;
-        $memberRole->role_type = 'master';
-        $memberRole->created_at = timestamp();
         $memberRole->save();
 
         // 注册系统常量
-        Constant::set('ROOT_ROLE_ID', $root->role_id);
-        Constant::set('ROOT_MEMBER_ID', $member->member_id);
+        Constant::setValue('ROOT_ROLE_ID', $root->role_id);
+        Constant::setValue('ROOT_MEMBER_ID', $member->member_id);
     }
 
     /**
@@ -71,8 +69,8 @@ class DeployTableSeeder extends Seeder
     public function down()
     {
         // 获取系统常量
-        $root_member_id = Constant::get('ROOT_MEMBER_ID');
-        $root_role_id = Constant::get('ROOT_ROLE_ID');
+        $root_member_id = Constant::getValue('ROOT_MEMBER_ID');
+        $root_role_id = Constant::getValue('ROOT_ROLE_ID');
 
         // 删除超级用户的角色
         MemberRole::where('member_id', $root_member_id)->delete();
