@@ -45,4 +45,19 @@ class MemberController extends Controller
             'path' => 'members',
         ]);
     }
+
+    public function getProfile()
+    {
+        return view('auth::admin.base', [
+            'path' => 'profile',
+        ]);
+    }
+
+    public function getSetting()
+    {
+
+        return view('auth::admin.setting', [
+            'path' => 'setting',
+        ]);
+    }
 }

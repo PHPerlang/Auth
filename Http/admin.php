@@ -13,6 +13,8 @@ Route::group(['middleware' => 'admin', 'prefix' => '/admin/auth', 'namespace' =>
     Route::get('/utility/routes', 'UtilityController@getRoutes')->name('coreGetProjectRoutes');
     Route::get('/members', 'MemberController@getMembersView');
     Route::get('/member/editor', 'MemberController@getMemberEditor');
+    Route::get('/member/profile', 'MemberController@getProfile');
+    Route::get('/member/setting', 'MemberController@getSetting');
     Route::get('/roles', 'RoleController@getRolesView');
     Route::get('/role/editor', 'RoleController@getRoleEditor');
     Route::get('/permissions', 'PermissionController@getPermissionsView');

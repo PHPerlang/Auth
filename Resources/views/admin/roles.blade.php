@@ -6,7 +6,7 @@
         <li class="active">角色列表</li>
     </ol>
 @stop
-@section('page-content')
+@section('layout-page')
 
     <div id="layout-page-header">
         <h1 class="pull-left">角色列表</h1>

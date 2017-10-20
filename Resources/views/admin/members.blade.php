@@ -6,8 +6,8 @@
         <li class="active">用户列表</li>
     </ol>
 @stop
-@section('page-content')
-    <div id="page-members">
+@section('layout-page')
+    <div id="page">
         <div id="layout-page-header">
             <h1 class="pull-left">用户列表</h1>
             <div class="pull-right">
@@ -23,7 +23,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a href="#">节点记录</a>
+                                <a href="#">无效用户</a>
                             </li>
                         </ul>
                     </div>
@@ -241,7 +241,7 @@
         var $body = null;
 
         new Vue({
-            el: '#page-members',
+            el: '#page',
             data: function () {
                 return $data;
             },
