@@ -181,7 +181,7 @@ class AuthController extends Controller
                 break;
         }
 
-        return status(1400);
+        return status(3000);
     }
 
     /**

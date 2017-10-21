@@ -24,7 +24,7 @@ class SendRegisterSMSCode
 
             if (Member::where('member_mobile', $event->mobile)->first()) {
 
-                exception(1400);
+                exception(1600);
             }
 
             $key = $event->mobile;
@@ -48,6 +48,7 @@ class SendRegisterSMSCode
             $result = true;
 
             if (env('APP_ENV') == 'production') {
+                
                 $result = SMS::template(config('sms.yunpian.template'), ['code' => $code])->to($event->mobile)->send();
             }
 
