@@ -120,6 +120,8 @@ class AuthController extends Controller
 
         $accessToken->autoSave();
 
+        unset($member->member_password);
+
         return array_merge($accessToken->toArray(), $member->toArray());
     }
 
@@ -339,8 +341,6 @@ class AuthController extends Controller
         event(new MemberRegisterEvent($member, $collect));
 
         $accessToken = $this->saveMemberToken($member);
-
-        unset($member->member_password);
 
         return status(200, $accessToken);
     }
