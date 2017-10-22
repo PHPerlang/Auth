@@ -36,7 +36,12 @@ class WechatController extends Controller
 
         if ($request->status_code == 200) {
             $data = json_decode($request->body);
-            dd($data);
+            if(isset($data->errcode)){
+		exception(1600);
+         	}
+else{
+	dd($data->openid);
+}
         } else {
             return status(1500);
         }
