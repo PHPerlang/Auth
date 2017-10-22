@@ -121,6 +121,7 @@ class AuthController extends Controller
         $accessToken->autoSave();
 
         unset($member->member_password);
+        unset($member->wechat_open_id);
 
         return array_merge($accessToken->toArray(), $member->toArray());
     }
@@ -859,8 +860,8 @@ class AuthController extends Controller
                     $member->member_mobile = null;
                     $member->member_account = null;
                     $member->member_password = uniqid();
-                    $member->member_avatar = null;
-                    $member->member_name = null;
+                    $member->member_avatar = $this->request->input('member_avatar');
+                    $member->member_name = $this->request->input('member_name');
                     $member->member_status = 'normal';
                     $member->mobile_status = 'none';
                     $member->email_status = 'none';
