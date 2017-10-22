@@ -2,6 +2,7 @@
 
 namespace Modules\Auth\Http\API;
 
+use Requests;
 use Gindowin\Status;
 use Gindowin\Request;
 use Illuminate\Http\Response;
@@ -16,7 +17,6 @@ use Modules\Auth\Events\SendSMSCodeEvent;
 use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Events\SendEmailCodeEvent;
 use Modules\Auth\Events\MemberRegisterEvent;
-
 
 class AuthController extends Controller
 {
