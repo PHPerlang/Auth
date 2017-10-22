@@ -28,8 +28,8 @@ class WechatController extends Controller
     {
         $code = $this->request->input('code');
 
-        $app_id = ENV('Auth_WECHAT_APP_ID');
-        $secret = ENV('Auth_WECHAT_SECRET');
+        $app_id = env('AUTH_WECHAT_APP_ID');
+        $secret = env('AUTH_WECHAT_SECRET');
         $url = "https://api.weixin.qq.com/sns/jscode2session?appid=$app_id&secret=$secret&js_code=$code&grant_type=authorization_code";
 
         $request = Requests::get($url);
