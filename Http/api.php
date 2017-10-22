@@ -55,7 +55,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     ])->open();
 
     // 微信通过用户登录凭证自动注册登录
-    Route::get('/wechat/code', 'WechatController@autoRegister')->open();
+    Route::get('/wechat/code', 'AuthController@wechatRegisterByCode')->open();
 
 
     // 发送密码重置验证码

@@ -829,5 +829,48 @@ class AuthController extends Controller
         return status(1001);
     }
 
+    /**
+     * 微信自动注册用户
+     *
+     * @return Status
+     */
+    public function wechatRegisterByCode()
+    {
+        $code = $this->request->input('code');
+
+        $app_id = env('AUTH_WECHAT_APP_ID');
+        $secret = env('AUTH_WECHAT_SECRET');
+        $url = "https://api.weixin.qq.com/sns/jscode2session?appid=$app_id&secret=$secret&js_code=$code&grant_type=authorization_code";
+
+        $request = Requests::get($url);
+
+        if ($request->status_code == 200) {
+            $data = json_decode($request->body);
+            if (isset($data->errcode)) {
+                exception(1600);
+            } else {
+                $open_id = $data->openid;
+                if ($member = Member::where('wechat_open_id', $open_id)->first()) {
+                    return status(200, $this->saveMemberToken($member));
+                } else {
+                    $member = new Member;
+                    $member->register_channel = 'wechat';
+                    $member->member_email = null;
+                    $member->member_mobile = null;
+                    $member->member_account = null;
+                    $member->member_password = uniqid();
+                    $member->member_avatar = null;
+                    $member->member_name = null;
+                    $member->member_status = 'normal';
+                    $member->mobile_status = 'none';
+                    $member->email_status = 'none';
+                    $member->save();
+                    return status(200, $this->saveMemberToken($member));
+                }
+            }
+        }
+
+        return status(1500);
+    }
 }
 
