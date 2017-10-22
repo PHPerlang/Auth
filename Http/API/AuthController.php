@@ -864,6 +864,7 @@ class AuthController extends Controller
                     $member->member_status = 'normal';
                     $member->mobile_status = 'none';
                     $member->email_status = 'none';
+                    $member->wechat_open_id = $open_id;
                     $member->save();
                     return status(200, $this->saveMemberToken($member));
                 }
