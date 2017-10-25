@@ -54,6 +54,9 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         2000 => '该登录类型通道已关闭',
     ])->open();
 
+    // 注销登录
+    Route::get('/logout', 'AuthController@getLogout');
+
     // 微信通过用户登录凭证自动注册登录
     Route::get('/wechat/code', 'AuthController@wechatRegisterByCode')->open();
 

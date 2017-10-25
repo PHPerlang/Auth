@@ -432,6 +432,21 @@ class AuthController extends Controller
     }
 
     /**
+     * 注销登录
+     *
+     * @return Status
+     */
+    public function getLogout()
+    {
+        $member = Guest::instance();
+        $client = $this->request->client;
+
+        AccessToken::where('client_id', $client->id)->where('member_id', $member->member_id)->delete();
+
+        return status(200);
+    }
+
+    /**
      * 为新用户设置密码.
      */
     public function postNewPassword()
