@@ -22,6 +22,7 @@ $ gindowin install Auth
 * [编辑登录用户资料 /api/member](Document/put/auth/member.md)
 * [设置新用户密码 /api/member/password](Document/put/auth/member/password.md)
 * [用户登录 /api/auth/login](Document/post/auth/login.md)
+* [注销登录 /api/auth/login](Document/post/auth/logout.md)
 * ~~[忘记密码发送验证码 /api/auth/reset/password/code](Document/post/auth/reset/password/code.md)~~
 * [忘记密码发送短信验证码 /api/auth/code](Document/post/auth/reset-password-sms-code.md)
 * [忘记密码发送邮箱链接 /api/auth/code](Document/post/auth/reset-password-email-code.md)
