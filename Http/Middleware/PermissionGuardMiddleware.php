@@ -60,7 +60,7 @@ class PermissionGuardMiddleware
      */
     protected function checkAccessToken()
     {
-        if (!$this->route->open && !$this->request->header('X-Access-Token')) {
+        if (!$this->route->open && !$this->request->header('X-Access-Token', $this->request->input('X-APP-Id'))) {
 
             exception(910, null);
         }
