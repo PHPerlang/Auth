@@ -76,10 +76,12 @@ class Guest extends Member
         $access_token = AccessToken::where('access_token', $token)->first();
 
         if ($access_token) {
+
             self::$id = $access_token->member_id;
+
             return true;
         }
-        
+
         return false;
     }
 
