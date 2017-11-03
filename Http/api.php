@@ -73,7 +73,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
 
 
     // 绑定微信账户
-    Route::get('/bind/wechat/code', 'AuthController@bindWechatByCode')->codes([
+    Route::post('/bind/wechat/code', 'AuthController@bindWechatByCode')->codes([
         1500 => '微信服务器错误',
         1600 => '微信请求错误',
     ]);
