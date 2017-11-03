@@ -33,7 +33,7 @@ class AuthServiceProvider extends ServiceProvider
 
         if (env('APP_ENV') != 'production') {
 
-            $log_file = base_path('storage/logs/mysql.log');
+            $log_file = base_path('storage/logs/mysql-' . date('Y-m-d') . '.log');
             file_put_contents($log_file, PHP_EOL . PHP_EOL, FILE_APPEND);
 
             \Illuminate\Support\Facades\DB::listen(function ($query) use ($log_file) {
@@ -59,8 +59,6 @@ class AuthServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerGuest();
-
-//        $this->app->singleton(\Modules\Auth\Http\Middleware\StartSession::class);
     }
 
     /**
@@ -139,12 +137,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         try {
 
-            $access_token = AccessToken::where('access_token', app('request')->header('X-Access-Token'))->first();
-
-            if ($access_token) {
-
-                Guest::init($access_token->member_id);
-            }
+            Guest::parse(app('request')->header('X-Access-Token'));
 
         } catch (\Exception $e) {
 

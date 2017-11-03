@@ -71,6 +71,18 @@ class Guest extends Member
         return self::$member ? self::$member : new Member();
     }
 
+    public static function parse($token)
+    {
+        $access_token = AccessToken::where('access_token', $token)->first();
+
+        if ($access_token) {
+            self::$id = $access_token->member_id;
+            return true;
+        }
+        
+        return false;
+    }
+
     /**
      * Check the guest permissions in frontend templates.
      *
