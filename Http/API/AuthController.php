@@ -846,11 +846,11 @@ class AuthController extends Controller
     }
 
     /**
-     * 微信自动注册用户
+     * 登录用户绑定微信账户
      *
      * @return Status
      */
-    public function wechatRegisterByCode()
+    public function bindWechatByCode()
     {
         $code = $this->request->input('code');
 
@@ -860,34 +860,30 @@ class AuthController extends Controller
 
         $request = Requests::get($url);
 
-        if ($request->status_code == 200) {
-            $data = json_decode($request->body);
-            if (isset($data->errcode)) {
-                exception(1600);
-            } else {
-                $open_id = $data->openid;
-                if ($member = Member::where('wechat_open_id', $open_id)->first()) {
-                    return status(200, $this->saveMemberToken($member));
-                } else {
-                    $member = new Member;
-                    $member->register_channel = 'wechat';
-                    $member->member_email = null;
-                    $member->member_mobile = null;
-                    $member->member_account = null;
-                    $member->member_password = uniqid();
-                    $member->member_avatar = $this->request->input('member_avatar');
-                    $member->member_name = $this->request->input('member_name');
-                    $member->member_status = 'normal';
-                    $member->mobile_status = 'none';
-                    $member->email_status = 'none';
-                    $member->wechat_open_id = $open_id;
-                    $member->save();
-                    return status(200, $this->saveMemberToken($member));
-                }
-            }
+        if ($request->status_code != 200) {
+
+            exception(1500);
+        }
+        $data = json_decode($request->body);
+
+        if (isset($data->errcode)) {
+
+            exception(1600);
         }
 
-        return status(1500);
+        $open_id = $data->openid;
+
+        $member = Guest::instance();
+
+        $member->member_avatar = $this->request->input('member_avatar');
+        $member->member_name = $this->request->input('member_name');
+        $member->wechat_open_id = $open_id;
+        $member->save();
+
+        return status(200);
+
     }
+
+
 }
 

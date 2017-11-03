@@ -57,8 +57,12 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     // 注销登录
     Route::get('/logout', 'AuthController@getLogout');
 
-    // 微信通过用户登录凭证自动注册登录
-    Route::get('/wechat/code', 'AuthController@wechatRegisterByCode')->open();
+
+    // 绑定微信账户
+    Route::get('/bind/wechat/code', 'AuthController@bindWechatByCode')->codes([
+        1500 => '微信服务器错误',
+        1600 => '微信请求错误',
+    ]);
 
 
     // 发送密码重置验证码
