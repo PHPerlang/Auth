@@ -35,15 +35,15 @@ class ResolveClientMiddleware
         $client = strtolower($request->header('X-App-Id', $request->input('X-APP-Id')));
 
 
-//        if (!$client && !$request->route()->open) {
-//
-//            exception(900);
-//        }
+        // if (!$client && !$request->route()->open) {
 
-//        if (!preg_match('/.+:[0-9]+(\.[0-9]+)*/', $client) && !$request->route()->open) {
-//
-//            exception(901);
-//        }
+        //    exception(900);
+        // }
+
+        // if (!preg_match('/.+:[0-9]+(\.[0-9]+)*/', $client) && !$request->route()->open) {
+
+        //    exception(901);
+        //}
 
         if ($client) {
 
