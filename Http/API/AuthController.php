@@ -871,7 +871,7 @@ class AuthController extends Controller
 
         $open_id = $data->openid;
 
-        if ($member = Member::where('wchat_open_id', $open_id)->first()) {
+        if ($member = Member::where('wechat_open_id', $open_id)->first()) {
 
             return status(200, $this->saveMemberToken($member));
         }
