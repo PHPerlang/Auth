@@ -65,7 +65,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
     // 用户通过微信登录
     Route::post('/login/wechat', 'AuthController@loginWithWechat')->codes([
         200 => '登录成功',
-        404 => '登录成功',
+        404 => '用户不存在',
     ])->open();
 
     // 注销登录
