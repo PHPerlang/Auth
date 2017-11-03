@@ -6,6 +6,7 @@ return array(
     '391' => 'The resource instance has not member_id field.',
     '400' => '资源实例不存在',
     '403' => '无权限操作',
+    '404' => '资源不存在',
     '800' => '数据库错误',
     '900' => '请求头 X-App-Id 不能为空',
     '901' => '请求头 X-App-Id 无效',

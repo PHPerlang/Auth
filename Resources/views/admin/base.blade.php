@@ -16,7 +16,7 @@
                     <div class="row">
                         <div class="col-xs-6 col-md-3 col-xs-offset-3 col-md-offset-4">
                             <a href="#" class="thumbnail">
-                                <img src="{{ asset('/modules/admin/avatar.png') }}" alt="avatar">
+                                <img src="{{ secure_asset('/modules/admin/avatar.png') }}" alt="avatar">
                             </a>
                         </div>
                     </div>
@@ -73,7 +73,7 @@
 
 @stop
 @section('script')
-    <script src="{{ asset('/modules/admin/vue/vue.min.js') }}"></script>
+    <script src="{{ secure_asset('/modules/admin/vue/vue.min.js') }}"></script>
     <script>
         var form = {};
         var $data = {

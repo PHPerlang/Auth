@@ -17,6 +17,7 @@ class UrlGenerator extends LaravelUrlGenerator
      */
     public function asset($path, $secure = null)
     {
+
         if ($this->isValidUrl($path)) {
             return $path;
         }
@@ -24,9 +25,26 @@ class UrlGenerator extends LaravelUrlGenerator
         // Once we get the root URL, we will check to see if it contains an index.php
         // file in the paths. If it does, we will remove it since it is not needed
         // for asset paths, but only for routes to endpoints in the application.
-        $root = $this->formatRoot($this->formatScheme($secure));
+        $root = $this->formatRoot($this->autoFormatSchemecd($path, $secure), env('ASSET_URL', env('APP_URL')));
 
         return $this->removeIndex($root) . '/' . trim($path, '/');
+    }
+
+    /**
+     * Get the default scheme for a raw URL.
+     *
+     * @param string $path
+     * @param null /bool $secure
+     *
+     * @return string
+     */
+    public function autoFormatScheme($path, $secure)
+    {
+        if (!is_null($secure)) {
+            return $secure ? 'https://' : 'http://';
+        }
+
+        return Str::startsWith($path, 'http://') ? 'http://' : 'https://';
     }
 
     /**

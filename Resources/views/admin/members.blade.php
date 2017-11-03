@@ -212,7 +212,7 @@
     </style>
 @stop
 @section('script')
-    <script src="{{ asset('/modules/admin/vue/vue.min.js') }}"></script>
+    <script src="{{ secure_asset('/modules/admin/vue/vue.min.js') }}"></script>
     <script id="members-json" type="application/json">{!! json_encode($members) !!}</script>
     <script id="roles-json" type="application/json">{!! json_encode($roles) !!}</script>
     <script>
