@@ -54,6 +54,12 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         2000 => '该登录类型通道已关闭',
     ])->open();
 
+    // 用户登录
+    Route::post('/login/wechat', 'AuthController@loginWithWechat')->codes([
+        200 => '登录成功',
+        404 => '登录成功',
+    ])->open();
+
     // 注销登录
     Route::get('/logout', 'AuthController@getLogout');
 

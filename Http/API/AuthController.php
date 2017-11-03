@@ -846,14 +846,11 @@ class AuthController extends Controller
     }
 
     /**
-     * 登录用户绑定微信账户
-     *
-     * @return Status
+     * 判断微信账户是否存在，如果存在调用自动登录
      */
-    public function bindWechatByCode()
+    public function loginWithWechat()
     {
         $code = $this->request->input('code');
-
         $app_id = env('AUTH_WECHAT_APP_ID');
         $secret = env('AUTH_WECHAT_SECRET');
         $url = "https://api.weixin.qq.com/sns/jscode2session?appid=$app_id&secret=$secret&js_code=$code&grant_type=authorization_code";
@@ -864,6 +861,43 @@ class AuthController extends Controller
 
             exception(1500);
         }
+
+        $data = json_decode($request->body);
+
+        if (isset($data->errcode)) {
+
+            exception(1600);
+        }
+
+        $open_id = $data->openid;
+
+        if ($member = Member::where('wchat_open_id', $open_id)->first()) {
+
+            return status(200, $this->saveMemberToken($member));
+        }
+
+        return status(404);
+    }
+
+    /**
+     * 登录用户绑定微信账户
+     *
+     * @return Status
+     */
+    public function bindWechatByCode()
+    {
+        $code = $this->request->input('code');
+        $app_id = env('AUTH_WECHAT_APP_ID');
+        $secret = env('AUTH_WECHAT_SECRET');
+        $url = "https://api.weixin.qq.com/sns/jscode2session?appid=$app_id&secret=$secret&js_code=$code&grant_type=authorization_code";
+
+        $request = Requests::get($url);
+
+        if ($request->status_code != 200) {
+
+            exception(1500);
+        }
+
         $data = json_decode($request->body);
 
         if (isset($data->errcode)) {
