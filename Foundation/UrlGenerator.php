@@ -24,7 +24,7 @@ class UrlGenerator extends LaravelUrlGenerator
         // Once we get the root URL, we will check to see if it contains an index.php
         // file in the paths. If it does, we will remove it since it is not needed
         // for asset paths, but only for routes to endpoints in the application.
-        $root = $this->formatRoot($this->autoFormatScheme($secure, env('APP_URL', null)));
+        $root = $this->formatRoot($this->autoFormatScheme($secure, env('APP_URL', null)), env('APP_URL', null));
 
         return $this->removeIndex($root) . '/' . trim($path, '/');
     }
