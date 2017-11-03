@@ -846,7 +846,49 @@ class AuthController extends Controller
     }
 
     /**
+     * 手机自动注册登录
+     *
+     * @return Status
+     */
+    public function loginWithSms()
+    {
+        validate($this->request->input(), [
+            'member_mobile' => 'required|size:11',
+            'login_code' => 'required',
+        ]);
+
+        $code = $this->request->input('login_code');
+
+        $mobile = $this->request->input('member_mobile');;
+
+        if (!Code::checkCacheCode($mobile, $code)) {
+
+            exception(1300);
+        }
+
+        $member = Member::where('member_mobile', $mobile)->first();
+
+        if ($member) {
+
+            Code::forgetCode($mobile);
+
+            return status(200, $this->saveMemberToken($member));
+
+        }
+
+        $this->request->replace([
+            'member_mobile' => $mobile,
+            'register_channel' => 'mobile',
+            'register_code' => $code,
+        ]);
+
+        return $this->postRegister();
+    }
+
+    /**
      * 判断微信账户是否存在，如果存在调用自动登录
+     *
+     * @return Status
      */
     public function loginWithWechat()
     {

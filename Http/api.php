@@ -54,7 +54,15 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         2000 => '该登录类型通道已关闭',
     ])->open();
 
-    // 用户登录
+    // 用户通过手机自动登录注册
+    Route::post('/login/sms', 'AuthController@loginWithSms')->codes([
+        200 => '登录成功',
+        1300 => '验证码不正确',
+        2000 => '该注册类型通道已关闭',
+    ])->open();
+
+
+    // 用户通过微信登录
     Route::post('/login/wechat', 'AuthController@loginWithWechat')->codes([
         200 => '登录成功',
         404 => '登录成功',

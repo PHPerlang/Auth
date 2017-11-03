@@ -33,6 +33,7 @@ class Kernel
         ],
         \Modules\Auth\Events\SendSMSCodeEvent::class => [
             \Modules\Auth\Events\Handlers\SendRegisterSMSCode::class,
+            \Modules\Auth\Events\Handlers\SendLoginSMSCode::class,
             \Modules\Auth\Events\Handlers\SendResetPasswordSMSCode::class,
         ],
         \Modules\Auth\Events\SendEmailCodeEvent::class => [
