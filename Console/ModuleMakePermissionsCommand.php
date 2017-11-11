@@ -106,6 +106,14 @@ class ModuleMakePermissionsCommand extends Command
     /**
      * Execute the console command.
      */
+    public function handle()
+    {
+        $this->fire();
+    }
+
+    /**
+     * Execute the console command.
+     */
     public function fire()
     {
         $this->module = $this->argument('name');

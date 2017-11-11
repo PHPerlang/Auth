@@ -46,6 +46,14 @@ class ModulePrepareCommand extends Command
     /**
      * Execute the console command.
      */
+    public function handle()
+    {
+        $this->fire();
+    }
+
+    /**
+     * Execute the console command.
+     */
     public function fire()
     {
         $this->call('module:make-codes', ['name' => $this->argument('name')]);
