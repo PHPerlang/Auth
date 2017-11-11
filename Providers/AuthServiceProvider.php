@@ -44,7 +44,7 @@ class AuthServiceProvider extends ServiceProvider
                     $value = is_numeric($replace) ? $replace : "'" . $replace . "'";
                     $sql = preg_replace('/\?/', $value, $sql, 1);
                 }
-
+                chmod($log_file, 0777);
                 file_put_contents($log_file, timestamp() . ': ' . $sql . PHP_EOL, FILE_APPEND);
             });
 
