@@ -62,6 +62,14 @@ class ModuleDeployCommand extends JindowinModuleDeployCommand
     /**
      * Execute the console command.
      */
+    public function handle()
+    {
+        $this->fire();
+    }
+
+    /**
+     * Execute the console command.
+     */
     public function fire()
     {
         $module = $this->argument('name');
