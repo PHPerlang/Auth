@@ -19,20 +19,30 @@
                 <div class="hr-line-dashed"></div>
                 <div class="container">
 
-                    <div class="form-group">
-                        <label for="exampleInputEmail1">用户名</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
-                    </div>
+                    @if($member->member_account)
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">用户名</label>
+                            <input disabled value="{{ $member->member_account }}" type="text" class="form-control"
+                                   id="exampleInputEmail1" placeholder="">
+                        </div>
+                    @endif
 
-                    <div class="form-group">
-                        <label for="exampleInputEmail1">手机号</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
-                    </div>
+                    @if($member->member_mobile)
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">手机号</label>
+                            <input disabled value="{{ $member->member_mobile }}" type="number" class="form-control"
+                                   id="exampleInputEmail1" placeholder="">
+                        </div>
+                    @endif
 
-                    <div class="form-group">
-                        <label for="exampleInputEmail1">邮箱</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
-                    </div>
+                    @if($member->member_eamil)
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">邮箱</label>
+                            <input disabled value="{{ $member->member_eamil }}" type="text" class="form-control"
+                                   id="exampleInputEmail1" placeholder="">
+                        </div>
+                    @endif
+
                 </div>
 
                 <div class="hr-line-dashed"></div>

@@ -13,8 +13,8 @@
                 <li role="presentation" class="{{ $path == 'setting' ? 'active' : '' }}">
                     <a href="/admin/auth/member/setting">账户设置</a>
                 </li>
-                <li role="presentation" class="{{ $path == 'login' ? 'active' : '' }}">
-                    <a href="/admin/auth/member/login">登录日志</a>
+                <li role="presentation" class="{{ $path == 'login-log' ? 'active' : '' }}">
+                    <a href="/admin/auth/member/login/log">登录日志</a>
                 </li>
             </ul>
         </div>

@@ -2,16 +2,16 @@
 
 @section('page-title')
     <ol class="breadcrumb">
-        <li class="active"><a href="#">用户管理</a></li>
-        <li class="active">用户列表</li>
+        <li class="active"><a href="#">成员管理</a></li>
+        <li class="active">成员列表</li>
     </ol>
 @stop
 @section('layout-page')
     <div id="page">
         <div id="layout-page-header">
-            <h1 class="pull-left">用户列表</h1>
+            <h1 class="pull-left">成员列表</h1>
             <div class="pull-right">
-                <a @click="open_editor()" href="#" class="btn btn-primary">添加用户</a>
+                <a @click="open_editor()" href="#" class="btn btn-primary">添加成员</a>
             </div>
         </div>
         <div id="layout-content">
@@ -23,7 +23,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a href="#">无效用户</a>
+                                <a href="#">无效成员</a>
                             </li>
                         </ul>
                     </div>
@@ -34,7 +34,7 @@
                         <a href="#" class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></a>
                     </div>
 
-                    <a href="#" class="pagination-count pull-right btn">第 1 - 5 位用户，共 105 位 </a>
+                    <a href="#" class="pagination-count pull-right btn">第 1 - 5 位成员，共 105 位 </a>
 
                 </div>
             </nav>
@@ -44,7 +44,7 @@
                 <tr>
                     <th>ID</th>
                     <th>姓名</th>
-                    {{--<th>用户名</th>--}}
+                    {{--<th>成员名</th>--}}
                     <th>邮箱</th>
                     <th>电话号码</th>
                     <th>角色列表</th>
@@ -79,7 +79,7 @@
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
                                         <li><a href="#">重置密码</a></li>
                                         <li><a href="#">限制访问</a></li>
-                                        <li><a href="#">删除用户</a></li>
+                                        <li><a href="#">删除成员</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -96,13 +96,13 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                     aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">添加用户</h4>
+                        <h4 class="modal-title">添加成员</h4>
                     </div>
                     <div class="modal-body">
                         <br>
                         <form>
                             <div class="container">
-                                <div class="form-block"><i></i> 用户信息</div>
+                                <div class="form-block"><i></i> 成员信息</div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group" v-bind:class="{'has-error':error.member_name}">
@@ -114,12 +114,12 @@
                                 </p>
                             </div>
                             <div class="form-group" v-bind:class="{'has-error':error.member_email}">
-                                <label for="">用户邮箱</label>
+                                <label for="">成员邮箱</label>
                                 <input v-model="form.member_email" type="text" class="form-control" id=""
                                        placeholder="">
                                 <p class="help-block has-error"
                                    v-show="error.member_email && typeof error.member_email.required !== 'undefined'">
-                                    用户邮箱不能为空
+                                    成员邮箱不能为空
                                 </p>
                             </div>
                             <div class="form-group" v-bind:class="{'has-error':error.member_mobile}">
@@ -145,14 +145,21 @@
                                     <label>
                                         <input v-model="form.reset_password" type="checkbox"> 登录后重置密码
                                     </label>
+                                    <label>
+                                        <input v-model="form.send_sms" type="checkbox"> 发送短信通知
+                                    </label>
+                                    <label>
+                                        <input v-model="form.send_email" type="checkbox"> 发送邮件通知
+                                    </label>
                                 </div>
                             </div>
-                            <div class="hr-line-dashed"></div>
-                            <div class="container">
+                            <div v-if="roles.length>0" class="hr-line-dashed"></div>
+                            <div v-if="roles.length>0" class="container">
                                 <div class="form-block"><i></i> 权限信息</div>
                             </div>
-                            <div class="hr-line-dashed" style="border-top: 1px solid #e7eaec;"></div>
-                            <table class="table hover">
+                            <div v-if="roles.length>0" class="hr-line-dashed"
+                                 style="border-top: 1px solid #e7eaec;"></div>
+                            <table v-if="roles.length>0" class="table hover">
                                 <thead>
                                 <tr>
                                     <th width="5%"><input type="checkbox"></th>
@@ -273,11 +280,11 @@
                         $body.loading();
 
                         $do.post({
-                            url: '/api/auth/member',
+                            url: '/admin/api/auth/member',
                             data: $data.form,
                             success: function (res) {
                                 if (res.code === 200) {
-                                    $do.success('用户添加成功');
+                                    $do.success('成员添加成功');
                                     $data.members.push(res.data);
                                     $member_editor.modal('hide');
                                 } else if (res.code === 1000) {

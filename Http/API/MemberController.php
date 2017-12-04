@@ -10,6 +10,7 @@ use Modules\Auth\Models\Member;
 use Illuminate\Routing\Controller;
 use Modules\Auth\Models\MemberRole;
 
+
 class MemberController extends Controller
 {
     protected $request;

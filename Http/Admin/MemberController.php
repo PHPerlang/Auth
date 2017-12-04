@@ -4,6 +4,7 @@ namespace Modules\Auth\Http\Admin;
 
 use Gindowin\Request;
 use Illuminate\Routing\Controller;
+use Modules\Auth\Models\Guest;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Models\Role;
 
@@ -39,6 +40,17 @@ class MemberController extends Controller
         ]);
     }
 
+    public function getUsersView(){
+
+        $members = Member::get();
+
+        return view('auth::admin.users', [
+            'members' => $members,
+            'path' => 'members',
+        ]);
+
+    }
+
     public function getMemberEditor()
     {
         return view('auth::admin.member-editor', [
@@ -50,6 +62,7 @@ class MemberController extends Controller
     {
         return view('auth::admin.base', [
             'path' => 'profile',
+            'member' => Guest::instance(),
         ]);
     }
 
@@ -58,6 +71,14 @@ class MemberController extends Controller
 
         return view('auth::admin.setting', [
             'path' => 'setting',
+            'member' => Guest::instance(),
+        ]);
+    }
+
+    public function getLoginLog()
+    {
+        return view('auth::admin.login-log', [
+            'path' => 'login-log',
         ]);
     }
 }

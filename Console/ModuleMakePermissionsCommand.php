@@ -67,7 +67,6 @@ class ModuleMakePermissionsCommand extends Command
         'module' => '',
         'name' => '',
         'description' => '',
-        'guard' => [],
     ];
 
     /**

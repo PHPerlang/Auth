@@ -5,6 +5,14 @@ return [
         'name' => '',
         'description' => '',
     ],
+    'get@api/auth/logout' => [ 
+        'name' => '',
+        'description' => '',
+    ],
+    'post@api/auth/bind/wechat/code' => [ 
+        'name' => '',
+        'description' => '',
+    ],
     'put@api/auth/password' => [ 
         'name' => '',
         'description' => '',
@@ -54,6 +62,18 @@ return [
         'description' => '',
     ],
     'get@admin/auth/member/editor' => [ 
+        'name' => '',
+        'description' => '',
+    ],
+    'get@admin/auth/member/profile' => [ 
+        'name' => '',
+        'description' => '',
+    ],
+    'get@admin/auth/member/setting' => [ 
+        'name' => '',
+        'description' => '',
+    ],
+    'get@admin/auth/member/login/log' => [ 
         'name' => '',
         'description' => '',
     ],

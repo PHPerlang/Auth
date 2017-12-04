@@ -1,5 +1,7 @@
 [
   'post@api/auth/member/password',
+  'get@api/auth/logout',
+  'post@api/auth/bind/wechat/code',
   'put@api/auth/password',
   'get@api/auth/forgot/password/link',
   'post@api/auth/change/email',
@@ -13,6 +15,9 @@
   'get@admin/auth/utility/routes',
   'get@admin/auth/members',
   'get@admin/auth/member/editor',
+  'get@admin/auth/member/profile',
+  'get@admin/auth/member/setting',
+  'get@admin/auth/member/login/log',
   'get@admin/auth/roles',
   'get@admin/auth/role/editor',
   'get@admin/auth/permissions',

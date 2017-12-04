@@ -16,7 +16,7 @@
                     <div class="row">
                         <div class="col-xs-6 col-md-3 col-xs-offset-3 col-md-offset-4">
                             <a href="#" class="thumbnail">
-                                <img src="{{ asset('/modules/admin/avatar.png') }}" alt="avatar">
+                                <img src="{{  $member->member_avatar ?  $member->member_avatar : asset('/modules/admin/avatar.png') }}" alt="avatar">
                             </a>
                         </div>
                     </div>
@@ -30,28 +30,29 @@
 
                     <div class="form-group">
                         <label for="exampleInputEmail1">姓名</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
+                        <input type="text" value="{{ $member->member_name }}" class="form-control"
+                               id="exampleInputEmail1" placeholder="">
                     </div>
 
-                    <div class="form-group">
-                        <label for="exampleInputEmail1">性别</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
-                    </div>
+                    {{--<div class="form-group">--}}
+                    {{--<label for="exampleInputEmail1">性别</label>--}}
+                    {{--<input type="text" class="form-control" id="exampleInputEmail1" placeholder="">--}}
+                    {{--</div>--}}
 
-                    <div class="form-group">
-                        <label for="exampleInputEmail1">职务</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
-                    </div>
+                    {{--<div class="form-group">--}}
+                    {{--<label for="exampleInputEmail1">职务</label>--}}
+                    {{--<input type="text" class="form-control" id="exampleInputEmail1" placeholder="">--}}
+                    {{--</div>--}}
 
-                    <div class="form-group">
-                        <label for="exampleInputEmail1">编号</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
-                    </div>
+                    {{--<div class="form-group">--}}
+                    {{--<label for="exampleInputEmail1">编号</label>--}}
+                    {{--<input type="text" class="form-control" id="exampleInputEmail1" placeholder="">--}}
+                    {{--</div>--}}
 
-                    <div class="form-group">
-                        <label for="exampleInputEmail1">生日</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
-                    </div>
+                    {{--<div class="form-group">--}}
+                    {{--<label for="exampleInputEmail1">生日</label>--}}
+                    {{--<input type="text" class="form-control" id="exampleInputEmail1" placeholder="">--}}
+                    {{--</div>--}}
                 </div>
 
                 {{--<div class="hr-line-dashed"></div>--}}
