@@ -146,6 +146,7 @@ class Guest extends Member
                         }
                     }
                 }
+
                 foreach ($scope as $key => $value) {
                     if (!array_key_exists($key, $own_scope)) {
                         return false;

@@ -1,23 +1,25 @@
 <?php
 
 /**
- * Render role permissions with variables.
+ * Check the guest permissions in frontend templates.
  *
- * @param array $permissions
- * @param array $vars
+ * Notice: this method is used in frontend templates to determine some view components
+ * visibility, not used in api controllers.
  *
- * @return array
+ * @param string $permission
+ * @param array $scope
+ *
+ * @return bool
  */
-function render_permission(array $permissions, array $vars = [])
+function can($permission, $scope = [])
 {
-    foreach ($vars as $var => $value) {
 
-        foreach ($permissions as $key => $permission) {
-            $permission = str_replace(' ', '', $permission);
-            $permissions[$key] = preg_replace('/{{\$' . $var . '}}/', $value, $permission);
-        }
+    if (\Modules\Auth\Models\Guest::id()) {
+
+        return \Modules\Auth\Models\Guest::instance()->can($permission, $scope);
     }
-    return $permissions;
+
+    return false;
 }
 
 /**
