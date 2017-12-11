@@ -14,33 +14,6 @@ class DeployTableSeeder extends Seeder
     public function up()
     {
 
-        // 注册超级角色
-        $root = new Role;
-        $root->role_name = config('auth::roles.root.name');
-        $root->module = 'Auth';
-        $root->role_desc = config('auth::roles.root.desc');
-        $root->permission_amount = count(config('auth::roles.root.permissions'));
-        $root->save();
-
-        $staff = new Role;
-        $staff->role_name = config('auth::roles.staff.name');
-        $staff->role_desc = config('auth::roles.staff.desc');
-        $root->permission_amount = count(config('auth::roles.staff.permissions'));
-
-        $staff->save();
-
-        // 绑定超级用户的权限
-        $permissions = config('auth::roles.root.permissions');
-
-        foreach ($permissions as $permission) {
-
-            $rootPermission = new RolePermission;
-            $rootPermission->role_id = $root->role_id;
-            $rootPermission->permission_id = $permission;
-            $rootPermission->created_at = timestamp();
-            $rootPermission->save();
-        }
-
         // 注册超级用户
         $member = new Member;
         $member->member_account = env('ROOT_MEMBER_ACCOUNT');
@@ -51,15 +24,41 @@ class DeployTableSeeder extends Seeder
         $member->register_channel = 'deploy';
         $member->save();
 
-        // 为超级用户绑定创建者 ID
+        // 注册超级角色
+        $root = new Role;
+        $root->role_name = config('auth::roles.root.name');
+        $root->module = 'Auth';
+        $root->role_desc = config('auth::roles.root.description');
+        $root->permission_amount = count(config('auth::roles.root.permissions'));
         $root->creator_id = $member->member_id;
+        $root->role_type = 1;
+        $root->role_status = 1;
         $root->save();
 
+        // 绑定超级用户的权限
+        $permissions = config('auth::roles.root.permissions');
+
+        foreach ($permissions as $permission) {
+            $rootPermission = new RolePermission;
+            $rootPermission->role_id = $root->role_id;
+            $rootPermission->permission_id = $permission;
+            $rootPermission->created_at = timestamp();
+            $rootPermission->save();
+        }
+
         // 绑定超级用户的角色
-        $memberRole = new MemberRole;
-        $memberRole->member_id = $member->member_id;
-        $memberRole->role_id = $root->role_id;
-        $memberRole->save();
+        $member->role_id = $root->role_id;
+        $member->save();
+
+        // 注册职工角色
+        $staff = new Role;
+        $staff->role_name = config('auth::roles.staff.name');
+        $staff->role_desc = config('auth::roles.staff.description');
+        $staff->module = 'Auth';
+        $staff->permission_amount = count(config('auth::roles.staff.permissions'));
+        $staff->role_type = 1;
+        $staff->role_status = 1;
+        $staff->save();
 
         // 注册系统常量
         Constant::setValue('ROOT_ROLE_ID', $root->role_id);

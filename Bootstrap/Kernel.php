@@ -138,7 +138,11 @@ class Kernel
             \Modules\Auth\Http\Middleware\ResolveClientMiddleware::class,
             \Modules\Auth\Http\Middleware\PermissionGuardMiddleware::class,
         ],
-
+        'admin' => [
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \Modules\Auth\Http\Middleware\AdminAuthMiddleware::class,
+        ],
         'web' => [
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,

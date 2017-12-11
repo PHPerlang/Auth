@@ -44,12 +44,25 @@ class Role extends Model
     /**
      * Get fixed roles where role_type in 1 or 2.
      *
+     * @param string $module
+     *
      * @return mixed
      */
-    public function getFixedRoles()
+    public static function getFixedRoles($module = null)
     {
-        return $this->where('role_type', 1)->orWhere(function ($query) {
-            $query->where('role_type', 2)->where('expired_at', '>', timestamp());
-        })->get();
+        $query = Role::where('role_type', 1)->where('role_status', 1);
+
+        if ($module) {
+            $query->where('module', $module);
+        }
+
+        $query->orWhere(function ($query) use ($module) {
+            $query->where('role_type', 2)->where('role_status', 1)->where('expired_at', '>', timestamp());
+            if ($module) {
+                $query->where('module', $module);
+            }
+        });
+
+        return $query->get();
     }
 }

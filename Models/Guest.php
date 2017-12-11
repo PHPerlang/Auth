@@ -71,6 +71,13 @@ class Guest extends Member
         return self::$member ? self::$member : new Member();
     }
 
+    /**
+     * Set guest member id.
+     *
+     * @param $token
+     *
+     * @return bool
+     */
     public static function parse($token)
     {
         $access_token = AccessToken::where('access_token', $token)->first();
@@ -91,21 +98,38 @@ class Guest extends Member
      * Notice: this method is used in frontend templates to determine some view components
      * visibility, not used in api controllers.
      *
+     * @param string $permission
+     * @param array $scope
+     *
      * @return bool
      */
     public function can($permission, $scope = [])
     {
+        if ($this->role_id == Constant::getValue('ROOT_ROLE_ID')) {
+            return true;
+        }
+
         $permissions = $this->permissions();
+
         if (array_key_exists($permission, $permissions)) {
+
             if (count($scope) == 0) {
+
                 return true;
+
             } else {
                 $own_scope = [];
+
                 foreach ($permissions as $permission_id => $permission_scopes) {
+
                     foreach ($permission_scopes as $permission_scope) {
+
                         if ($permission_scope != '*') {
+
                             $params = json_decode($permission_scope);
+
                             foreach ($params as $key => $data) {
+
                                 if ($key == 'member_id' && $data = '$') {
                                     $data = self::$id;
                                 }
@@ -144,8 +168,7 @@ class Guest extends Member
      *
      * @return array
      */
-    public
-    function scope(array $guest_permissions = [])
+    public function scope(array $guest_permissions = [])
     {
         $guard_fields = [];
 
@@ -205,8 +228,7 @@ class Guest extends Member
      *
      * @return array
      */
-    public
-    function roles()
+    public function roles()
     {
         return MemberRole::where('member_id', self::$id)->pluck('role_id')->toArray();
     }
@@ -217,8 +239,7 @@ class Guest extends Member
      *
      * @return array
      */
-    public
-    function permissions()
+    public function permissions()
     {
         $permissions = [];
 
@@ -250,8 +271,7 @@ class Guest extends Member
      *
      * @return array
      */
-    public
-    function allPermissions()
+    public function allPermissions()
     {
         return RolePermission::whereIn('role_id', self::roles())->get();
     }
@@ -263,8 +283,7 @@ class Guest extends Member
      *
      * @return mixed
      */
-    public
-    function guardPermissionScope($query)
+    public function guardPermissionScope($query)
     {
         $scope = self::scope();
 

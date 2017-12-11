@@ -5,6 +5,7 @@ namespace Modules\Auth\Http\Admin;
 use Gindowin\Request;
 use Illuminate\Routing\Controller;
 use Modules\Auth\Models\Guest;
+use Modules\Auth\Models\LoginLog;
 use Modules\Auth\Models\Member;
 use Modules\Auth\Models\Role;
 
@@ -40,7 +41,8 @@ class MemberController extends Controller
         ]);
     }
 
-    public function getUsersView(){
+    public function getUsersView()
+    {
 
         $members = Member::get();
 
@@ -77,7 +79,13 @@ class MemberController extends Controller
 
     public function getLoginLog()
     {
+        $member = session('admin.member');
+        $query = LoginLog::where('member_id', $member->member_id)->orderBy('created_at', 'desc');
+        $logs = $query->limit(20)->get();
+        $count = $query->count();
         return view('auth::admin.login-log', [
+            'logs' => $logs,
+            'count' => $count,
             'path' => 'login-log',
         ]);
     }

@@ -11,7 +11,15 @@ class Route extends GindowinRoute
      *
      * @var mixed
      */
-    public $open;
+    public $open = false;
+
+
+    /**
+     * Indicates if the route should auth with permissions.
+     *
+     * @var mixed
+     */
+    public $pure = false;
 
     /**
      * Store the route received query params.
@@ -40,6 +48,13 @@ class Route extends GindowinRoute
 
         return $this;
     }
+
+
+    public function pure()
+    {
+        $this->pure = true;
+    }
+
 
     /**
      * Protect the route resource identify use in permission guard middleware.

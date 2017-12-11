@@ -2,6 +2,8 @@
 
 namespace Modules\Auth\Http\API;
 
+use Modules\Auth\Models\LoginLog;
+use Modules\Zhaokao\Jobs\SetLoginLogLocation;
 use Requests;
 use Gindowin\Status;
 use Gindowin\Request;
@@ -427,6 +429,20 @@ class AuthController extends Controller
 
         $member->last_login = timestamp();
         $member->save();
+
+        // 记录登录日志，定位依赖高德地图 API
+        $loginLog = LoginLog::create([
+            'member_id' => $member->member_id,
+            'ip' => $this->request->ip(),
+            'latitude' => $this->request->input('latitude'),
+            'longitude' => $this->request->input('longitude'),
+            'address' => $this->request->input('address'),
+            'created_at' => $member->last_login,
+        ]);
+
+        if (env('AMAP_KEY') && !$loginLog->address) {
+            dispatch(new SetLoginLogLocation($member, $loginLog));
+        }
 
         return status(200, $this->saveMemberToken($member));
     }
