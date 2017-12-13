@@ -64,7 +64,11 @@
 @endsection
 
 @section('style')
-
+    <style>
+        #layout-content {
+            padding: 0 10px;
+        }
+    </style>
 @stop
 @section('script')
     <script>

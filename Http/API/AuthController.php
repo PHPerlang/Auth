@@ -960,7 +960,7 @@ class AuthController extends Controller
 
         if (isset($data->errcode)) {
 
-            exception(1600);
+            exception(1600, $data);
         }
 
         $open_id = $data->openid;
