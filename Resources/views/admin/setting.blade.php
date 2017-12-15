@@ -52,24 +52,24 @@
                 <div class="container">
 
                     <div class="form-group">
-                        <label for="exampleInputEmail1">原密码</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
+                        <label>原密码</label>
+                        <input v-model="form.origin_password" type="password" class="form-control" placeholder="">
                     </div>
 
                     <div class="form-group">
-                        <label for="exampleInputEmail1">新密码</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
+                        <label>新密码</label>
+                        <input v-model="form.new_password" type="password" class="form-control" placeholder="">
                     </div>
 
                     <div class="form-group">
-                        <label for="exampleInputEmail1">确认新密码</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" placeholder="">
+                        <label>确认新密码</label>
+                        <input v-model="form.confirm_password" type="password" class="form-control" placeholder="">
                     </div>
                 </div>
                 <div class="hr-line-dashed"></div>
                 <div class="container">
                     <div class="form-group">
-                        <button class="btn btn-primary">保存</button>
+                        <button type="button" @click="submit_password()" class="btn btn-primary">保存</button>
                     </div>
                 </div>
             </form>
@@ -82,7 +82,11 @@
 @section('script')
     <script src="{{ asset('/modules/admin/vue/vue.min.js') }}"></script>
     <script>
-        var form = {};
+        var form = {
+            origin_password: null,
+            new_password: null,
+            confirm_password: null
+        };
         var $data = {
             form: $.extend({}, form),
             roles: [],
@@ -98,7 +102,30 @@
             },
             mounted: function () {
             },
-            methods: {}
+            methods: {
+                submit_password: function () {
+
+                    if ($data.form.new_password !== $data.form.confirm_password) {
+                        $do.warning('两次新密码不一致');
+                        return;
+                    }
+
+                    $do.put({
+                        url: '/api/auth/password',
+                        data: $data.form,
+                        success: function (res) {
+                            if (res.code === 200) {
+                                $do.success('密码修改成功，请重新登录');
+                                setTimeout(function () {
+                                    location.href = '/admin/logout';
+                                }, 2000);
+                            } else {
+                                $do.warning(res.message);
+                            }
+                        }
+                    })
+                }
+            }
         });
     </script>
 @stop
