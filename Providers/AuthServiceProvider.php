@@ -3,7 +3,7 @@
 namespace Modules\Auth\Providers;
 
 use Modules\Auth\Models\Guest;
-use Modules\Auth\Models\AccessToken;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -34,7 +34,6 @@ class AuthServiceProvider extends ServiceProvider
         if (env('APP_ENV') != 'production') {
 
             $log_file = base_path('storage/logs/mysql-' . date('Y-m-d') . '.log');
-            file_put_contents($log_file, PHP_EOL . PHP_EOL, FILE_APPEND);
 
             \Illuminate\Support\Facades\DB::listen(function ($query) use ($log_file) {
 
@@ -44,8 +43,8 @@ class AuthServiceProvider extends ServiceProvider
                     $value = is_numeric($replace) ? $replace : "'" . $replace . "'";
                     $sql = preg_replace('/\?/', $value, $sql, 1);
                 }
-                chmod($log_file, 0777);
-                file_put_contents($log_file, timestamp() . ': ' . $sql . PHP_EOL, FILE_APPEND);
+
+                Log::info($sql);
             });
 
         }
