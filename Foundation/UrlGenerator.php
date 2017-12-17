@@ -26,15 +26,23 @@ class UrlGenerator extends LaravelUrlGenerator
         // for asset paths, but only for routes to endpoints in the application.
         $root = $this->formatRoot($this->autoFormatScheme($secure, env('APP_URL', null)), env('APP_URL', null));
 
-        return $this->removeIndex($root) . '/' . trim($path, '/');
+        $version = env('APP_VERSION', '1.0.0');
+        $url = $this->removeIndex($root) . '/' . trim($path, '/');
+
+        if (strpos($url, '?') !== false) {
+
+            return $url . '&version=' . $version;
+        }
+
+        return $url . '?version=' . $version;
     }
 
     /**
      * Generate an absolute URL to the given path.
      *
-     * @param  string  $path
-     * @param  mixed  $extra
-     * @param  bool|null  $secure
+     * @param  string $path
+     * @param  mixed $extra
+     * @param  bool|null $secure
      * @return string
      */
     public function to($path, $extra = [], $secure = null)
@@ -47,7 +55,7 @@ class UrlGenerator extends LaravelUrlGenerator
         }
 
         $tail = implode('/', array_map(
-                'rawurlencode', (array) $this->formatParameters($extra))
+                'rawurlencode', (array)$this->formatParameters($extra))
         );
 
         // Once we have the scheme we will compile the "tail" by collapsing the values
@@ -59,8 +67,8 @@ class UrlGenerator extends LaravelUrlGenerator
         list($path, $query) = $this->extractQueryString($path);
 
         return $this->format(
-                $root, '/'.trim($path.'/'.$tail, '/')
-            ).$query;
+                $root, '/' . trim($path . '/' . $tail, '/')
+            ) . $query;
     }
 
     /**
