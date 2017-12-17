@@ -159,11 +159,12 @@ class Kernel
     |
     */
     public $routeMiddleware = [
-        'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
-        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        //'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
+        //'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        //'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        //'guest' => \Modules\Auth\Http\Middleware\RedirectIfAuthenticated::class,
+        'unguard' => \Modules\Auth\Http\Middleware\UnGuardRouteMiddleware::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \Modules\Auth\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
     ];
 

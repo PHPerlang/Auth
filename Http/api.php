@@ -68,6 +68,7 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         404 => '用户不存在',
     ])->open();
 
+
     // 注销登录
     Route::get('/logout', 'AuthController@getLogout');
 
@@ -104,9 +105,6 @@ Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Mo
         1000 => '密码格式校验错误',
         10001 => '新密码不能与原密码相同',
     ]);
-
-    // 用户退出登录
-    Route::post('/logout', 'AuthController@postLogout')->open();
 
     // 发送忘记密码链接
     Route::get('/forgot/password/link', 'AuthController@getForgotPasswordLink');

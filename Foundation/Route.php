@@ -19,7 +19,7 @@ class Route extends GindowinRoute
      *
      * @var mixed
      */
-    public $pure = false;
+    public $unguard = false;
 
     /**
      * Store the route received query params.
@@ -50,9 +50,9 @@ class Route extends GindowinRoute
     }
 
 
-    public function pure()
+    public function unguard()
     {
-        $this->pure = true;
+        $this->unguard = true;
     }
 
 

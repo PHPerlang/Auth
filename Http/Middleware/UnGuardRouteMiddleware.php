@@ -5,9 +5,8 @@ namespace Modules\Auth\Http\Middleware;
 use Closure;
 use Gindowin\Request;
 use Modules\Auth\Foundation\Route;
-use Modules\Auth\Foundation\AuthPermission;
 
-class PermissionGuardMiddleware
+class UnGuardRouteMiddleware
 {
 
     /**
@@ -35,10 +34,7 @@ class PermissionGuardMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->route()->open && !$request->route()->unguard) {
-
-            (new AuthPermission($request))->run();
-        }
+        $request->route()->pure();
 
         $response = $next($request);
 
