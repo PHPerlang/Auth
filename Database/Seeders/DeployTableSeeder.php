@@ -98,9 +98,9 @@ class DeployTableSeeder extends Seeder
         Role::find($staff_role_id)->delete();
 
         // 移除系统常量
-        Constant::remove('ROOT_MEMBER_ID');
-        Constant::remove('ROOT_ROLE_ID');
-        Constant::remove('STAFF_ROLE_ID');
+        Constant::removeKey('ROOT_MEMBER_ID');
+        Constant::removeKey('ROOT_ROLE_ID');
+        Constant::removeKey('STAFF_ROLE_ID');
 
     }
 
