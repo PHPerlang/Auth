@@ -35,7 +35,8 @@ class PermissionGuardMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->route()->open) {
+        // 开放路由和业务路由不需要权限验证
+        if (!$request->route()->open && !$request->route()->pure) {
 
             (new AuthPermission($request))->run();
         }
