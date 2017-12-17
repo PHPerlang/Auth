@@ -17,6 +17,7 @@ class CreateAuthRolesTable extends Migration
             $table->bigIncrements('role_id')->comment('角色ID');
             $table->string('module')->nullable()->comment('来源模块');
             $table->bigInteger('creator_id')->default(0)->nullable()->comment('创建角色的系统用户ID');
+            $table->string('role_alias')->nullable()->comment('角色名称');
             $table->string('role_name')->nullable()->comment('角色名称');
             $table->text('role_desc')->nullable()->comment('角色描述');
             $table->integer('permission_amount')->default(0)->nullable()->comment('角色权限数量');
