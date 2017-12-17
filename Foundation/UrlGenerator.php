@@ -29,12 +29,14 @@ class UrlGenerator extends LaravelUrlGenerator
         $version = env('APP_VERSION', '1.0.0');
         $url = $this->removeIndex($root) . '/' . trim($path, '/');
 
-        if (strpos($url, '?') !== false) {
+//        if (strpos($url, '?') !== false) {
+//
+//            return $url . '&version=' . $version;
+//        }
+//
+//        return $url . '?version=' . $version;
 
-            return $url . '&version=' . $version;
-        }
-
-        return $url . '?version=' . $version;
+        return $url;
     }
 
     /**
