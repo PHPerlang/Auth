@@ -58,7 +58,7 @@ class DeployTableSeeder extends Seeder
                 Role::where('module', 'Auth')->where('role_alias', 'staff')->first()->role_id
             )->delete();
 
-            $permissions = config('auth::roles.root.permissions');
+            $permissions = config('auth::roles.staff.permissions');
 
             foreach ($permissions as $permission) {
                 $rootPermission = new RolePermission;
