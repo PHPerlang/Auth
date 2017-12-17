@@ -55,7 +55,7 @@ class DeployTableSeeder extends Seeder
             // 绑定职工角色权限
             RolePermission::where(
                 'role_id',
-                Role::where('module', 'Auth')->where('alias', 'staff')->first()->role_id
+                Role::where('module', 'Auth')->where('role_alias', 'staff')->first()->role_id
             )->delete();
 
             $permissions = config('auth::roles.root.permissions');
