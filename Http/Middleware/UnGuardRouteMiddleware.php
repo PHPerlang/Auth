@@ -34,7 +34,7 @@ class UnGuardRouteMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $request->route()->pure();
+        $request->route()->unguard();
 
         $response = $next($request);
 
