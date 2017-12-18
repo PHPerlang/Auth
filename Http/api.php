@@ -10,7 +10,7 @@
 use Illuminate\Support\Facades\Route;
 
 
-Route::group(['middleware' => 'api', 'prefix' => '/api/auth', 'namespace' => 'Modules\Auth\Http\API'], function () {
+Route::group(['middleware' => ['unguard', 'api'], 'prefix' => '/api/auth', 'namespace' => 'Modules\Auth\Http\API'], function () {
 
     /*
      |--------------------------------------------------------------------------
