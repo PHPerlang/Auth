@@ -99,6 +99,29 @@ class AuthController extends Controller
         return config('auth::config.login_email_auth', false);
     }
 
+    protected function getIp()
+    {
+        $ip = '0.0.0.0';
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            return $this->is_ip($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : $ip;
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            return $this->is_ip($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $ip;
+        } else {
+            return $this->is_ip($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : $ip;
+        }
+    }
+
+    protected function is_ip($str)
+    {
+        $ip = explode('.', $str);
+        for ($i = 0; $i < count($ip); $i++) {
+            if ($ip[$i] > 255) {
+                return false;
+            }
+        }
+        return preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', $str);
+    }
+
     /**
      * 保存用户接入秘钥
      *
@@ -433,7 +456,7 @@ class AuthController extends Controller
         // 记录登录日志，定位依赖高德地图 API
         $loginLog = LoginLog::create([
             'member_id' => $member->member_id,
-            'ip' => $this->request->ip(),
+            'ip' => $this->getIp(),
             'latitude' => $this->request->input('latitude'),
             'longitude' => $this->request->input('longitude'),
             'address' => $this->request->input('address'),
