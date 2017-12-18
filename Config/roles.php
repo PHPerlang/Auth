@@ -15,6 +15,7 @@ return array(
             'get@admin/auth/member/profile',
             'get@admin/auth/member/setting',
             'get@admin/auth/member/login/log',
+            'post@api/storage/upload'
         ]
     ]
 

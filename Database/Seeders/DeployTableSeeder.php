@@ -62,7 +62,7 @@ class DeployTableSeeder extends Seeder
 
             foreach ($permissions as $permission) {
                 $rootPermission = new RolePermission;
-                $rootPermission->role_id = $root->role_id;
+                $rootPermission->role_id = $staff->role_id;
                 $rootPermission->permission_id = $permission;
                 $rootPermission->created_at = timestamp();
                 $rootPermission->save();
