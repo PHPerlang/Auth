@@ -54,7 +54,7 @@ class AuthPermission
 
         $this->checkGuestIsExist();
 
-        if (env('PERMISSION_SYSTEM') == 'on' && !can($this->getRoutePermission())) {
+        if (env('PERMISSION_SYSTEM') == 'on' && !$this->request->route()->unguard && !can($this->getRoutePermission())) {
 
             exception(403);
         }

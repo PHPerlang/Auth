@@ -35,7 +35,7 @@ class PermissionGuardMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->route()->open && !$request->route()->unguard) {
+        if (!$request->route()->open) {
 
             (new AuthPermission($request))->run();
         }

@@ -2,8 +2,6 @@
 
 namespace Modules\Auth\Http\API;
 
-use Modules\Auth\Models\LoginLog;
-use Modules\Zhaokao\Jobs\SetLoginLogLocation;
 use Requests;
 use Gindowin\Status;
 use Gindowin\Request;
@@ -13,12 +11,14 @@ use Modules\Auth\Models\Member;
 use Modules\Auth\Services\Code;
 use Illuminate\Routing\Controller;
 use Modules\Auth\Services\Captcha;
+use Modules\Auth\Models\LoginLog;
 use Modules\Auth\Models\AccessToken;
 use Illuminate\Support\Facades\Crypt;
 use Modules\Auth\Events\SendSMSCodeEvent;
 use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Events\SendEmailCodeEvent;
 use Modules\Auth\Events\MemberRegisterEvent;
+use Modules\Zhaokao\Jobs\SetLoginLogLocation;
 
 class AuthController extends Controller
 {

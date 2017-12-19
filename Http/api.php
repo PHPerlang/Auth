@@ -41,7 +41,6 @@ Route::group(['middleware' => ['unguard', 'api'], 'prefix' => '/api/auth', 'name
         200 => '用户密码修改成功',
         1100 => '该用户不存在',
         1300 => '验证码不正确',
-
     ]);
 
     // 用户登录
