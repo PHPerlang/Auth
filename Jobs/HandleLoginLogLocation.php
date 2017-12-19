@@ -50,6 +50,8 @@ class HandleLoginLogLocation implements ShouldQueue
                         if (is_string($response->province) && is_string($response->city)) {
                             $this->log->address = $response->province != $response->city ? $response->province . $response->city : $response->province;
                             IPCache::setAddress($this->log->ip, $this->log->address, $response->province, $response->city);
+                        } else {
+                            $this->log->address = '未知';
                         }
                         $this->log->province = is_string($response->province) ? $response->province : '未知';;
                         $this->log->city = is_string($response->city) ? $response->city : '未知';
