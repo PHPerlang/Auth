@@ -231,7 +231,11 @@ class Guest extends Member
      */
     public function roles()
     {
-        return MemberRole::where('member_id', self::$id)->pluck('role_id')->toArray();
+        $roles = MemberRole::where('member_id', self::$id)->pluck('role_id')->toArray();
+        if (self::instance()->role_id) {
+            array_push($roles, self::instance()->role_id);
+        }
+        return $roles;
     }
 
     /**
