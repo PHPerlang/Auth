@@ -18,7 +18,7 @@ use Modules\Auth\Events\SendSMSCodeEvent;
 use Modules\Auth\Events\MemberUpdateEvent;
 use Modules\Auth\Events\SendEmailCodeEvent;
 use Modules\Auth\Events\MemberRegisterEvent;
-use Modules\Zhaokao\Jobs\SetLoginLogLocation;
+use Modules\Auth\Jobs\HandleLoginLogLocation;
 
 class AuthController extends Controller
 {
@@ -464,7 +464,7 @@ class AuthController extends Controller
         ]);
 
         if (env('AMAP_KEY') && !$loginLog->address) {
-            dispatch(new SetLoginLogLocation($member, $loginLog));
+            dispatch(new HandleLoginLogLocation($member, $loginLog));
         }
 
         return status(200, $this->saveMemberToken($member));

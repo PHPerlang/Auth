@@ -19,6 +19,8 @@ class CreateAuthLoginLogsTable extends Migration
             $table->string('ip')->comment('登录IP');
             $table->string('latitude')->nullable()->comment('登录纬度');
             $table->string('longitude')->nullable()->comment('登录经度');
+            $table->string('province')->nullable()->comment('登录定位省份');
+            $table->string('city')->nullable()->comment('登录定位城市');
             $table->string('address')->nullable()->comment('登录定位地址');
             $table->string('error')->nullable()->comment('定位错误原因');
             $table->timestamp('created_at')->comment('登录时间');
