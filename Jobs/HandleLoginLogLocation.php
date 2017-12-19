@@ -47,7 +47,7 @@ class HandleLoginLogLocation implements ShouldQueue
 
                     $response = json_decode($request->body);
                     if ($response->status == 1) {
-                        $this->log->address = $response->province != $response->city ? $response->province . $response->citye : $response->province;
+                        $this->log->address = $response->province != $response->city ? $response->province . $response->city : $response->province;
                         $this->log->province = $response->province;
                         $this->log->city = $response->city;
                         $this->log->save();
