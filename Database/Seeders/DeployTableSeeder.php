@@ -21,7 +21,7 @@ class DeployTableSeeder extends Seeder
             $member->member_password = env('ROOT_MEMBER_PASSWORD');
             $member->member_avatar = null;
             $member->member_name = env('ROOT_MEMBER_NAME');;
-            $member->member_status = 'normal';
+            $member->member_status = 1;
             $member->register_channel = 'deploy';
             $member->save();
 

@@ -15,7 +15,9 @@ return array(
             'get@admin/auth/member/profile',
             'get@admin/auth/member/setting',
             'get@admin/auth/member/login/log',
-            'post@api/storage/upload'
+            'post@api/storage/upload',
+            'get@api/admin/notifications',
+            'get@admin/messages',
         ]
     ]
 
